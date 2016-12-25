@@ -56,7 +56,7 @@ export default class BeatClock {
       const ticksPerSec = tempo*TICKS_PER_BEAT/60.0;
       const secsPerTick = 60.0/(tempo*TICKS_PER_BEAT);
 
-      while ((nextTickTime >= e.begin) && (nextTickTime < e.end)) {
+      while (nextTickTime < e.end) {
         for (const div of divs) {
           const ticksPerDiv = div.divisor;
           const tickDuration = ticksPerDiv*secsPerTick;
