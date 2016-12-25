@@ -4,7 +4,7 @@ export default class DrumSynth {
   constructor(document, audioContext) {
     const PITCH_LOW = 1;
     const PITCH_START = 440;
-    const PITCH_DECAY = 0.1
+    const PITCH_DECAY = 0.1;
 
     let lastGateValue = false;
     const gateNotify = (time, value) => {
