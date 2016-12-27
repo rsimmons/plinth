@@ -33,9 +33,9 @@ export default class Orinami {
     this.outputs = {
       'audio': {type: 'audio', node: shaperNode},
     };
-    this.panel = htmlToElement(document, '<div style="box-sizing: border-box; width: 128px; height: 256px; border: 1px solid black; padding: 5px;"><div>Orinami</div><div><label>Stages <input type="number" value="' + INIT_STAGES + '" min="' + MIN_STAGES + '" step="1" style="width: 50px" /></label></div></div>');
+    this.panelView = htmlToElement(document, '<div style="box-sizing: border-box; width: 128px; height: 256px; border: 1px solid black; padding: 5px;"><div>Orinami</div><div><label>Stages <input type="number" value="' + INIT_STAGES + '" min="' + MIN_STAGES + '" step="1" style="width: 50px" /></label></div></div>');
 
-    this.panel.querySelector('input').addEventListener('input', function(e) {
+    this.panelView.querySelector('input').addEventListener('input', function(e) {
       const st = parseInt(e.target.value, 10);
       if (!isNaN(st)) {
         const fst = Math.floor(st);

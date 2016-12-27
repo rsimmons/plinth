@@ -39,8 +39,8 @@ export default class BeatClock {
 
     let tempo = 120;
     const MIN_TEMPO = 10;
-    this.panel = htmlToElement(document, '<div style="box-sizing: border-box; width: 192px; height: 256px; border: 1px solid black; padding: 5px;"><div>BeatClock</div><form><label>Tempo <input type="number" value="' + tempo + '" min="' + MIN_TEMPO + '" style="width: 50px" />bpm</label></form></div>');
-    this.panel.querySelector('input').addEventListener('input', function(e) {
+    this.panelView = htmlToElement(document, '<div style="box-sizing: border-box; width: 192px; height: 256px; border: 1px solid black; padding: 5px;"><div>BeatClock</div><form><label>Tempo <input type="number" value="' + tempo + '" min="' + MIN_TEMPO + '" style="width: 50px" />bpm</label></form></div>');
+    this.panelView.querySelector('input').addEventListener('input', function(e) {
       const t = parseInt(e.target.value, 10);
       if (!isNaN(t) && (t >= MIN_TEMPO)) {
         tempo = t;
