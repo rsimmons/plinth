@@ -1,4 +1,4 @@
-# Overview
+# Sonibloc
 
 **Sonibloc** is a specification for browser-based audio processing components based on the [Web Audio API](https://webaudio.github.io/web-audio-api/). It draws inspiration mainly from [modular synthesizers](https://en.wikipedia.org/wiki/Modular_synthesizer), popular desktop audio plugin standards (VST, AU, etc.), and [Native Instruments Reaktor Blocks](https://www.native-instruments.com/en/products/komplete/synths/reaktor-6/blocks/).
 
