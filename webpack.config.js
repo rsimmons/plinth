@@ -1,8 +1,11 @@
 module.exports = {
-  entry: "./src/entry.js",
+  entry: {
+    'programmatic': './src/programmatic.js',
+    'rack': './src/rack.js',
+  },
   output: {
     path: __dirname,
-    filename: "docs/bundle.js",
+    filename: 'docs/[name].bundle.js',
   },
   module: {
     loaders: [
@@ -16,7 +19,7 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        loader: "style!css",
+        loader: 'style!css',
       },
     ]
   },

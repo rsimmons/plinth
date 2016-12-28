@@ -4,7 +4,7 @@
 
 This repository contains a draft spec (see below) and a proof of concept implementation, both of which are currently works in progress.
 
-A minimal demo can be found [here](https://rsimmons.github.io/sonibloc-prototype2/).
+A minimal demo can be found [here](https://rsimmons.github.io/sonibloc-prototype2/programmatic.html).
 
 # Draft Spec
 

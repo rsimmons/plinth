@@ -1,6 +1,6 @@
-import BeatClock from './blocs/beatclock/BeatClock';
-import DrumSynth from './blocs/drumsynth/DrumSynth';
-import Orinami from './blocs/orinami/Orinami';
+import BeatClock from './blocs/beatclock/bloc';
+import DrumSynth from './blocs/drumsynth/bloc';
+import Orinami from './blocs/orinami/bloc';
 import htmlToElement from './util/htmlToElement';
 
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
