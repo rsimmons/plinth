@@ -8,7 +8,6 @@ export default class DrumSynth {
 
     let lastGateValue = false;
     const gateNotify = (time, value) => {
-      console.log('drum synth gate', time, value);
       if (value && !lastGateValue) {
         // TODO: initiate hit at time
         oscNode.frequency.setValueAtTime(PITCH_START, time);
