@@ -10,7 +10,21 @@ export default class Racket {
       'audio': {type: 'audio', node: outputNode},
     };
 
-    this.windowView = htmlToElement(document, '<div style="display: flex; flex-wrap: wrap;"></div>');
+    this.windowView = htmlToElement(document, '<div style="display: flex; flex-wrap: wrap; height: 100%"></div>');
+
+    this.windowView.addEventListener('dragover', function(e) {
+      e.dataTransfer.dropEffect = 'copy';
+      e.preventDefault();
+    }, false);
+
+    this.windowView.addEventListener('drop', e => {
+      e.preventDefault();
+      const blocCode = e.dataTransfer.getData('text/javascript');
+      const blocClass = eval(blocCode);
+      const blocInst = new blocClass(document, audioContext);
+      // TODO: need to check if bloc has a panel view
+      this.windowView.appendChild(blocInst.panelView);
+    }, false);
 
 /*
 // Place the bloc panel elements in the DOM.

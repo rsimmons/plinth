@@ -2,14 +2,40 @@
   <head>
     <meta charset="utf-8">
     <title>Sonibloc Rack Demo</title>
+    <style type="text/css">
+
+body {
+  margin: 0;
+  font-family: sans-serif;
+}
+
+#main {
+  display: flex;
+  height: 100%;
+}
+
+#bloc-palette {
+  width: 200px;
+  background-color: #aeb0bb;
+}
+
+.bloc-palette-item {
+  padding: 5px 10px;
+  margin: 5px;
+  background-color: white;
+  border: 1px solid #888;
+}
+
+#rack-container {
+  flex-grow: 1;
+  background-color: #222;
+}
+
+    </style>
   </head>
   <body>
-    <div style="display: flex">
-        <div style="width: 200px">
-            <div style="border: 1px solid black" draggable="true">Foo</div>
-            <div style="border: 1px solid black" draggable="true">Bar</div>
-            <div draggable="true">Baz</div>
-        </div>
+    <div id="main">
+        <div id="bloc-palette"></div>
         <div id="rack-container"></div>
     </div>
     <script src="rack.bundle.js" charset="utf-8"></script>
