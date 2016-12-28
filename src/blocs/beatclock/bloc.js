@@ -53,7 +53,6 @@ export default class BeatClock {
     let nextTickNumber = 0;
 
     this._scheduler.start(function(e) {
-      const ticksPerSec = tempo*TICKS_PER_BEAT/60.0;
       const secsPerTick = 60.0/(tempo*TICKS_PER_BEAT);
 
       while (nextTickTime < e.end) {
