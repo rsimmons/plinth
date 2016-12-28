@@ -21,7 +21,6 @@ export default class Orinami {
       }
       shaperNode.curve = curve;
       inputGainLow = 1.0/(points-1);
-      console.log(curve);
       // TODO: get inputGainNode gain based on inputGainLow and current Amount setting
     };
 
