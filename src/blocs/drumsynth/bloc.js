@@ -30,3 +30,5 @@ export default class DrumSynth {
     this.panelView = htmlToElement(document, '<div style="box-sizing: border-box; width: 128px; height: 256px; border: 1px solid black; padding: 5px; background-color: white;">DrumSynth</div>');
   }
 }
+
+DrumSynth.blocName = 'DrumSynth';

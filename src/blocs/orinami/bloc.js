@@ -45,3 +45,5 @@ export default class Orinami {
     }, false);
   }
 }
+
+Orinami.blocName = 'Orinami';

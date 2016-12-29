@@ -77,3 +77,5 @@ export default class BeatClock {
     this._scheduler.stop();
   }
 }
+
+BeatClock.blocName = 'BeatClock';
