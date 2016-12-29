@@ -4,7 +4,9 @@
 
 This repository contains a draft spec (see below) and a proof of concept implementation, both of which are currently works in progress.
 
-A minimal demo can be found [here](https://rsimmons.github.io/sonibloc-prototype2/programmatic.html).
+Some crude demos:
+* [Composing blocs dynamically](https://rsimmons.github.io/sonibloc-prototype2/rack.html) inside a "rack" bloc
+* [Composing blocs programmatically](https://rsimmons.github.io/sonibloc-prototype2/programmatic.html) in Javascript
 
 # Draft Spec
 
