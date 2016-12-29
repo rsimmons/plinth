@@ -35,3 +35,6 @@ const rackBloc = new rackBlocClass(document, audioContext);
 
 // Mount the rack bloc's window view
 document.querySelector('#rack-container').appendChild(rackBloc.windowView);
+
+// Connect rack audio output to context final output
+rackBloc.outputs.audio.node.connect(audioContext.destination);

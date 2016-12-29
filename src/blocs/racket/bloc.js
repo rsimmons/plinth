@@ -1,4 +1,4 @@
-import htmlToElement from '../../util/htmlToElement';
+import sha256 from 'js-sha256';
 
 export default class Racket {
   constructor(document, audioContext) {
@@ -10,9 +10,54 @@ export default class Racket {
       'audio': {type: 'audio', node: outputNode},
     };
 
-    this.windowView = htmlToElement(document, '<div style="display: flex; flex-wrap: wrap; height: 100%"></div>');
+    // Create interface
+    this.windowView = document.createElement('div');
+    this.windowView.style = 'display: flex; flex-direction: column; min-height: 100%; background-color: #222';
+
+    const headerElem = document.createElement('div');
+    headerElem.style = 'background-color: #ffdcbd; font-size: 18px; padding: 5px 10px; text-align: center;';
+    headerElem.textContent = 'Racket';
+    this.windowView.appendChild(headerElem);
+
+    const columnsElem = document.createElement('div');
+    columnsElem.style = 'flex-grow: 1; display: flex';
+    this.windowView.appendChild(columnsElem);
+
+    const blocContainerElem = document.createElement('div');
+    blocContainerElem.style = 'flex: 1; display: flex; flex-wrap: wrap';
+    columnsElem.appendChild(blocContainerElem);
+
+    const patchingPanelElem = document.createElement('div');
+    patchingPanelElem.style = 'flex: 0 0 300px; background-color: rgb(187, 218, 212); padding: 5px';
+    patchingPanelElem.textContent = 'TODO: patching controls here';
+    columnsElem.appendChild(patchingPanelElem);
+
+    let nextBlocId = 1;
+    const blocInfo = {}; // maps bloc id (our local unique id for bloc instances) to an info object
+
+    const addBloc = (code) => {
+      const bid = nextBlocId;
+      nextBlocId++;
+
+      const blocClass = eval(code);
+      const blocInst = new blocClass(document, audioContext);
+
+      // TODO: need to check first if bloc has a panel view
+      const wrapperElem = document.createElement('div');
+      wrapperElem.appendChild(blocInst.panelView);
+      wrapperElem.setAttribute('data-blocid', bid);
+      blocContainerElem.appendChild(wrapperElem);
+
+      blocInfo[bid] = {
+        id: bid,
+        code: code,
+        _class: blocClass,
+        instance: blocInst,
+      };
+    }
 
     this.windowView.addEventListener('dragover', function(e) {
+      // TODO: check if this is something we can accept
       e.dataTransfer.dropEffect = 'copy';
       e.preventDefault();
     }, false);
@@ -20,35 +65,7 @@ export default class Racket {
     this.windowView.addEventListener('drop', e => {
       e.preventDefault();
       const blocCode = e.dataTransfer.getData('text/javascript');
-      const blocClass = eval(blocCode);
-      const blocInst = new blocClass(document, audioContext);
-      // TODO: need to check if bloc has a panel view
-      this.windowView.appendChild(blocInst.panelView);
+      addBloc(blocCode);
     }, false);
-
-/*
-// Place the bloc panel elements in the DOM.
-const container = document.querySelector('#bloc-container');
-for (const panel of [beatClock.panelView, drumSynth.panelView, orinami.panelView]) {
-  const wrapper = htmlToElement(document, '<div style="border-top: 20px solid #ccc;"></div>');
-  wrapper.appendChild(panel);
-  container.appendChild(wrapper);
-}
-
-// Connect up the blocs to each other.
-beatClock.outputs.gate4.subscribe(drumSynth.inputs.gate.notify); // returns a “disconnect” closure that we discard here
-drumSynth.outputs.audio.node.connect(orinami.inputs.audio.node);
-orinami.outputs.audio.node.connect(audioContext.destination);
-*/
-
-    // this.panelView.querySelector('input').addEventListener('input', function(e) {
-    //   const st = parseInt(e.target.value, 10);
-    //   if (!isNaN(st)) {
-    //     const fst = Math.floor(st);
-    //     if (fst >= MIN_STAGES) {
-    //       setNumStages(fst);
-    //     }
-    //   }
-    // }, false);
   }
 }
