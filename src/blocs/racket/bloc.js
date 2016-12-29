@@ -24,7 +24,7 @@ export default class Racket {
     this.windowView.appendChild(columnsElem);
 
     const blocContainerElem = document.createElement('div');
-    blocContainerElem.style = 'flex: 1; display: flex; flex-wrap: wrap';
+    blocContainerElem.style = 'flex: 1; flex-wrap: wrap; display: flex; align-content: flex-start';
     columnsElem.appendChild(blocContainerElem);
 
     const patchingPanelElem = document.createElement('div');
