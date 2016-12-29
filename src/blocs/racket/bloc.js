@@ -90,9 +90,12 @@ export default class Racket {
       const blocClass = eval(code);
       const blocInst = new blocClass(document, audioContext);
 
-      // TODO: need to check first if bloc has a panel view
       const wrapperElem = document.createElement('div');
-      wrapperElem.appendChild(blocInst.panelView);
+      if (blocInst.panelView) {
+        wrapperElem.appendChild(blocInst.panelView);
+      } else {
+        wrapperElem.innerHTML = '<div style="box-sizing:border-box;border:1px solid black;width:64px;height:256px;text-align:center;font-size:14px;background:white;font-style:italic;color:gray;padding:100px 5px">No panel view</div>';
+      }
       wrapperElem.setAttribute('data-blocid', bid);
       blocContainerElem.appendChild(wrapperElem);
 
