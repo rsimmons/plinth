@@ -64,6 +64,54 @@ export default class Racket {
       }
     };
 
+    const isValidConnection = ({outBlocId, outPortName, inBlocId, inPortName}) => {
+      const outBloc = blocInfo[outBlocId].instance;
+      const inBloc = blocInfo[inBlocId].instance;
+
+      // Verify that port names are valid
+      if (!outBloc.outputs.hasOwnProperty(outPortName)) {
+        return false;
+      }
+      if (!inBloc.inputs.hasOwnProperty(inPortName)) {
+        return false;
+      }
+
+      // Verify that these two ports aren't already connected
+      for (const cid in cxnInfo) {
+        const info = cxnInfo[cid];
+        if ((info.outBlocId === outBlocId) && (info.outPortName === outPortName) && (info.inBlocId === inBlocId) && (info.inPortName === inPortName)) {
+          return false;
+        }
+      }
+
+      // Verify that ports are matching types
+      if (outBloc.outputs[outPortName].type !== inBloc.inputs[inPortName].type) {
+        return false;
+      }
+
+      // Didn't find any problems
+      return true;
+    }
+
+    const parseConnectionSpec = () => {
+      const inpid = patchInputSelectElem.value;
+      const outpid = patchOutputSelectElem.value;
+      if (!inpid || !outpid) {
+        return null;
+      }
+
+      const [inBlocId, inPortName] = inpid.split(':');
+      const [outBlocId, outPortName] = outpid.split(':');
+
+      return {inBlocId, inPortName, outBlocId, outPortName};
+    };
+
+    const updatePatchConnectionValidity = () => {
+      const cxnSpec = parseConnectionSpec();
+      patchConnectButtonElem.disabled = !(cxnSpec && isValidConnection(cxnSpec));
+    };
+    updatePatchConnectionValidity();
+
     const updatePatchConnectOptions = () => {
       // TODO: should we iterate in displayed order?
       // A "port id" is blocid:portname. We store input and output portids separately so don't need to distinguish.
@@ -98,6 +146,8 @@ export default class Racket {
         oe.value = pn;
         patchOutputSelectElem.appendChild(oe);
       }
+
+      updatePatchConnectionValidity();
     };
     updatePatchConnectOptions();
 
@@ -128,23 +178,7 @@ export default class Racket {
       updatePatchConnectOptions();
     }
 
-    const isValidConnection = (outBlocId, outPortName, inBlocId, inPortName) => {
-      const outBloc = blocInfo[outBlocId].instance;
-      const inBloc = blocInfo[inBlocId].instance;
-      if (!outBloc.outputs.hasOwnProperty(outPortName)) {
-        return false;
-      }
-      if (!inBloc.inputs.hasOwnProperty(inPortName)) {
-        return false;
-      }
-      // TODO: verify that these two ports aren't already connected
-      if (outBloc.outputs[outPortName].type !== inBloc.inputs[inPortName].type) {
-        return false;
-      }
-      return true;
-    }
-
-    const addConnection = (outBlocId, outPortName, inBlocId, inPortName) => {
+    const addConnection = ({outBlocId, outPortName, inBlocId, inPortName}) => {
       const cid = 'c' + nextCxnIdNum;
       nextCxnIdNum++;
 
@@ -178,6 +212,7 @@ export default class Racket {
       }
 
       updatePatchConnectionList();
+      updatePatchConnectionValidity();
     }
 
     const removeConnection = (cid) => {
@@ -185,24 +220,29 @@ export default class Racket {
       info.disconnect();
       delete cxnInfo[cid];
       updatePatchConnectionList();
+      updatePatchConnectionValidity();
     };
+
+    patchInputSelectElem.addEventListener('input', () => {
+      updatePatchConnectionValidity();
+    });
+    patchOutputSelectElem.addEventListener('input', () => {
+      updatePatchConnectionValidity();
+    });
 
     patchConnectButtonElem.addEventListener('click', e => {
       e.preventDefault();
 
-      const inpid = patchInputSelectElem.value;
-      const outpid = patchOutputSelectElem.value;
-      if (!inpid && !outpid) {
+      const cxnSpec = parseConnectionSpec();
+      if (!cxnSpec) {
         return;
       }
 
-      const [inBlocId, inPortName] = inpid.split(':');
-      const [outBlocId, outPortName] = outpid.split(':');
-      if (!isValidConnection(outBlocId, outPortName, inBlocId, inPortName)) {
+      if (!isValidConnection(cxnSpec)) {
         console.log('invalid');
         return;
       }
-      addConnection(outBlocId, outPortName, inBlocId, inPortName);
+      addConnection(cxnSpec);
     });
 
     this.windowView.addEventListener('dragover', e => {
