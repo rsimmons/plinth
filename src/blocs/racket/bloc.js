@@ -24,6 +24,7 @@ export default class Racket {
     const patchInputSelectElem = this.windowView.querySelector('.patch-input-select');
     const patchOutputSelectElem = this.windowView.querySelector('.patch-output-select');
     const patchConnectButtonElem = this.windowView.querySelector('.patch-connect-button');
+    const patchConnectionListElem = this.windowView.querySelector('.patch-connection-list');
 
     // We create a sort of fake bloc instance for the rack final audio output, to simplify some things
     const rackAudioOutPseudoBloc = {
@@ -39,12 +40,29 @@ export default class Racket {
         code: null,
         _class: null,
         instance: rackAudioOutPseudoBloc,
-        displayedName: 'RACK OUTPUT',
+        displayName: 'RACK OUTPUT',
       }
     };
 
     let nextCxnIdNum = 1;
     const cxnInfo = {}; // maps connection id to info about connection
+
+    const updatePatchConnectionList = () => {
+      removeChildren(patchConnectionListElem);
+      for (const cid in cxnInfo) {
+        const info = cxnInfo[cid];
+        const desc = blocInfo[info.outBlocId].displayName + ':' + info.outPortName + ' → ' + blocInfo[info.inBlocId].displayName + ':' + info.inPortName;
+        const itemElem = document.createElement('li');
+        itemElem.appendChild(document.createTextNode(desc + ' '));
+        const removeElem = document.createElement('button');
+        removeElem.textContent = 'remove';
+        removeElem.addEventListener('click', () => {
+          removeConnection(cid);
+        });
+        itemElem.appendChild(removeElem);
+        patchConnectionListElem.appendChild(itemElem);
+      }
+    };
 
     const updatePatchConnectOptions = () => {
       // TODO: should we iterate in displayed order?
@@ -56,7 +74,7 @@ export default class Racket {
 
       for (const bid in blocInfo) {
         const binst = blocInfo[bid].instance;
-        const dname = blocInfo[bid].displayedName;
+        const dname = blocInfo[bid].displayName;
         for (const pn in binst.inputs) {
           inputPorts[bid + ':' + pn] = dname + ':' + pn;
         }
@@ -104,7 +122,7 @@ export default class Racket {
         code: code,
         _class: blocClass,
         instance: blocInst,
-        displayedName: blocClass.blocName,
+        displayName: blocClass.blocName,
       };
 
       updatePatchConnectOptions();
@@ -158,7 +176,16 @@ export default class Racket {
         default:
           throw new Error('Invalid port type');
       }
+
+      updatePatchConnectionList();
     }
+
+    const removeConnection = (cid) => {
+      const info = cxnInfo[cid];
+      info.disconnect();
+      delete cxnInfo[cid];
+      updatePatchConnectionList();
+    };
 
     patchConnectButtonElem.addEventListener('click', e => {
       e.preventDefault();
