@@ -3,10 +3,10 @@
 //  to simulate the scenario where they are dynamically loaded from a server
 //  or from arbitrary (3rd party) URLs.
 const availableBlocCodes = {
-  'BeatClock': require('raw!./blocs/beatclock/bundle.js'),
-  'DrumSynth': require('raw!./blocs/drumsynth/bundle.js'),
-  'Orinami': require('raw!./blocs/orinami/bundle.js'),
-  'Racket': require('raw!./blocs/racket/bundle.js'),
+  'BeatClock': require('!raw!./blocs/beatclock/bundle.js'),
+  'DrumSynth': require('!raw!./blocs/drumsynth/bundle.js'),
+  'Orinami': require('!raw!./blocs/orinami/bundle.js'),
+  'Racket': require('!raw!./blocs/racket/bundle.js'),
 };
 
 const blocPaletteElem = document.querySelector('#bloc-palette');
