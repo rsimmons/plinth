@@ -27,7 +27,7 @@ export default class DrumSynth {
     this.outputs = {
       'audio': {type: 'audio', node: oscNode},
     };
-    this.panelView = htmlToElement(document, '<div style="box-sizing: border-box; width: 128px; height: 256px; padding: 5px; background-color: white;">DrumSynth</div>');
+    this.panelView = htmlToElement(document, '<div style="box-sizing: border-box; width: 126px; height: 256px; padding: 5px; background-color: white;">DrumSynth</div>');
   }
 }
 

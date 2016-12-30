@@ -179,7 +179,7 @@ export default class Racket {
         wrapperElem.appendChild(blocInst.panelView);
       } else {
         const placeholderElem = document.createElement('div');
-        placeholderElem.innerHTML = '<div style="box-sizing:border-box;width:64px;height:256px;text-align:center;font-size:14px;background:white;font-style:italic;color:gray;padding:100px 5px">No panel view</div>';
+        placeholderElem.innerHTML = '<div style="box-sizing:border-box;width:62px;height:256px;text-align:center;font-size:14px;background:white;font-style:italic;color:gray;padding:100px 5px">No panel view</div>';
         wrapperElem.appendChild(placeholderElem);
       }
 
