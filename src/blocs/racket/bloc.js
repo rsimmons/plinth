@@ -158,15 +158,6 @@ export default class Racket {
       const blocClass = eval(code);
       const blocInst = new blocClass(document, audioContext);
 
-      const wrapperElem = document.createElement('div');
-      if (blocInst.panelView) {
-        wrapperElem.appendChild(blocInst.panelView);
-      } else {
-        wrapperElem.innerHTML = '<div style="box-sizing:border-box;border:1px solid black;width:64px;height:256px;text-align:center;font-size:14px;background:white;font-style:italic;color:gray;padding:100px 5px">No panel view</div>';
-      }
-      wrapperElem.setAttribute('data-blocid', bid);
-      blocContainerElem.appendChild(wrapperElem);
-
       blocInfo[bid] = {
         id: bid,
         code: code,
@@ -174,6 +165,25 @@ export default class Racket {
         instance: blocInst,
         displayName: blocClass.blocName,
       };
+
+      const wrapperElem = document.createElement('div');
+      wrapperElem.style = 'margin: 1px';
+      wrapperElem.setAttribute('data-blocid', bid);
+
+      const headerElem = document.createElement('div');
+      headerElem.style = 'background-color: #555; font-size: 12px; padding: 4px 6px; color: #ccc';
+      headerElem.textContent = blocInfo[bid].displayName;
+      wrapperElem.appendChild(headerElem);
+
+      if (blocInst.panelView) {
+        wrapperElem.appendChild(blocInst.panelView);
+      } else {
+        const placeholderElem = document.createElement('div');
+        placeholderElem.innerHTML = '<div style="box-sizing:border-box;width:64px;height:256px;text-align:center;font-size:14px;background:white;font-style:italic;color:gray;padding:100px 5px">No panel view</div>';
+        wrapperElem.appendChild(placeholderElem);
+      }
+
+      blocContainerElem.appendChild(wrapperElem);
 
       updatePatchConnectOptions();
     }
