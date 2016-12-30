@@ -164,6 +164,7 @@ export default class Racket {
         _class: blocClass,
         instance: blocInst,
         displayName: blocClass.blocName,
+        wrapperElem: undefined,
       };
 
       const wrapperElem = document.createElement('div');
@@ -172,7 +173,16 @@ export default class Racket {
 
       const headerElem = document.createElement('div');
       headerElem.style = 'background-color: #555; font-size: 12px; padding: 4px 6px; color: #ccc';
-      headerElem.textContent = blocInfo[bid].displayName;
+      const removeBlocElem = document.createElement('a');
+      removeBlocElem.style = 'float:right;color: #ccc;text-decoration: none';
+      removeBlocElem.href = '#';
+      removeBlocElem.textContent = 'X';
+      removeBlocElem.addEventListener('click', (e) => {
+        e.preventDefault();
+        removeBloc(bid);
+      });
+      headerElem.appendChild(removeBlocElem);
+      headerElem.appendChild(document.createTextNode(blocInfo[bid].displayName));
       wrapperElem.appendChild(headerElem);
 
       if (blocInst.panelView) {
@@ -184,9 +194,35 @@ export default class Racket {
       }
 
       blocContainerElem.appendChild(wrapperElem);
+      blocInfo[bid].wrapperElem = wrapperElem;
 
       updatePatchConnectOptions();
     }
+
+    const removeBloc = (bid) => {
+      // Remove all connections to/from it
+      const cidsToRemove = [];
+      for (const cid in cxnInfo) {
+        const info = cxnInfo[cid];
+        if ((info.outBlocId === bid) || (info.inBlocId === bid)) {
+          cidsToRemove.push(cid);
+        }
+      }
+      for (const cid of cidsToRemove) {
+        removeConnection(cid);
+      }
+
+      // Unmount its UI and wrapper
+      blocContainerElem.removeChild(blocInfo[bid].wrapperElem);
+
+      // Deactivate if it has a deactivation method
+      const binst = blocInfo[bid].instance;
+      if (binst.deactivate) {
+        binst.deactivate();
+      }
+
+      delete blocInfo[bid];
+    };
 
     const addConnection = ({outBlocId, outPortName, inBlocId, inPortName}) => {
       const cid = 'c' + nextCxnIdNum;
