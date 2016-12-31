@@ -7,6 +7,7 @@ const availableBlocCodes = {
   'DrumSynth': require('!raw!./blocs/drumsynth/bundle.js'),
   'Orinami': require('!raw!./blocs/orinami/bundle.js'),
   'Racket': require('!raw!./blocs/racket/bundle.js'),
+  'Waverly': require('!raw!./blocs/waverly/bundle.js'),
 };
 
 const blocPaletteElem = document.querySelector('#bloc-palette');

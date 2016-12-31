@@ -17,8 +17,9 @@ export default class Racket {
       'audio': {type: 'audio', node: outputNode},
     };
 
-    this.windowView = document.createElement('div');
-    this.windowView.innerHTML = template;
+    const tmpElem = document.createElement('div');
+    tmpElem.innerHTML = template;
+    this.windowView = tmpElem.childNodes[0];
 
     const blocContainerElem = this.windowView.querySelector('.bloc-container');
     const patchInputSelectElem = this.windowView.querySelector('.patch-input-select');
