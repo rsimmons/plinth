@@ -29,7 +29,7 @@ body {
   border: 1px solid #888;
 }
 
-#rack-container {
+#root-container {
   flex-grow: 1;
 }
 
@@ -53,15 +53,15 @@ p {
           <h1 class="header" style="margin-top: 0">Rack Demo</h1>
           <h2 class="header">Presets</h2>
           <div>
-            <div class="preset-option"><button disabled>Load Racket (empty)</button></div>
-            <div class="preset-option"><input type="file" disabled><button disabled>Load Preset File</button></div>
-            <div class="preset-option"><button disabled>Save Preset File</button></div>
+            <div class="preset-option"><button id="load-racket-button">Load Racket (empty)</button></div>
+            <div class="preset-option"><input id="load-preset-file-chooser" type="file"><button id="load-preset-button">Load Preset File</button></div>
+            <div class="preset-option"><button id="save-preset-button">Save Preset File</button></div>
           </div>
           <h2 class="header">Bloc Palette</h2>
           <p><small>Drag and drop these blocs into other "rack" blocs, like Racket.</small></p>
           <div id="bloc-palette"></div>
         </div>
-        <div id="rack-container"></div>
+        <div id="root-container"></div>
     </div>
     <script src="rack.bundle.js" charset="utf-8"></script>
   </body>

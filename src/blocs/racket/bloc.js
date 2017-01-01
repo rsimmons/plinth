@@ -332,6 +332,10 @@ export default class Racket {
       addBloc(blocCode);
     }, false);
   }
+
+  save() {
+    return 'foo'; // TODO: impelement for realz
+  }
 }
 
 Racket.blocName = 'Racket';
