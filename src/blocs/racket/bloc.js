@@ -1,4 +1,3 @@
-import sha256 from 'js-sha256';
 const template = require('raw!./template.html');
 
 function removeChildren(node) {
