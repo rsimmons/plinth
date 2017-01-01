@@ -14,14 +14,17 @@ body {
   min-height: 100vh;
 }
 
-#bloc-palette {
+#left-column {
   width: 200px;
   background-color: #aeb0bb;
+  padding: 10px;
+  z-index: 10;
+  box-shadow: 0 0 20px 5px rgba(0,0,0,0.3);
 }
 
 .bloc-palette-item {
   padding: 5px 10px;
-  margin: 5px;
+  margin: 5px 0;
   background-color: white;
   border: 1px solid #888;
 }
@@ -30,11 +33,34 @@ body {
   flex-grow: 1;
 }
 
+.header {
+  margin: 0.75em 0 0.25em;
+}
+
+.preset-option {
+  margin: 10px 0;
+}
+
+p {
+  margin: 0.25em 0;
+}
+
     </style>
   </head>
   <body>
     <div id="main">
-        <div id="bloc-palette"></div>
+        <div id="left-column">
+          <h1 class="header" style="margin-top: 0">Rack Demo</h1>
+          <h2 class="header">Presets</h2>
+          <div>
+            <div class="preset-option"><button disabled>Load Racket (empty)</button></div>
+            <div class="preset-option"><input type="file" disabled><button disabled>Load Preset File</button></div>
+            <div class="preset-option"><button disabled>Save Preset File</button></div>
+          </div>
+          <h2 class="header">Bloc Palette</h2>
+          <p><small>Drag and drop these blocs into other "rack" blocs, like Racket.</small></p>
+          <div id="bloc-palette"></div>
+        </div>
         <div id="rack-container"></div>
     </div>
     <script src="rack.bundle.js" charset="utf-8"></script>
