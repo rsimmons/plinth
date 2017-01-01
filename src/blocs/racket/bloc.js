@@ -152,6 +152,31 @@ export default class Racket {
     };
     updatePatchConnectOptions();
 
+    // Check if displayName of given bloc is unique, and if not alter so that it is
+    const uniquifyDisplayName = (bid) => {
+      const dn = blocInfo[bid].displayName;
+      const otherDn = {}; // used as a Set
+      for (const b in blocInfo) {
+        if (b !== bid) {
+          otherDn[blocInfo[b].displayName] = null;
+        }
+      }
+
+      if (!otherDn.hasOwnProperty(dn)) {
+        return; // all good
+      }
+
+      // There is a conflict, so try appending different integers until it's unique
+      for (let i = 2; ; i++) {
+        const n = dn + ' ' + i;
+        if (!otherDn.hasOwnProperty(n)) {
+          // Found a free name
+          blocInfo[bid].displayName = n;
+          return;
+        }
+      }
+    };
+
     const addBloc = (code) => {
       const bid = 'b' + nextBlocIdNum;
       nextBlocIdNum++;
@@ -167,6 +192,7 @@ export default class Racket {
         displayName: blocClass.blocName,
         wrapperElem: undefined,
       };
+      uniquifyDisplayName(bid);
 
       const wrapperElem = document.createElement('div');
       wrapperElem.style = 'margin: 1px';
