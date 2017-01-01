@@ -249,6 +249,8 @@ export default class Racket {
       }
 
       delete blocInfo[bid];
+
+      updatePatchConnectOptions();
     };
 
     const addConnection = ({outBlocId, outPortName, inBlocId, inPortName}) => {
