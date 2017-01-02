@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-REPO="git@github.com:rsimmons/sonibloc-prototype2.git"
+REPO="git@github.com:rsimmons/plinth.git"
 
 # courtesy of http://unix.stackexchange.com/questions/30091/fix-or-alternative-for-mktemp-in-os-x
 BUILDTMP=`mktemp -d 2>/dev/null || mktemp -d -t 'mytmpdir'`

@@ -5,8 +5,8 @@
 This repository contains a draft spec (see below) and a proof of concept implementation, both of which are currently works in progress.
 
 Some crude demos:
-* [Composing blocs dynamically](https://rsimmons.github.io/sonibloc-prototype2/rack.html) inside a "rack" bloc
-* [Composing blocs programmatically](https://rsimmons.github.io/sonibloc-prototype2/programmatic.html) in Javascript
+* [Composing blocs dynamically](https://rsimmons.github.io/plinth/rack.html) inside a "rack" bloc
+* [Composing blocs programmatically](https://rsimmons.github.io/plinth/programmatic.html) in Javascript
 
 # Draft Spec
 
