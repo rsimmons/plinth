@@ -1,4 +1,4 @@
-const template = require('raw!./template.html');
+const template = require('!raw!./template.html');
 
 function removeChildren(node) {
   while (node.firstChild) {
