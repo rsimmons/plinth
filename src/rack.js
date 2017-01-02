@@ -78,7 +78,7 @@ document.querySelector('#load-preset-button').addEventListener('click', e => {
     // TODO: various error handling
     const presetJSON = e.target.result;
     const presetObj = JSON.parse(presetJSON);
-    if (!presetObj.soniblocPreset) {
+    if (!presetObj.plinthPreset) {
       console.log('not a preset');
     }
     loadRootBloc(presetObj.code, presetObj.settings);
@@ -97,7 +97,7 @@ document.querySelector('#save-preset-button').addEventListener('click', e => {
   }
 
   const presetObj = {
-    'soniblocPreset': '0.1.0',
+    'plinthPreset': '0.1.0',
     'code': rootBlocCode,
     'settings': settings,
   };

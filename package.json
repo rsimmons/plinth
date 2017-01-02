@@ -1,7 +1,7 @@
 {
-  "name": "sonibloc2",
+  "name": "plinth",
   "version": "0.0.0",
-  "description": "Another take on Sonibloc idea",
+  "description": "Demo of Plinth: browser-based modular audio processing",
   "main": "entry.js",
   "private": true,
   "scripts": {

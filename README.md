@@ -1,6 +1,6 @@
-# Sonibloc
+# Plinth
 
-**Sonibloc** is a specification for browser-based audio processing components based on the [Web Audio API](https://webaudio.github.io/web-audio-api/). It draws inspiration mainly from [modular synthesizers](https://en.wikipedia.org/wiki/Modular_synthesizer), popular desktop audio plugin standards (VST, AU, etc.), and [Native Instruments Reaktor Blocks](https://www.native-instruments.com/en/products/komplete/synths/reaktor-6/blocks/).
+**Plinth** is a specification for browser-based audio processing components based on the [Web Audio API](https://webaudio.github.io/web-audio-api/). It draws inspiration mainly from [modular synthesizers](https://en.wikipedia.org/wiki/Modular_synthesizer), popular desktop audio plugin standards (VST, AU, etc.), and [Native Instruments Reaktor Blocks](https://www.native-instruments.com/en/products/komplete/synths/reaktor-6/blocks/).
 
 This repository contains a draft spec (see below) and a proof of concept implementation, both of which are currently works in progress.
 
@@ -18,7 +18,7 @@ Web Audio provides the low-level mechanisms for processing audio in the browser,
 
 ## Overview
 
-A Sonibloc component (aka *bloc*) is implement as a Javascript "class", i.e. constructor function to be used with the new operator to create a bloc instance. We'll informally refer to both bloc classes and bloc instances as just "blocs" when it's clear which one we're talking about. We'll use the term *host* to refer to any code that instantiates and connects together blocs. We'll refer to a set of connected blocs as a *graph* or *patch*.
+A Plinth component (aka *bloc*) is implement as a Javascript "class", i.e. constructor function to be used with the new operator to create a bloc instance. We'll informally refer to both bloc classes and bloc instances as just "blocs" when it's clear which one we're talking about. We'll use the term *host* to refer to any code that instantiates and connects together blocs. We'll refer to a set of connected blocs as a *graph* or *patch*.
 
 Blocs expose input and output *ports*, each of which accepts or emits a certain signal *type* (the most important type being **audio**). Hosts can enumerate the names and types of a bloc's ports.
 
