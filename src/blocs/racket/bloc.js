@@ -26,8 +26,12 @@ export default class Racket {
     const patchConnectButtonElem = this.windowView.querySelector('.patch-connect-button');
     const patchConnectionListElem = this.windowView.querySelector('.patch-connection-list');
 
-    // We create a sort of fake bloc instance for the rack final audio output, to simplify some things
-    const rackAudioOutPseudoBloc = {
+    // We create a sort of fake bloc instances for the rack input and output, to simplify some things
+    const rackInputPseudobloc = {
+      outputs: {
+      }
+    };
+    const rackOutputPseudobloc = {
       inputs: {
         'audio': {type: 'audio', node: outputNode},
       }
@@ -35,14 +39,23 @@ export default class Racket {
 
     let nextBlocIdNum = 1;
     const blocInfo = {// maps bloc id (our local unique id for bloc instances) to an info object
+      'ri': {
+        id: 'ri',
+        code: null,
+        _class: null,
+        instance: rackInputPseudobloc,
+        displayName: 'RACK INPUT',
+      },
       'ro': {
         id: 'ro',
         code: null,
         _class: null,
-        instance: rackAudioOutPseudoBloc,
+        instance: rackOutputPseudobloc,
         displayName: 'RACK OUTPUT',
       }
     };
+
+    const pseudoblocIds = new Set(['ri', 'ro']);
 
     let nextCxnIdNum = 1;
     const cxnInfo = {}; // maps connection id to info about connection
@@ -330,10 +343,95 @@ export default class Racket {
       const blocCode = e.dataTransfer.getData('text/javascript');
       addBloc(blocCode);
     }, false);
+
+    // Store some stuff as member variables
+    // TODO: hide these
+    this.blocInfo = blocInfo;
+    this.pseudoblocIds = pseudoblocIds;
+    this.blocContainerElem = blocContainerElem;
+    this.cxnInfo = cxnInfo;
+    this.rackInputPseudobloc = rackInputPseudobloc;
+    this.rackOutputPseudobloc = rackOutputPseudobloc;
   }
 
   save() {
-    return 'foo'; // TODO: impelement for realz
+    // Build map from bloc codes to unique ids
+    const codeToId = new Map(); // maps code strings to unique integer ids
+    let nextCodeId = 1;
+
+    for (const bid in this.blocInfo) {
+      if (this.pseudoblocIds.has(bid)) {
+        continue; // Skip pseudoblocs
+      }
+      const binfo = this.blocInfo[bid];
+      if (!codeToId.has(binfo.code)) {
+        codeToId.set(binfo.code, nextCodeId);
+        nextCodeId++;
+      }
+    }
+
+    // Build reverse map from code id to code string, that we will save
+    const codeMap = new Map();
+    for (const [k, v] of codeToId) {
+      codeMap.set(v, k);
+    }
+
+    // Build map from bloc id to saved bloc info
+    const blocMap = {}; // since keys are strings, don't need to use Map
+    for (const bid in this.blocInfo) {
+      if (this.pseudoblocIds.has(bid)) {
+        continue; // Skip pseudoblocs
+      }
+      const binfo = this.blocInfo[bid];
+      blocMap[bid] = {
+        codeId: codeToId[binfo.code],
+        settings: binfo.instance.save ? binfo.instance.save() : null,
+        displayName: binfo.displayName,
+      }
+    }
+
+    // Iterate displayed blocs to find their order
+    const blocOrder = [];
+    for (const el of this.blocContainerElem.childNodes) {
+      const bid = el.dataset.blocid;
+      if (!bid || !blocMap[bid]) {
+        throw new Error('internal error');
+      }
+      blocOrder.push(el.dataset.blocid);
+    }
+
+    // Store connections pretty much as-is
+    const connections = [];
+    for (const cid in this.cxnInfo) {
+      const cinfo = this.cxnInfo[cid];
+      connections.push({
+        outBlocId: cinfo.outBlocId,
+        outPortName: cinfo.outPortName,
+        inBlocId: cinfo.inBlocId,
+        inPortName: cinfo.inPortName,
+      });
+    }
+
+    // Save the rack input and output ports
+    const rackInputPorts = {};
+    for (const pn in this.rackInputPseudobloc.outputs) {
+      const pinfo = this.rackInputPseudobloc.outputs[pn];
+      rackInputPorts[pn] = {type: pinfo.type};
+    }
+    const rackOutputPorts = {};
+    for (const pn in this.rackOutputPseudobloc.inputs) {
+      const pinfo = this.rackOutputPseudobloc.inputs[pn];
+      rackOutputPorts[pn] = {type: pinfo.type};
+    }
+
+    return JSON.stringify({
+      codeMap: [...codeMap], // convert to array of pairs for JSONification
+      blocMap,
+      blocOrder,
+      connections,
+      rackInputPorts,
+      rackOutputPorts,
+    });
   }
 }
 
