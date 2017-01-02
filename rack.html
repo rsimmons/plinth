@@ -1,0 +1,68 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Sonibloc Rack Demo</title>
+    <style type="text/css">
+
+body {
+  margin: 0;
+  font-family: sans-serif;
+}
+
+#main {
+  display: flex;
+  min-height: 100vh;
+}
+
+#left-column {
+  width: 200px;
+  background-color: #c6e3d5;
+  padding: 10px;
+  z-index: 10;
+  box-shadow: 0 0 20px 5px rgba(0,0,0,0.3);
+}
+
+.bloc-palette-item {
+  padding: 5px 10px;
+  margin: 5px 0;
+  background-color: white;
+  border: 1px solid #888;
+}
+
+#root-container {
+  flex-grow: 1;
+}
+
+.header {
+  margin: 0.75em 0 0.25em;
+}
+
+.preset-option {
+  margin: 10px 0;
+}
+
+p {
+  margin: 0.25em 0;
+}
+
+    </style>
+  </head>
+  <body>
+    <div id="main">
+        <div id="left-column">
+          <h1 class="header" style="margin-top: 0">Rack Demo</h1>
+          <h2 class="header">Presets</h2>
+          <div>
+            <div class="preset-option"><button id="load-racket-button">Load Racket (empty)</button></div>
+            <div class="preset-option"><input id="load-preset-file-chooser" type="file"><button id="load-preset-button">Load Preset File</button></div>
+            <div class="preset-option"><button id="save-preset-button">Save Preset File</button></div>
+          </div>
+          <h2 class="header">Bloc Palette</h2>
+          <p><small>Drag and drop these blocs into other "rack" blocs, like Racket.</small></p>
+          <div id="bloc-palette"></div>
+        </div>
+        <div id="root-container"></div>
+    </div>
+    <script src="rack.bundle.js" charset="utf-8"></script>
+  </body>
+</html>
