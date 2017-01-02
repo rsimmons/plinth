@@ -1,6 +1,5 @@
 import EventEmitter from 'events';
 
-import htmlToElement from '../../util/htmlToElement';
 import EventScheduler from './scheduler';
 
 function createEventOutput() {
@@ -39,7 +38,11 @@ export default class BeatClock {
 
     let tempo = 120;
     const MIN_TEMPO = 10;
-    this.panelView = htmlToElement(document, '<div style="box-sizing: border-box; width: 190px; height: 256px; padding: 5px; background-color: white;"><div>BeatClock</div><form><label>Tempo <input type="number" value="' + tempo + '" min="' + MIN_TEMPO + '" style="width: 50px" />bpm</label></form></div>');
+
+    const tmpElem = document.createElement('div');
+    tmpElem.innerHTML = '<div style="box-sizing: border-box; width: 190px; height: 256px; padding: 5px; background-color: white;"><div>BeatClock</div><form><label>Tempo <input type="number" value="' + tempo + '" min="' + MIN_TEMPO + '" style="width: 50px" />bpm</label></form></div>';
+    this.panelView = tmpElem.childNodes[0];
+
     this.panelView.querySelector('input').addEventListener('input', function(e) {
       const t = parseInt(e.target.value, 10);
       if (!isNaN(t) && (t >= MIN_TEMPO)) {

@@ -1,5 +1,3 @@
-import htmlToElement from '../../util/htmlToElement';
-
 export default class Orinami {
   constructor(document, audioContext) {
     const MIN_STAGES = 0;
@@ -32,7 +30,10 @@ export default class Orinami {
     this.outputs = {
       'audio': {type: 'audio', node: shaperNode},
     };
-    this.panelView = htmlToElement(document, '<div style="box-sizing: border-box; width: 126px; height: 256px; padding: 5px; background-color: white;"><div>Orinami</div><div><label>Stages <input type="number" value="' + INIT_STAGES + '" min="' + MIN_STAGES + '" step="1" style="width: 50px" /></label></div></div>');
+
+    const tmpElem = document.createElement('div');
+    tmpElem.innerHTML = '<div style="box-sizing: border-box; width: 126px; height: 256px; padding: 5px; background-color: white;"><div>Orinami</div><div><label>Stages <input type="number" value="' + INIT_STAGES + '" min="' + MIN_STAGES + '" step="1" style="width: 50px" /></label></div></div>';
+    this.panelView = tmpElem.childNodes[0];
 
     this.panelView.querySelector('input').addEventListener('input', function(e) {
       const st = parseInt(e.target.value, 10);

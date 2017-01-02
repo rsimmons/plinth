@@ -1,7 +1,6 @@
 import BeatClock from './blocs/beatclock/bloc';
 import DrumSynth from './blocs/drumsynth/bloc';
 import Orinami from './blocs/orinami/bloc';
-import htmlToElement from './util/htmlToElement';
 
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -13,7 +12,9 @@ const orinami = new Orinami(document, audioContext);
 // Place the bloc panel elements in the DOM.
 const container = document.querySelector('#bloc-container');
 for (const panel of [beatClock.panelView, drumSynth.panelView, orinami.panelView]) {
-  const wrapper = htmlToElement(document, '<div style="border-top: 20px solid #ccc;"></div>');
+  const tmpElem = document.createElement('div');
+  tmpElem.innerHTML = '<div style="border-top: 20px solid #ccc;"></div>';
+  const wrapper = tmpElem.childNodes[0];
   wrapper.appendChild(panel);
   container.appendChild(wrapper);
 }

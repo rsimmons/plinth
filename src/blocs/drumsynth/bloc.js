@@ -1,5 +1,3 @@
-import htmlToElement from '../../util/htmlToElement';
-
 export default class DrumSynth {
   constructor(document, audioContext) {
     const PITCH_LOW = 1;
@@ -27,7 +25,10 @@ export default class DrumSynth {
     this.outputs = {
       'audio': {type: 'audio', node: oscNode},
     };
-    this.panelView = htmlToElement(document, '<div style="box-sizing: border-box; width: 126px; height: 256px; padding: 5px; background-color: white;">DrumSynth</div>');
+
+    const tmpElem = document.createElement('div');
+    tmpElem.innerHTML = '<div style="box-sizing: border-box; width: 126px; height: 256px; padding: 5px; background-color: white;">DrumSynth</div>';
+    this.panelView = tmpElem.childNodes[0];
   }
 }
 
