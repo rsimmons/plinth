@@ -7,13 +7,10 @@ function removeChildren(node) {
 }
 
 export default class Racket {
-  constructor(document, audioContext) {
-    const outputNode = audioContext.createGain();
-
+  constructor(document, audioContext, settings) {
     this.inputs = {
     };
     this.outputs = {
-      'audio': {type: 'audio', node: outputNode},
     };
 
     const tmpElem = document.createElement('div');
@@ -33,7 +30,6 @@ export default class Racket {
     };
     const rackOutputPseudobloc = {
       inputs: {
-        'audio': {type: 'audio', node: outputNode},
       }
     };
 
@@ -123,7 +119,6 @@ export default class Racket {
       const cxnSpec = parseConnectionSpec();
       patchConnectButtonElem.disabled = !(cxnSpec && isValidConnection(cxnSpec));
     };
-    updatePatchConnectionValidity();
 
     const updatePatchConnectOptions = () => {
       // TODO: should we iterate in displayed order?
@@ -162,7 +157,6 @@ export default class Racket {
 
       updatePatchConnectionValidity();
     };
-    updatePatchConnectOptions();
 
     // Check if displayName of given bloc is unique, and if not alter so that it is
     const uniquifyDisplayName = (bid) => {
@@ -189,19 +183,19 @@ export default class Racket {
       }
     };
 
-    const addBloc = (code) => {
+    const addBloc = (code, settings, displayName) => {
       const bid = 'b' + nextBlocIdNum;
       nextBlocIdNum++;
 
       const blocClass = eval(code);
-      const blocInst = new blocClass(document, audioContext);
+      const blocInst = new blocClass(document, audioContext, settings);
 
       blocInfo[bid] = {
         id: bid,
         code: code,
         _class: blocClass,
         instance: blocInst,
-        displayName: blocClass.blocName,
+        displayName: displayName || blocClass.blocName,
         wrapperElem: undefined,
       };
       uniquifyDisplayName(bid);
@@ -263,6 +257,38 @@ export default class Racket {
       delete blocInfo[bid];
 
       updatePatchConnectOptions();
+    };
+
+    const addRackInput = (portName, type) => {
+      if (this.inputs[portName]) {
+        throw new Error('port name already exists');
+      }
+      switch (type) {
+        case 'audio':
+          const dummyNode = audioContext.createGain();
+          this.inputs[portName] = {type: 'audio', node: dummyNode};
+          rackInputPseudobloc.outputs[portName] = {type: 'audio', node: dummyNode};
+          break;
+
+        default:
+          throw new Error('Unsupported rack port type');
+      }
+    };
+
+    const addRackOutput = (portName, type) => {
+      if (this.outputs[portName]) {
+        throw new Error('port name already exists');
+      }
+      switch (type) {
+        case 'audio':
+          const dummyNode = audioContext.createGain();
+          this.outputs[portName] = {type: 'audio', node: dummyNode};
+          rackOutputPseudobloc.inputs[portName] = {type: 'audio', node: dummyNode};
+          break;
+
+        default:
+          throw new Error('Unsupported rack port type');
+      }
     };
 
     const addConnection = ({outBlocId, outPortName, inBlocId, inPortName}) => {
@@ -344,6 +370,40 @@ export default class Racket {
       addBloc(blocCode);
     }, false);
 
+    // Load settings if present, otherwise set up some defaults
+    if (settings) {
+      const settingsObj = JSON.parse(settings);
+
+      // Load de-duped code for contained blocs
+      const codeMap = new Map(settingsObj.codeMap); // restore from array of pairs
+
+      // Load blocs (sans pseudoblocs)
+      for (const bid of settingsObj.blocOrder) {
+        const binfo = settingsObj.blocMap[bid];
+        addBloc(codeMap.get(binfo.codeId), binfo.settings, binfo.displayName);
+      }
+
+      // Create rack inputs/output ports
+      for (const pn in settingsObj.rackInputPorts) {
+        addRackInput(pn, settingsObj.rackInputPorts[pn].type);
+      }
+      for (const pn in settingsObj.rackOutputPorts) {
+        addRackOutput(pn, settingsObj.rackOutputPorts[pn].type);
+      }
+
+      // Load connections
+      for (const cxn of settingsObj.connections) {
+        addConnection(cxn);
+      }
+    } else {
+      // Set up single output port, audio
+      addRackOutput('audio', 'audio');
+    }
+
+    // Do initial UI updates
+    updatePatchConnectionValidity();
+    updatePatchConnectOptions();
+
     // Store some stuff as member variables
     // TODO: hide these
     this.blocInfo = blocInfo;
@@ -384,7 +444,7 @@ export default class Racket {
       }
       const binfo = this.blocInfo[bid];
       blocMap[bid] = {
-        codeId: codeToId[binfo.code],
+        codeId: codeToId.get(binfo.code),
         settings: binfo.instance.save ? binfo.instance.save() : null,
         displayName: binfo.displayName,
       }
