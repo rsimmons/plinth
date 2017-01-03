@@ -412,6 +412,23 @@ export default class Racket {
     this.cxnInfo = cxnInfo;
     this.rackInputPseudoblock = rackInputPseudoblock;
     this.rackOutputPseudoblock = rackOutputPseudoblock;
+    this.removeBlock = removeBlock;
+  }
+
+  deactivate() {
+    // NOTE: We remove blocks one by one. It might be safe to just directly
+    //  deactivate them and do less work, but this is easy and should be robust.
+    const bids = [];
+    for (const bid in this.blockInfo) {
+      if (this.pseudoblockIds.has(bid)) {
+        continue; // Skip pseudoblocks
+      }
+      bids.push(bid);
+    }
+
+    for (const bid of bids) {
+      this.removeBlock(bid);
+    }
   }
 
   save() {
