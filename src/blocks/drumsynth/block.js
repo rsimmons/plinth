@@ -32,4 +32,4 @@ export default class DrumSynth {
   }
 }
 
-DrumSynth.blocName = 'DrumSynth';
+DrumSynth.blockName = 'DrumSynth';

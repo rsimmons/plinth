@@ -47,4 +47,4 @@ export default class Orinami {
   }
 }
 
-Orinami.blocName = 'Orinami';
+Orinami.blockName = 'Orinami';

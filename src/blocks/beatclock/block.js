@@ -81,4 +81,4 @@ export default class BeatClock {
   }
 }
 
-BeatClock.blocName = 'BeatClock';
+BeatClock.blockName = 'BeatClock';

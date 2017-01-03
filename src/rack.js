@@ -3,60 +3,60 @@ import FileSaver from 'file-saver';
 // These are JS code strings, to be eval()'d. We load them directly here
 //  to simulate the scenario where they are dynamically loaded from a server
 //  or from arbitrary (3rd party) URLs.
-const availableBlocCodes = {
-  'BeatClock': require('!raw!./blocs/beatclock/bundle.js'),
-  'DrumSynth': require('!raw!./blocs/drumsynth/bundle.js'),
-  'Orinami': require('!raw!./blocs/orinami/bundle.js'),
-  'Racket': require('!raw!./blocs/racket/bundle.js'),
-  'Waverly': require('!raw!./blocs/waverly/bundle.js'),
+const availableBlockCodes = {
+  'BeatClock': require('!raw!./blocks/beatclock/bundle.js'),
+  'DrumSynth': require('!raw!./blocks/drumsynth/bundle.js'),
+  'Orinami': require('!raw!./blocks/orinami/bundle.js'),
+  'Racket': require('!raw!./blocks/racket/bundle.js'),
+  'Waverly': require('!raw!./blocks/waverly/bundle.js'),
 };
 
-const blocPaletteElem = document.querySelector('#bloc-palette');
-for (const blocName in availableBlocCodes) {
+const blockPaletteElem = document.querySelector('#block-palette');
+for (const blockName in availableBlockCodes) {
   const el = document.createElement('div');
-  el.textContent = blocName;
+  el.textContent = blockName;
   el.setAttribute('draggable', true);
-  el.className = 'bloc-palette-item';
-  blocPaletteElem.appendChild(el);
+  el.className = 'block-palette-item';
+  blockPaletteElem.appendChild(el);
   el.addEventListener('dragstart', function(e) {
-    e.dataTransfer.setData('text/javascript', availableBlocCodes[blocName]);
+    e.dataTransfer.setData('text/javascript', availableBlockCodes[blockName]);
   }, false);
 }
 
 // Create a Web Audio context
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-let rootBlocCode;
-let rootBlocClass;
-let rootBlocInst;
+let rootBlockCode;
+let rootBlockClass;
+let rootBlockInst;
 
-function loadRootBloc(code, settings) {
-  // Unload any current root bloc
-  if (rootBlocInst) {
-    rootBlocInst.outputs.audio.node.disconnect(audioContext.destination);
-    if (rootBlocInst.deactivate) {
-      rootBlocInst.deactivate();
+function loadRootBlock(code, settings) {
+  // Unload any current root block
+  if (rootBlockInst) {
+    rootBlockInst.outputs.audio.node.disconnect(audioContext.destination);
+    if (rootBlockInst.deactivate) {
+      rootBlockInst.deactivate();
     }
     document.querySelector('#root-container').innerHTML = '';
   }
 
-  rootBlocCode = code;
-  rootBlocClass = eval(code);
+  rootBlockCode = code;
+  rootBlockClass = eval(code);
 
-  // Instantiate the root bloc, which will let the user dynamically instantiate
-  //  and connect up other blocs.
-  rootBlocInst = new rootBlocClass(document, audioContext, settings);
+  // Instantiate the root block, which will let the user dynamically instantiate
+  //  and connect up other blocks.
+  rootBlockInst = new rootBlockClass(document, audioContext, settings);
 
-  // Mount the root bloc's window view
+  // Mount the root block's window view
   // TODO: Handle case where windowView is undefined
-  document.querySelector('#root-container').appendChild(rootBlocInst.windowView);
+  document.querySelector('#root-container').appendChild(rootBlockInst.windowView);
 
   // Connect root audio output to context final output
-  rootBlocInst.outputs.audio.node.connect(audioContext.destination);
+  rootBlockInst.outputs.audio.node.connect(audioContext.destination);
 }
 
 function loadEmptyRacket() {
-  loadRootBloc(availableBlocCodes['Racket'], undefined);
+  loadRootBlock(availableBlockCodes['Racket'], undefined);
 }
 
 document.querySelector('#load-racket-button').addEventListener('click', e => {
@@ -81,7 +81,7 @@ document.querySelector('#load-preset-button').addEventListener('click', e => {
     if (!presetObj.plinthPreset) {
       console.log('not a preset');
     }
-    loadRootBloc(presetObj.code, presetObj.settings);
+    loadRootBlock(presetObj.code, presetObj.settings);
   };
   reader.readAsText(file, 'utf-8');
 });
@@ -90,15 +90,15 @@ document.querySelector('#save-preset-button').addEventListener('click', e => {
   e.preventDefault();
 
   let settings = null;
-  if (rootBlocInst.save) {
-    settings = rootBlocInst.save();
+  if (rootBlockInst.save) {
+    settings = rootBlockInst.save();
   } else {
-    console.log("Loaded bloc doesn't support saving settings");
+    console.log("Loaded block doesn't support saving settings");
   }
 
   const presetObj = {
     'plinthPreset': '0.1.0',
-    'code': rootBlocCode,
+    'code': rootBlockCode,
     'settings': settings,
   };
 

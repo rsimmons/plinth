@@ -50,4 +50,4 @@ export default class Waverly {
   }
 }
 
-Waverly.blocName = 'Waverly';
+Waverly.blockName = 'Waverly';

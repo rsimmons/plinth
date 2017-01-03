@@ -5,8 +5,8 @@
 This repository contains a draft spec (see below) and a proof of concept implementation, both of which are currently works in progress.
 
 Some crude demos:
-* [Composing blocs dynamically](https://rsimmons.github.io/plinth/rack.html) inside a "rack" bloc
-* [Composing blocs programmatically](https://rsimmons.github.io/plinth/programmatic.html) in Javascript
+* [Composing blocks dynamically](https://rsimmons.github.io/plinth/rack.html) inside a "rack" block
+* [Composing blocks programmatically](https://rsimmons.github.io/plinth/programmatic.html) in Javascript
 
 # Draft Spec
 
@@ -18,24 +18,24 @@ Web Audio provides the low-level mechanisms for processing audio in the browser,
 
 ## Overview
 
-A Plinth component (aka *bloc*) is implement as a Javascript "class", i.e. constructor function to be used with the new operator to create a bloc instance. We'll informally refer to both bloc classes and bloc instances as just "blocs" when it's clear which one we're talking about. We'll use the term *host* to refer to any code that instantiates and connects together blocs. We'll refer to a set of connected blocs as a *graph* or *patch*.
+A Plinth component (aka *block*) is implement as a Javascript "class", i.e. constructor function to be used with the new operator to create a block instance. We'll informally refer to both block classes and block instances as just "blocks" when it's clear which one we're talking about. We'll use the term *host* to refer to any code that instantiates and connects together blocks. We'll refer to a set of connected blocks as a *graph* or *patch*.
 
-Blocs expose input and output *ports*, each of which accepts or emits a certain signal *type* (the most important type being **audio**). Hosts can enumerate the names and types of a bloc's ports.
+Blocks expose input and output *ports*, each of which accepts or emits a certain signal *type* (the most important type being **audio**). Hosts can enumerate the names and types of a block's ports.
 
-Blocs typically render a user interface via HTML-based *views*. A bloc can present two different types of views: a *panel view* and a *window view*. A panel view is meant to be similar to a modular synthesizer panel, having a standardized height and fixed width. A window view can have arbitrary dimensions. Window views are meant to be used as "expanded" interfaces for more sophisticated blocs that require them, typically presented at a much larger size than panel views. A bloc can present either panel or window view, or both, or neither. Hosts can manage hiding and revealing blocs views to end users.
+Blocks typically render a user interface via HTML-based *views*. A block can present two different types of views: a *panel view* and a *window view*. A panel view is meant to be similar to a modular synthesizer panel, having a standardized height and fixed width. A window view can have arbitrary dimensions. Window views are meant to be used as "expanded" interfaces for more sophisticated blocks that require them, typically presented at a much larger size than panel views. A block can present either panel or window view, or both, or neither. Hosts can manage hiding and revealing blocks views to end users.
 
-Bloc views typically display controls that affect how a bloc generates or processes sound. In the spirit of modular synthesizers, blocs can also accept audio-rate "control" input signals. For example, an oscillator bloc might have a panel knob to set its fundamental frequency, and also a control signal input port that influences that same frequency. Note that for the sake of simplicity this spec *does not* define any special relationship between view controls and input ports. This means that view controls are not always "automatable", and control inputs may not have associated view controls.
+Block views typically display controls that affect how a block generates or processes sound. In the spirit of modular synthesizers, blocks can also accept audio-rate "control" input signals. For example, an oscillator block might have a panel knob to set its fundamental frequency, and also a control signal input port that influences that same frequency. Note that for the sake of simplicity this spec *does not* define any special relationship between view controls and input ports. This means that view controls are not always "automatable", and control inputs may not have associated view controls.
 
-Blocs can support saving and loading their settings (via opaque strings), so that hosts can save and load patches.
+Blocks can support saving and loading their settings (via opaque strings), so that hosts can save and load patches.
 
 ## Design Considerations
 
 In order to achieve the widest possible adoption, the spec aims to balance power and flexibility against complexity and ease of implementation. To those ends, the following design guidelines have been adopted:
 
 [TODO: define some terminology]
-* Target non-programmer musicians as end users of blocs.
-* Prioritize ease of bloc authoring over ease of host authoring.
-* Prioritize hosting blocs in dynamic patching interfaces, but also make it reasonably easy to instantiate and use them programmatically with Javascript.
+* Target non-programmer musicians as end users of blocks.
+* Prioritize ease of block authoring over ease of host authoring.
+* Prioritize hosting blocks in dynamic patching interfaces, but also make it reasonably easy to instantiate and use them programmatically with Javascript.
 * Support complex signal graphs as typically found in [modular synthesizers](https://en.wikipedia.org/wiki/Modular_synthesizer) rather than biasing towards linear signal processing chains as in common in most [DAWs](https://en.wikipedia.org/wiki/Digital_audio_workstation).
-* Allow for hierarchical "nesting" scenarios where blocs can act as hosts to other blocs.
-* Don't specify any special relationship between bloc ports and controls in bloc views.
+* Allow for hierarchical "nesting" scenarios where blocks can act as hosts to other blocks.
+* Don't specify any special relationship between block ports and controls in block views.

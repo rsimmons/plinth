@@ -16,7 +16,7 @@ SRC_SHA="$(cd $BUILDTMP/src && git rev-parse HEAD)"
 echo "Doing build ..."
 (
 cd $BUILDTMP/src
-for d in src/blocs/*/ ; do
+for d in src/blocks/*/ ; do
     echo "Building $d"
     (cd "$d" ; yarn && yarn run build)
 done

@@ -1,9 +1,9 @@
 {
-  "name": "plinth-waverly",
+  "name": "plinth-racket",
   "version": "1.0.0",
   "description": "",
   "private": true,
-  "main": "bloc.js",
+  "main": "block.js",
   "scripts": {
     "build": "webpack --progress --colors",
     "test": "echo \"Error: no test specified\" && exit 1",

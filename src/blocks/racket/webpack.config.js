@@ -21,7 +21,7 @@ module.exports = {
   plugins: [
     new webpack.optimize.UglifyJsPlugin({
       compress: {
-        negate_iife: false, // NOTE: This is required since output bundle is a bloc-class-expression intended to be eval()'d
+        negate_iife: false, // NOTE: This is required since output bundle is a block-class-expression intended to be eval()'d
       }
     }),
   ]

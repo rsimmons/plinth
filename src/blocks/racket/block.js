@@ -17,41 +17,41 @@ export default class Racket {
     tmpElem.innerHTML = template;
     this.windowView = tmpElem.childNodes[0];
 
-    const blocContainerElem = this.windowView.querySelector('.bloc-container');
+    const blockContainerElem = this.windowView.querySelector('.block-container');
     const patchInputSelectElem = this.windowView.querySelector('.patch-input-select');
     const patchOutputSelectElem = this.windowView.querySelector('.patch-output-select');
     const patchConnectButtonElem = this.windowView.querySelector('.patch-connect-button');
     const patchConnectionListElem = this.windowView.querySelector('.patch-connection-list');
 
-    // We create a sort of fake bloc instances for the rack input and output, to simplify some things
-    const rackInputPseudobloc = {
+    // We create a sort of fake block instances for the rack input and output, to simplify some things
+    const rackInputPseudoblock = {
       outputs: {
       }
     };
-    const rackOutputPseudobloc = {
+    const rackOutputPseudoblock = {
       inputs: {
       }
     };
 
-    let nextBlocIdNum = 1;
-    const blocInfo = {// maps bloc id (our local unique id for bloc instances) to an info object
+    let nextBlockIdNum = 1;
+    const blockInfo = {// maps block id (our local unique id for block instances) to an info object
       'ri': {
         id: 'ri',
         code: null,
         _class: null,
-        instance: rackInputPseudobloc,
+        instance: rackInputPseudoblock,
         displayName: 'RACK INPUT',
       },
       'ro': {
         id: 'ro',
         code: null,
         _class: null,
-        instance: rackOutputPseudobloc,
+        instance: rackOutputPseudoblock,
         displayName: 'RACK OUTPUT',
       }
     };
 
-    const pseudoblocIds = new Set(['ri', 'ro']);
+    const pseudoblockIds = new Set(['ri', 'ro']);
 
     let nextCxnIdNum = 1;
     const cxnInfo = {}; // maps connection id to info about connection
@@ -60,7 +60,7 @@ export default class Racket {
       removeChildren(patchConnectionListElem);
       for (const cid in cxnInfo) {
         const info = cxnInfo[cid];
-        const desc = blocInfo[info.outBlocId].displayName + ':' + info.outPortName + ' → ' + blocInfo[info.inBlocId].displayName + ':' + info.inPortName;
+        const desc = blockInfo[info.outBlockId].displayName + ':' + info.outPortName + ' → ' + blockInfo[info.inBlockId].displayName + ':' + info.inPortName;
         const itemElem = document.createElement('li');
         itemElem.appendChild(document.createTextNode(desc + ' '));
         const removeElem = document.createElement('button');
@@ -73,28 +73,28 @@ export default class Racket {
       }
     };
 
-    const isValidConnection = ({outBlocId, outPortName, inBlocId, inPortName}) => {
-      const outBloc = blocInfo[outBlocId].instance;
-      const inBloc = blocInfo[inBlocId].instance;
+    const isValidConnection = ({outBlockId, outPortName, inBlockId, inPortName}) => {
+      const outBlock = blockInfo[outBlockId].instance;
+      const inBlock = blockInfo[inBlockId].instance;
 
       // Verify that port names are valid
-      if (!outBloc.outputs.hasOwnProperty(outPortName)) {
+      if (!outBlock.outputs.hasOwnProperty(outPortName)) {
         return false;
       }
-      if (!inBloc.inputs.hasOwnProperty(inPortName)) {
+      if (!inBlock.inputs.hasOwnProperty(inPortName)) {
         return false;
       }
 
       // Verify that these two ports aren't already connected
       for (const cid in cxnInfo) {
         const info = cxnInfo[cid];
-        if ((info.outBlocId === outBlocId) && (info.outPortName === outPortName) && (info.inBlocId === inBlocId) && (info.inPortName === inPortName)) {
+        if ((info.outBlockId === outBlockId) && (info.outPortName === outPortName) && (info.inBlockId === inBlockId) && (info.inPortName === inPortName)) {
           return false;
         }
       }
 
       // Verify that ports are matching types
-      if (outBloc.outputs[outPortName].type !== inBloc.inputs[inPortName].type) {
+      if (outBlock.outputs[outPortName].type !== inBlock.inputs[inPortName].type) {
         return false;
       }
 
@@ -109,10 +109,10 @@ export default class Racket {
         return null;
       }
 
-      const [inBlocId, inPortName] = inpid.split(':');
-      const [outBlocId, outPortName] = outpid.split(':');
+      const [inBlockId, inPortName] = inpid.split(':');
+      const [outBlockId, outPortName] = outpid.split(':');
 
-      return {inBlocId, inPortName, outBlocId, outPortName};
+      return {inBlockId, inPortName, outBlockId, outPortName};
     };
 
     const updatePatchConnectionValidity = () => {
@@ -122,15 +122,15 @@ export default class Racket {
 
     const updatePatchConnectOptions = () => {
       // TODO: should we iterate in displayed order?
-      // A "port id" is blocid:portname. We store input and output portids separately so don't need to distinguish.
-      // In port ids (and therefore connections) we use special bloc ids of -1 for rack outputs and -2 for rack inputs.
+      // A "port id" is blockid:portname. We store input and output portids separately so don't need to distinguish.
+      // In port ids (and therefore connections) we use special block ids of -1 for rack outputs and -2 for rack inputs.
       // These are both maps from port id to a string "display name"
       const inputPorts = {};
       const outputPorts = {};
 
-      for (const bid in blocInfo) {
-        const binst = blocInfo[bid].instance;
-        const dname = blocInfo[bid].displayName;
+      for (const bid in blockInfo) {
+        const binst = blockInfo[bid].instance;
+        const dname = blockInfo[bid].displayName;
         for (const pn in binst.inputs) {
           inputPorts[bid + ':' + pn] = dname + ':' + pn;
         }
@@ -158,13 +158,13 @@ export default class Racket {
       updatePatchConnectionValidity();
     };
 
-    // Check if displayName of given bloc is unique, and if not alter so that it is
+    // Check if displayName of given block is unique, and if not alter so that it is
     const uniquifyDisplayName = (bid) => {
-      const dn = blocInfo[bid].displayName;
+      const dn = blockInfo[bid].displayName;
       const otherDn = {}; // used as a Set
-      for (const b in blocInfo) {
+      for (const b in blockInfo) {
         if (b !== bid) {
-          otherDn[blocInfo[b].displayName] = null;
+          otherDn[blockInfo[b].displayName] = null;
         }
       }
 
@@ -177,67 +177,67 @@ export default class Racket {
         const n = dn + ' ' + i;
         if (!otherDn.hasOwnProperty(n)) {
           // Found a free name
-          blocInfo[bid].displayName = n;
+          blockInfo[bid].displayName = n;
           return;
         }
       }
     };
 
-    const addBloc = (code, settings, displayName) => {
-      const bid = 'b' + nextBlocIdNum;
-      nextBlocIdNum++;
+    const addBlock = (code, settings, displayName) => {
+      const bid = 'b' + nextBlockIdNum;
+      nextBlockIdNum++;
 
-      const blocClass = eval(code);
-      const blocInst = new blocClass(document, audioContext, settings);
+      const blockClass = eval(code);
+      const blockInst = new blockClass(document, audioContext, settings);
 
-      blocInfo[bid] = {
+      blockInfo[bid] = {
         id: bid,
         code: code,
-        _class: blocClass,
-        instance: blocInst,
-        displayName: displayName || blocClass.blocName,
+        _class: blockClass,
+        instance: blockInst,
+        displayName: displayName || blockClass.blockName,
         wrapperElem: undefined,
       };
       uniquifyDisplayName(bid);
 
       const wrapperElem = document.createElement('div');
       wrapperElem.style = 'margin: 1px';
-      wrapperElem.setAttribute('data-blocid', bid);
+      wrapperElem.setAttribute('data-blockid', bid);
 
       const headerElem = document.createElement('div');
       headerElem.style = 'background-color: #555; font-size: 12px; padding: 4px 6px; color: #ccc';
-      const removeBlocElem = document.createElement('a');
-      removeBlocElem.style = 'float:right;color: #ccc;text-decoration: none';
-      removeBlocElem.href = '#';
-      removeBlocElem.textContent = 'X';
-      removeBlocElem.addEventListener('click', (e) => {
+      const removeBlockElem = document.createElement('a');
+      removeBlockElem.style = 'float:right;color: #ccc;text-decoration: none';
+      removeBlockElem.href = '#';
+      removeBlockElem.textContent = 'X';
+      removeBlockElem.addEventListener('click', (e) => {
         e.preventDefault();
-        removeBloc(bid);
+        removeBlock(bid);
       });
-      headerElem.appendChild(removeBlocElem);
-      headerElem.appendChild(document.createTextNode(blocInfo[bid].displayName));
+      headerElem.appendChild(removeBlockElem);
+      headerElem.appendChild(document.createTextNode(blockInfo[bid].displayName));
       wrapperElem.appendChild(headerElem);
 
-      if (blocInst.panelView) {
-        wrapperElem.appendChild(blocInst.panelView);
+      if (blockInst.panelView) {
+        wrapperElem.appendChild(blockInst.panelView);
       } else {
         const placeholderElem = document.createElement('div');
         placeholderElem.innerHTML = '<div style="box-sizing:border-box;width:62px;height:256px;text-align:center;font-size:14px;background:white;font-style:italic;color:gray;padding:100px 5px">No panel view</div>';
         wrapperElem.appendChild(placeholderElem);
       }
 
-      blocContainerElem.appendChild(wrapperElem);
-      blocInfo[bid].wrapperElem = wrapperElem;
+      blockContainerElem.appendChild(wrapperElem);
+      blockInfo[bid].wrapperElem = wrapperElem;
 
       updatePatchConnectOptions();
     }
 
-    const removeBloc = (bid) => {
+    const removeBlock = (bid) => {
       // Remove all connections to/from it
       const cidsToRemove = [];
       for (const cid in cxnInfo) {
         const info = cxnInfo[cid];
-        if ((info.outBlocId === bid) || (info.inBlocId === bid)) {
+        if ((info.outBlockId === bid) || (info.inBlockId === bid)) {
           cidsToRemove.push(cid);
         }
       }
@@ -246,15 +246,15 @@ export default class Racket {
       }
 
       // Unmount its UI and wrapper
-      blocContainerElem.removeChild(blocInfo[bid].wrapperElem);
+      blockContainerElem.removeChild(blockInfo[bid].wrapperElem);
 
       // Deactivate if it has a deactivation method
-      const binst = blocInfo[bid].instance;
+      const binst = blockInfo[bid].instance;
       if (binst.deactivate) {
         binst.deactivate();
       }
 
-      delete blocInfo[bid];
+      delete blockInfo[bid];
 
       updatePatchConnectOptions();
     };
@@ -267,7 +267,7 @@ export default class Racket {
         case 'audio':
           const dummyNode = audioContext.createGain();
           this.inputs[portName] = {type: 'audio', node: dummyNode};
-          rackInputPseudobloc.outputs[portName] = {type: 'audio', node: dummyNode};
+          rackInputPseudoblock.outputs[portName] = {type: 'audio', node: dummyNode};
           break;
 
         default:
@@ -283,7 +283,7 @@ export default class Racket {
         case 'audio':
           const dummyNode = audioContext.createGain();
           this.outputs[portName] = {type: 'audio', node: dummyNode};
-          rackOutputPseudobloc.inputs[portName] = {type: 'audio', node: dummyNode};
+          rackOutputPseudoblock.inputs[portName] = {type: 'audio', node: dummyNode};
           break;
 
         default:
@@ -291,25 +291,25 @@ export default class Racket {
       }
     };
 
-    const addConnection = ({outBlocId, outPortName, inBlocId, inPortName}) => {
+    const addConnection = ({outBlockId, outPortName, inBlockId, inPortName}) => {
       const cid = 'c' + nextCxnIdNum;
       nextCxnIdNum++;
 
       const info = {
-        outBlocId,
+        outBlockId,
         outPortName,
-        inBlocId,
+        inBlockId,
         inPortName,
         disconnect: undefined, // function to remove connection
       };
       cxnInfo[cid] = info;
 
-      const outBloc = blocInfo[outBlocId].instance;
-      const inBloc = blocInfo[inBlocId].instance;
-      switch (outBloc.outputs[outPortName].type) {
+      const outBlock = blockInfo[outBlockId].instance;
+      const inBlock = blockInfo[inBlockId].instance;
+      switch (outBlock.outputs[outPortName].type) {
         case 'audio':
-          const outNode = outBloc.outputs[outPortName].node;
-          const inNode = inBloc.inputs[inPortName].node;
+          const outNode = outBlock.outputs[outPortName].node;
+          const inNode = inBlock.inputs[inPortName].node;
           outNode.connect(inNode);
           info.disconnect = (() => {
             outNode.disconnect(inNode); // NOTE: This was added later on to Web Audio spec
@@ -317,7 +317,7 @@ export default class Racket {
           break;
 
         case 'gateEvent':
-          info.disconnect = outBloc.outputs[outPortName].subscribe(inBloc.inputs[inPortName].notify);
+          info.disconnect = outBlock.outputs[outPortName].subscribe(inBlock.inputs[inPortName].notify);
           break;
 
         default:
@@ -366,21 +366,21 @@ export default class Racket {
 
     this.windowView.addEventListener('drop', e => {
       e.preventDefault();
-      const blocCode = e.dataTransfer.getData('text/javascript');
-      addBloc(blocCode);
+      const blockCode = e.dataTransfer.getData('text/javascript');
+      addBlock(blockCode);
     }, false);
 
     // Load settings if present, otherwise set up some defaults
     if (settings) {
       const settingsObj = JSON.parse(settings);
 
-      // Load de-duped code for contained blocs
+      // Load de-duped code for contained blocks
       const codeMap = new Map(settingsObj.codeMap); // restore from array of pairs
 
-      // Load blocs (sans pseudoblocs)
-      for (const bid of settingsObj.blocOrder) {
-        const binfo = settingsObj.blocMap[bid];
-        addBloc(codeMap.get(binfo.codeId), binfo.settings, binfo.displayName);
+      // Load blocks (sans pseudoblocks)
+      for (const bid of settingsObj.blockOrder) {
+        const binfo = settingsObj.blockMap[bid];
+        addBlock(codeMap.get(binfo.codeId), binfo.settings, binfo.displayName);
       }
 
       // Create rack inputs/output ports
@@ -406,24 +406,24 @@ export default class Racket {
 
     // Store some stuff as member variables
     // TODO: hide these
-    this.blocInfo = blocInfo;
-    this.pseudoblocIds = pseudoblocIds;
-    this.blocContainerElem = blocContainerElem;
+    this.blockInfo = blockInfo;
+    this.pseudoblockIds = pseudoblockIds;
+    this.blockContainerElem = blockContainerElem;
     this.cxnInfo = cxnInfo;
-    this.rackInputPseudobloc = rackInputPseudobloc;
-    this.rackOutputPseudobloc = rackOutputPseudobloc;
+    this.rackInputPseudoblock = rackInputPseudoblock;
+    this.rackOutputPseudoblock = rackOutputPseudoblock;
   }
 
   save() {
-    // Build map from bloc codes to unique ids
+    // Build map from block codes to unique ids
     const codeToId = new Map(); // maps code strings to unique integer ids
     let nextCodeId = 1;
 
-    for (const bid in this.blocInfo) {
-      if (this.pseudoblocIds.has(bid)) {
-        continue; // Skip pseudoblocs
+    for (const bid in this.blockInfo) {
+      if (this.pseudoblockIds.has(bid)) {
+        continue; // Skip pseudoblocks
       }
-      const binfo = this.blocInfo[bid];
+      const binfo = this.blockInfo[bid];
       if (!codeToId.has(binfo.code)) {
         codeToId.set(binfo.code, nextCodeId);
         nextCodeId++;
@@ -436,28 +436,28 @@ export default class Racket {
       codeMap.set(v, k);
     }
 
-    // Build map from bloc id to saved bloc info
-    const blocMap = {}; // since keys are strings, don't need to use Map
-    for (const bid in this.blocInfo) {
-      if (this.pseudoblocIds.has(bid)) {
-        continue; // Skip pseudoblocs
+    // Build map from block id to saved block info
+    const blockMap = {}; // since keys are strings, don't need to use Map
+    for (const bid in this.blockInfo) {
+      if (this.pseudoblockIds.has(bid)) {
+        continue; // Skip pseudoblocks
       }
-      const binfo = this.blocInfo[bid];
-      blocMap[bid] = {
+      const binfo = this.blockInfo[bid];
+      blockMap[bid] = {
         codeId: codeToId.get(binfo.code),
         settings: binfo.instance.save ? binfo.instance.save() : null,
         displayName: binfo.displayName,
       }
     }
 
-    // Iterate displayed blocs to find their order
-    const blocOrder = [];
-    for (const el of this.blocContainerElem.childNodes) {
-      const bid = el.dataset.blocid;
-      if (!bid || !blocMap[bid]) {
+    // Iterate displayed blocks to find their order
+    const blockOrder = [];
+    for (const el of this.blockContainerElem.childNodes) {
+      const bid = el.dataset.blockid;
+      if (!bid || !blockMap[bid]) {
         throw new Error('internal error');
       }
-      blocOrder.push(el.dataset.blocid);
+      blockOrder.push(el.dataset.blockid);
     }
 
     // Store connections pretty much as-is
@@ -465,29 +465,29 @@ export default class Racket {
     for (const cid in this.cxnInfo) {
       const cinfo = this.cxnInfo[cid];
       connections.push({
-        outBlocId: cinfo.outBlocId,
+        outBlockId: cinfo.outBlockId,
         outPortName: cinfo.outPortName,
-        inBlocId: cinfo.inBlocId,
+        inBlockId: cinfo.inBlockId,
         inPortName: cinfo.inPortName,
       });
     }
 
     // Save the rack input and output ports
     const rackInputPorts = {};
-    for (const pn in this.rackInputPseudobloc.outputs) {
-      const pinfo = this.rackInputPseudobloc.outputs[pn];
+    for (const pn in this.rackInputPseudoblock.outputs) {
+      const pinfo = this.rackInputPseudoblock.outputs[pn];
       rackInputPorts[pn] = {type: pinfo.type};
     }
     const rackOutputPorts = {};
-    for (const pn in this.rackOutputPseudobloc.inputs) {
-      const pinfo = this.rackOutputPseudobloc.inputs[pn];
+    for (const pn in this.rackOutputPseudoblock.inputs) {
+      const pinfo = this.rackOutputPseudoblock.inputs[pn];
       rackOutputPorts[pn] = {type: pinfo.type};
     }
 
     return JSON.stringify({
       codeMap: [...codeMap], // convert to array of pairs for JSONification
-      blocMap,
-      blocOrder,
+      blockMap,
+      blockOrder,
       connections,
       rackInputPorts,
       rackOutputPorts,
@@ -495,4 +495,4 @@ export default class Racket {
   }
 }
 
-Racket.blocName = 'Racket';
+Racket.blockName = 'Racket';
