@@ -8,6 +8,7 @@ const availableBlockCodes = {
   'DrumSynth': require('!raw!./blocks/drumsynth/bundle.js'),
   'Orinami': require('!raw!./blocks/orinami/bundle.js'),
   'Racket': require('!raw!./blocks/racket/bundle.js'),
+  'Scope': require('!raw!./blocks/scope/bundle.js'),
   'Waverly': require('!raw!./blocks/waverly/bundle.js'),
 };
 
