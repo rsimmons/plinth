@@ -19,7 +19,7 @@ function createEventOutput() {
 }
 
 export default class BeatClock {
-  constructor(document, audioContext) {
+  constructor(document, audioContext, settings) {
     const TICKS_PER_BEAT = 4;
     const divs = [
       {outName: 'gate16', divisor: 1},
@@ -36,17 +36,22 @@ export default class BeatClock {
       div.emitter = emitter;
     }
 
-    let tempo = 120;
+    this.tempo = 120;
     const MIN_TEMPO = 10;
 
+    if (settings) {
+      const settingsObj = JSON.parse(settings);
+      this.tempo = settingsObj.tempo;
+    }
+
     const tmpElem = document.createElement('div');
-    tmpElem.innerHTML = '<div style="box-sizing: border-box; width: 190px; height: 256px; padding: 5px; background-color: white;"><div>BeatClock</div><form><label>Tempo <input type="number" value="' + tempo + '" min="' + MIN_TEMPO + '" style="width: 50px" />bpm</label></form></div>';
+    tmpElem.innerHTML = '<div style="box-sizing: border-box; width: 190px; height: 256px; padding: 5px; background-color: white;"><div>BeatClock</div><form><label>Tempo <input type="number" value="' + this.tempo + '" min="' + MIN_TEMPO + '" style="width: 50px" />bpm</label></form></div>';
     this.panelView = tmpElem.childNodes[0];
 
-    this.panelView.querySelector('input').addEventListener('input', function(e) {
+    this.panelView.querySelector('input').addEventListener('input', (e) => {
       const t = parseInt(e.target.value, 10);
       if (!isNaN(t) && (t >= MIN_TEMPO)) {
-        tempo = t;
+        this.tempo = t;
       }
     }, false);
 
@@ -55,8 +60,8 @@ export default class BeatClock {
     let nextTickTime = audioContext.currentTime + 0.1; // start first tick a little in the future
     let nextTickNumber = 0;
 
-    this._scheduler.start(function(e) {
-      const secsPerTick = 60.0/(tempo*TICKS_PER_BEAT);
+    this._scheduler.start((e) => {
+      const secsPerTick = 60.0/(this.tempo*TICKS_PER_BEAT);
 
       while (nextTickTime < e.end) {
         for (const div of divs) {
@@ -78,6 +83,12 @@ export default class BeatClock {
 
   deactivate() {
     this._scheduler.stop();
+  }
+
+  save() {
+    return JSON.stringify({
+      tempo: this.tempo,
+    });
   }
 }
 
