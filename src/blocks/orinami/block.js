@@ -2,6 +2,7 @@ export default class Orinami {
   constructor(document, audioContext) {
     const MIN_STAGES = 0;
     const INIT_STAGES = 4;
+
     let inputGainLow;
 
     const inputGainNode = audioContext.createGain();
@@ -20,9 +21,15 @@ export default class Orinami {
       shaperNode.curve = curve;
       inputGainLow = 1.0/(points-1);
       // TODO: get inputGainNode gain based on inputGainLow and current Amount setting
+      this.stages = stages;
     };
 
-    setNumStages(INIT_STAGES);
+    if (settings) {
+      const settingsObj = JSON.parse(settings);
+      setNumStages(settingsObj.stages);
+    } else {
+      setNumStages(INIT_STAGES);
+    }
 
     this.inputs = {
       'audio': {type: 'audio', node: inputGainNode}
@@ -32,10 +39,10 @@ export default class Orinami {
     };
 
     const tmpElem = document.createElement('div');
-    tmpElem.innerHTML = '<div style="box-sizing: border-box; width: 126px; height: 256px; padding: 5px; background-color: white;"><div>Orinami</div><div><label>Stages <input type="number" value="' + INIT_STAGES + '" min="' + MIN_STAGES + '" step="1" style="width: 50px" /></label></div></div>';
+    tmpElem.innerHTML = '<div style="box-sizing: border-box; width: 126px; height: 256px; padding: 5px; background-color: white;"><div>Orinami</div><div><label>Stages <input type="number" value="' + this.stages + '" min="' + MIN_STAGES + '" step="1" style="width: 50px" /></label></div></div>';
     this.panelView = tmpElem.childNodes[0];
 
-    this.panelView.querySelector('input').addEventListener('input', function(e) {
+    this.panelView.querySelector('input').addEventListener('input', (e) => {
       const st = parseInt(e.target.value, 10);
       if (!isNaN(st)) {
         const fst = Math.floor(st);
@@ -44,6 +51,12 @@ export default class Orinami {
         }
       }
     }, false);
+  }
+
+  save() {
+    return JSON.stringify({
+      stages: this.stages,
+    });
   }
 }
 
