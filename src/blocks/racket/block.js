@@ -6,6 +6,9 @@ function removeChildren(node) {
   }
 }
 
+const uid32 = () => Math.random().toString(16).substring(2, 10);
+const uid64 = () => uid32() + uid32();
+
 export default class Racket {
   constructor(document, audioContext, settings) {
     this.inputs = {
@@ -33,7 +36,6 @@ export default class Racket {
       }
     };
 
-    let nextBlockIdNum = 1;
     const blockInfo = {// maps block id (our local unique id for block instances) to an info object
       'ri': {
         id: 'ri',
@@ -53,7 +55,6 @@ export default class Racket {
 
     const pseudoblockIds = new Set(['ri', 'ro']);
 
-    let nextCxnIdNum = 1;
     const cxnInfo = {}; // maps connection id to info about connection
 
     const updatePatchConnectionList = () => {
@@ -183,12 +184,11 @@ export default class Racket {
       }
     };
 
-    const addBlock = (code, settings, displayName) => {
-      const bid = 'b' + nextBlockIdNum;
-      nextBlockIdNum++;
-
+    const addBlock = (code, settings, blockId, displayName) => {
       const blockClass = eval(code);
       const blockInst = new blockClass(document, audioContext, settings);
+
+      const bid = blockId || 'b' + uid64();
 
       blockInfo[bid] = {
         id: bid,
@@ -292,8 +292,7 @@ export default class Racket {
     };
 
     const addConnection = ({outBlockId, outPortName, inBlockId, inPortName}) => {
-      const cid = 'c' + nextCxnIdNum;
-      nextCxnIdNum++;
+      const cid = 'c' + uid64();
 
       const info = {
         outBlockId,
@@ -380,7 +379,7 @@ export default class Racket {
       // Load blocks (sans pseudoblocks)
       for (const bid of settingsObj.blockOrder) {
         const binfo = settingsObj.blockMap[bid];
-        addBlock(codeMap.get(binfo.codeId), binfo.settings, binfo.displayName);
+        addBlock(codeMap.get(binfo.codeId), binfo.settings, bid, binfo.displayName);
       }
 
       // Create rack inputs/output ports
