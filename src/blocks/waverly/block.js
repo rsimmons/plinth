@@ -42,7 +42,7 @@ export default class Waverly {
     const frequencyInputElem = this.panelView.querySelector('.frequency-input');
     frequencyInputElem.value = oscNode.frequency.value;
     frequencyInputElem.addEventListener('input', () => {
-      const v = parseInt(frequencyInputElem.value, 10);
+      const v = parseFloat(frequencyInputElem.value);
       if (v > 0) {
         oscNode.frequency.value = v;
       }
@@ -51,7 +51,7 @@ export default class Waverly {
     const fmScaleInputElem = this.panelView.querySelector('.fm-scale-input');
     fmScaleInputElem.value = fmScalerNode.gain.value;
     fmScaleInputElem.addEventListener('input', () => {
-      const v = parseInt(fmScaleInputElem.value, 10);
+      const v = parseFloat(fmScaleInputElem.value);
       fmScalerNode.gain.value = v;
     });
 
