@@ -6,6 +6,8 @@ import FileSaver from 'file-saver';
 const availableBlockCodes = {
   'BeatClock': require('!raw!./blocks/beatclock/bundle.js'),
   'DrumSynth': require('!raw!./blocks/drumsynth/bundle.js'),
+  'Egen': require('!raw!./blocks/egen/bundle.js'),
+  'Gainer': require('!raw!./blocks/gainer/bundle.js'),
   'Orinami': require('!raw!./blocks/orinami/bundle.js'),
   'Racket': require('!raw!./blocks/racket/bundle.js'),
   'Scope': require('!raw!./blocks/scope/bundle.js'),
