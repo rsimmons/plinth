@@ -5,6 +5,7 @@ import FileSaver from 'file-saver';
 //  or from arbitrary (3rd party) URLs.
 const availableBlockCodes = {
   'BeatClock': require('!raw!./blocks/beatclock/bundle.js'),
+  'Convolux': require('!raw!./blocks/convolux/bundle.js'),
   'DrumSynth': require('!raw!./blocks/drumsynth/bundle.js'),
   'Egen': require('!raw!./blocks/egen/bundle.js'),
   'Gainer': require('!raw!./blocks/gainer/bundle.js'),
