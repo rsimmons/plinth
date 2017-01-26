@@ -408,7 +408,7 @@ export default class Racket {
 
     const addJackElem = (blockId, inout, portName, isInput, container) => {
       const jackElem = document.createElement('div');
-      jackElem.style = 'color:black;font-size:12px;display:inline-block;box-sizing:border-box;border:1px solid #555;margin:2px 0;padding:3px 6px;border-radius:2px';
+      jackElem.style = 'color:black;font-size:12px;display:inline-block;box-sizing:border-box;border:1px solid #555;margin:2px 0;padding:3px 6px;border-radius:2px;word-break:break-word';
       jackElem.style.backgroundColor = JACK_NORMAL_BACKGROUND_COLOR;
       jackElem.dataset.blockid = blockId;
       jackElem.dataset.inout = inout;
