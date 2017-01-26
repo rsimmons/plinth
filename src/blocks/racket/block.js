@@ -24,6 +24,7 @@ export default class Racket {
     let currentEnteredJack = null;
 
     const blockContainerElem = this.windowView.querySelector('.block-container');
+    const rackJacksSubpanelElem = this.windowView.querySelector('.rack-jacks-subpanel');
     const patchInputSelectElem = this.windowView.querySelector('.patch-input-select');
     const patchOutputSelectElem = this.windowView.querySelector('.patch-output-select');
     const patchConnectButtonElem = this.windowView.querySelector('.patch-connect-button');
@@ -189,6 +190,8 @@ export default class Racket {
           }
         }
       }
+
+      rackJacksSubpanelElem.style.display = showFront ? 'none' : 'block';
 
       updateWires();
       updateAddingWire();
