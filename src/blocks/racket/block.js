@@ -394,8 +394,8 @@ export default class Racket {
     };
     document.addEventListener('mousemove', handleMouseMove, false);
 
-    const JACK_NORMAL_BACKGROUND_COLOR = '#999';
-    const JACK_HOVER_BACKGROUND_COLOR = '#ddd';
+    const JACK_NORMAL_BACKGROUND_COLOR = '#bbb';
+    const JACK_HOVER_BACKGROUND_COLOR = '#eee';
 
     const handleJackMouseEnter = (e) => {
       const jackElem = e.currentTarget;
@@ -493,7 +493,7 @@ export default class Racket {
       blockInfo[bid].portContainerElem = portContainerElem;
 
       const backPanelElem = document.createElement('div');
-      backPanelElem.style = 'width:' + blockInfo[bid].panelWidth + 'px;height:' + blockInfo[bid].panelHeight + 'px;background-color:#ccc';
+      backPanelElem.style = 'width:' + blockInfo[bid].panelWidth + 'px;height:' + blockInfo[bid].panelHeight + 'px;background-color:#ddd';
       backPanelElem.appendChild(headerElem);
       backPanelElem.appendChild(portContainerElem);
       wrapperElem.appendChild(backPanelElem);
