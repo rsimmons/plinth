@@ -211,7 +211,7 @@ export default class Racket {
     const getJackCoords = (bid, inout, pn) => {
       const jackElem = blockInfo[bid].portContainerElem.querySelector('.port-jack[data-inout="' + inout + '"][data-portname="' + pn + '"]');
       return {
-        x: jackElem.offsetLeft + 0.5*jackElem.offsetWidth,
+        x: jackElem.offsetLeft + ((inout === 'output') ? (jackElem.offsetWidth-12) : 12),
         y: jackElem.offsetTop + 0.5*jackElem.offsetHeight,
       };
     };
@@ -391,22 +391,25 @@ export default class Racket {
     };
     document.addEventListener('mousemove', handleMouseMove, false);
 
+    const JACK_NORMAL_BACKGROUND_COLOR = '#999';
+    const JACK_HOVER_BACKGROUND_COLOR = '#ddd';
+
     const handleJackMouseEnter = (e) => {
       const jackElem = e.currentTarget;
-      jackElem.style.backgroundColor = 'black';
+      jackElem.style.backgroundColor = JACK_HOVER_BACKGROUND_COLOR;
       currentEnteredJack = e.currentTarget;
     }
 
     const handleJackMouseLeave = (e) => {
       const jackElem = e.currentTarget;
-      jackElem.style.backgroundColor = 'white';
+      jackElem.style.backgroundColor = JACK_NORMAL_BACKGROUND_COLOR;
       currentEnteredJack = null;
     }
 
-    const addPortElem = (blockId, inout, portName, isInput, container) => {
+    const addJackElem = (blockId, inout, portName, isInput, container) => {
       const jackElem = document.createElement('div');
-      const JACK_RADIUS = 5;
-      jackElem.style = 'display:inline-block;box-sizing:border-box;width:' + 2*JACK_RADIUS + 'px;height:' + 2*JACK_RADIUS + 'px;border-radius:' + JACK_RADIUS + 'px;border:1px solid black;margin:0 0.2em;background-color:white';
+      jackElem.style = 'color:black;font-size:12px;display:inline-block;box-sizing:border-box;border:1px solid #555;margin:2px 0;padding:3px 6px;border-radius:2px';
+      jackElem.style.backgroundColor = JACK_NORMAL_BACKGROUND_COLOR;
       jackElem.dataset.blockid = blockId;
       jackElem.dataset.inout = inout;
       jackElem.dataset.portname = portName;
@@ -414,21 +417,15 @@ export default class Racket {
       jackElem.addEventListener('mousedown', handleJackMouseDown, false);
       jackElem.addEventListener('mouseenter', handleJackMouseEnter, false);
       jackElem.addEventListener('mouseleave', handleJackMouseLeave, false);
+      jackElem.textContent = isInput ? ('\u25B7 ' + portName) : (portName + ' \u25BA');
 
-      const portElem = document.createElement('div');
-      if (isInput) {
-        portElem.appendChild(jackElem);
-      }
-      portElem.appendChild(document.createTextNode(portName));
+      const wrapperElem = document.createElement('div');
       if (!isInput) {
-        portElem.appendChild(jackElem);
+        wrapperElem.style.textAlign = 'right';
       }
+      wrapperElem.appendChild(jackElem);
 
-      if (!isInput) {
-        portElem.style.textAlign = 'right';
-      }
-
-      container.appendChild(portElem);
+      container.appendChild(wrapperElem);
     };
 
     const addBlock = (code, settings, blockId, displayName) => {
@@ -500,10 +497,10 @@ export default class Racket {
 
       // Add elements representing ports
       for (const pn in blockInst.inputs) {
-        addPortElem(bid, 'input', pn, true, portContainerElem);
+        addJackElem(bid, 'input', pn, true, portContainerElem);
       }
       for (const pn in blockInst.outputs) {
-        addPortElem(bid, 'output', pn, false, portContainerElem);
+        addJackElem(bid, 'output', pn, false, portContainerElem);
       }
 
       updateFrontBackDisplay(); // sort of overkill to update all blocks, but keeps code neat
@@ -546,7 +543,7 @@ export default class Racket {
           const dummyNode = audioContext.createGain();
           this.inputs[portName] = {type: 'audio', node: dummyNode};
           rackInputPseudoblock.outputs[portName] = {type: 'audio', node: dummyNode};
-          addPortElem('ri', 'output', portName, false, blockInfo['ri'].portContainerElem);
+          addJackElem('ri', 'output', portName, false, blockInfo['ri'].portContainerElem);
           break;
 
         default:
@@ -563,7 +560,7 @@ export default class Racket {
           const dummyNode = audioContext.createGain();
           this.outputs[portName] = {type: 'audio', node: dummyNode};
           rackOutputPseudoblock.inputs[portName] = {type: 'audio', node: dummyNode};
-          addPortElem('ro', 'input', portName, true, blockInfo['ro'].portContainerElem);
+          addJackElem('ro', 'input', portName, true, blockInfo['ro'].portContainerElem);
           break;
 
         default:
