@@ -19,12 +19,23 @@ export default class Racket {
     const tmpElem = document.createElement('div');
     tmpElem.innerHTML = template;
     this.windowView = tmpElem.childNodes[0];
+    let addingWireAttachedJack = null; // jack element of anchored end of wire we are currently adding, if any
+    let addingWireLooseCoord = null;
+    let currentEnteredJack = null;
 
     const blockContainerElem = this.windowView.querySelector('.block-container');
     const patchInputSelectElem = this.windowView.querySelector('.patch-input-select');
     const patchOutputSelectElem = this.windowView.querySelector('.patch-output-select');
     const patchConnectButtonElem = this.windowView.querySelector('.patch-connect-button');
     const patchConnectionListElem = this.windowView.querySelector('.patch-connection-list');
+
+    const wiresCanvasElem = document.createElement('canvas');
+    wiresCanvasElem.style = 'position:absolute;pointer-events:none';
+    this.windowView.appendChild(wiresCanvasElem);
+
+    const addingWireCanvasElem = document.createElement('canvas');
+    addingWireCanvasElem.style = 'position:absolute;pointer-events:none';
+    this.windowView.appendChild(addingWireCanvasElem);
 
     // We create a sort of fake block instances for the rack input and output, to simplify some things
     const rackInputPseudoblock = {
@@ -43,6 +54,8 @@ export default class Racket {
         _class: null,
         instance: rackInputPseudoblock,
         displayName: 'RACK INPUT',
+        wrapperElem: null,
+        portContainerElem: this.windowView.querySelector('.rack-input-ports'),
       },
       'ro': {
         id: 'ro',
@@ -50,12 +63,16 @@ export default class Racket {
         _class: null,
         instance: rackOutputPseudoblock,
         displayName: 'RACK OUTPUT',
+        wrapperElem: null,
+        portContainerElem: this.windowView.querySelector('.rack-output-ports'),
       }
     };
 
     const pseudoblockIds = new Set(['ri', 'ro']);
 
     const cxnInfo = {}; // maps connection id to info about connection
+
+    let showFront = true;
 
     const updatePatchConnectionList = () => {
       removeChildren(patchConnectionListElem);
@@ -159,6 +176,146 @@ export default class Racket {
       updatePatchConnectionValidity();
     };
 
+    const updateFrontBackDisplay = () => {
+      for (const bid in blockInfo) {
+        const we = blockInfo[bid].wrapperElem;
+        if (we) {
+          if (showFront) {
+            we.firstChild.style.display = 'block';
+            we.lastChild.style.display = 'none';
+          } else {
+            we.firstChild.style.display = 'none';
+            we.lastChild.style.display = 'block';
+          }
+        }
+      }
+
+      updateWires();
+      updateAddingWire();
+    };
+
+    const toggleFrontBackDisplay = () => {
+      showFront = !showFront;
+      updateFrontBackDisplay();
+    };
+
+    const matchElemSize = (targetElem, sourceElem) => {
+      targetElem.style.left = sourceElem.offsetLeft;
+      targetElem.style.top = sourceElem.offsetTop;
+      targetElem.style.width = sourceElem.offsetWidth;
+      targetElem.style.height = sourceElem.offsetHeight;
+      targetElem.width = sourceElem.offsetWidth;
+      targetElem.height = sourceElem.offsetHeight;
+    };
+
+    const getJackCoords = (bid, inout, pn) => {
+      const jackElem = blockInfo[bid].portContainerElem.querySelector('.port-jack[data-inout="' + inout + '"][data-portname="' + pn + '"]');
+      return {
+        x: jackElem.offsetLeft + 0.5*jackElem.offsetWidth,
+        y: jackElem.offsetTop + 0.5*jackElem.offsetHeight,
+      };
+    };
+
+    const updateWires = () => {
+      if (showFront) {
+        wiresCanvasElem.style.display = 'none';
+      } else {
+        wiresCanvasElem.style.display = 'block';
+
+        // Size and position canvas to overlay view
+        const overElem = this.windowView;
+        matchElemSize(wiresCanvasElem, overElem);
+
+        const ctx = wiresCanvasElem.getContext('2d');
+        const cWidth = wiresCanvasElem.width;
+        const cHeight = wiresCanvasElem.height;
+
+        ctx.clearRect(0, 0, cWidth, cHeight);
+
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = 'rgb(0, 255, 0)';
+        ctx.globalAlpha = 0.5;
+
+        ctx.beginPath();
+        for (const cid in cxnInfo) {
+          const cinfo = cxnInfo[cid];
+          const outCoords = getJackCoords(cinfo.outBlockId, 'output', cinfo.outPortName);
+          const inCoords = getJackCoords(cinfo.inBlockId, 'input', cinfo.inPortName);
+          ctx.moveTo(outCoords.x - overElem.offsetLeft, outCoords.y - overElem.offsetTop);
+          ctx.lineTo(inCoords.x - overElem.offsetLeft, inCoords.y - overElem.offsetTop);
+        }
+        ctx.stroke();
+      }
+    };
+
+    const addingWireCxnSpec = () => {
+      if (currentEnteredJack) {
+        if (addingWireAttachedJack.dataset.inout === 'input') {
+          if (currentEnteredJack.dataset.inout === 'input') {
+            return null;
+          } else if (currentEnteredJack.dataset.inout === 'output') {
+            return {
+              outBlockId: currentEnteredJack.dataset.blockid,
+              outPortName: currentEnteredJack.dataset.portname,
+              inBlockId: addingWireAttachedJack.dataset.blockid,
+              inPortName: addingWireAttachedJack.dataset.portname,
+            };
+          } else {
+            throw new Error('internal error');
+          }
+        } else if (addingWireAttachedJack.dataset.inout === 'output') {
+          if (currentEnteredJack.dataset.inout === 'input') {
+            return {
+              outBlockId: addingWireAttachedJack.dataset.blockid,
+              outPortName: addingWireAttachedJack.dataset.portname,
+              inBlockId: currentEnteredJack.dataset.blockid,
+              inPortName: currentEnteredJack.dataset.portname,
+            };
+          } else if (currentEnteredJack.dataset.inout === 'output') {
+            return null;
+          } else {
+            throw new Error('internal error');
+          }
+        } else {
+          throw new Error('internal error');
+        }
+      } else {
+        return null;
+      }
+    };
+
+    const updateAddingWire = () => {
+      if (showFront || !addingWireAttachedJack) {
+        addingWireCanvasElem.style.display = 'none';
+      } else {
+        addingWireCanvasElem.style.display = 'block';
+
+        const attachedJackCoords = getJackCoords(addingWireAttachedJack.dataset.blockid, addingWireAttachedJack.dataset.inout, addingWireAttachedJack.dataset.portname);
+
+        const cxnSpec = addingWireCxnSpec();
+        const willBeValid = cxnSpec && isValidConnection(cxnSpec);
+
+        // Size and position canvas to overlay view
+        const overElem = this.windowView;
+        matchElemSize(addingWireCanvasElem, overElem);
+
+        const ctx = addingWireCanvasElem.getContext('2d');
+        const cWidth = addingWireCanvasElem.width;
+        const cHeight = addingWireCanvasElem.height;
+
+        ctx.clearRect(0, 0, cWidth, cHeight);
+
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = willBeValid ? 'rgb(0, 255, 0)' : 'rgb(255, 0, 0)';
+        ctx.globalAlpha = 0.75;
+
+        ctx.beginPath();
+        ctx.moveTo(attachedJackCoords.x - overElem.offsetLeft, attachedJackCoords.y - overElem.offsetTop);
+        ctx.lineTo(addingWireLooseCoord.x - overElem.offsetLeft, addingWireLooseCoord.y - overElem.offsetTop);
+        ctx.stroke();
+      }
+    };
+
     // Check if displayName of given block is unique, and if not alter so that it is
     const uniquifyDisplayName = (bid) => {
       const dn = blockInfo[bid].displayName;
@@ -184,6 +341,96 @@ export default class Racket {
       }
     };
 
+    const finishAddingWire = () => {
+      if (!addingWireAttachedJack) {
+        throw new Error('internal error');
+      }
+
+      if (currentEnteredJack) {
+        const cxnSpec = addingWireCxnSpec();
+        if (cxnSpec && isValidConnection(cxnSpec)) {
+          addConnection(cxnSpec);
+        }
+      }
+
+      addingWireAttachedJack = null;
+      addingWireLooseCoord = null;
+    };
+
+    const handleJackMouseDown = (e) => {
+      e.preventDefault();
+      const jackElem = e.currentTarget;
+
+      if (addingWireAttachedJack) {
+        finishAddingWire();
+      } else {
+        addingWireAttachedJack = jackElem;
+        addingWireLooseCoord = {x: e.clientX, y: e.clientY};
+      }
+      updateAddingWire();
+    };
+
+    const handleMouseUp = (e) => {
+      if (addingWireAttachedJack) {
+        e.preventDefault();
+        if (currentEnteredJack === addingWireAttachedJack) {
+          // mouseup on same jack that we started on, ignore it
+        } else {
+          finishAddingWire();
+          updateAddingWire();
+        }
+      }
+    };
+    document.addEventListener('mouseup', handleMouseUp, false);
+
+    const handleMouseMove = (e) => {
+      if (addingWireAttachedJack) {
+        addingWireLooseCoord = {x: e.clientX, y: e.clientY};
+        updateAddingWire();
+      }
+    };
+    document.addEventListener('mousemove', handleMouseMove, false);
+
+    const handleJackMouseEnter = (e) => {
+      const jackElem = e.currentTarget;
+      jackElem.style.backgroundColor = 'black';
+      currentEnteredJack = e.currentTarget;
+    }
+
+    const handleJackMouseLeave = (e) => {
+      const jackElem = e.currentTarget;
+      jackElem.style.backgroundColor = 'white';
+      currentEnteredJack = null;
+    }
+
+    const addPortElem = (blockId, inout, portName, isInput, container) => {
+      const jackElem = document.createElement('div');
+      const JACK_RADIUS = 5;
+      jackElem.style = 'display:inline-block;box-sizing:border-box;width:' + 2*JACK_RADIUS + 'px;height:' + 2*JACK_RADIUS + 'px;border-radius:' + JACK_RADIUS + 'px;border:1px solid black;margin:0 0.2em;background-color:white';
+      jackElem.dataset.blockid = blockId;
+      jackElem.dataset.inout = inout;
+      jackElem.dataset.portname = portName;
+      jackElem.className = 'port-jack';
+      jackElem.addEventListener('mousedown', handleJackMouseDown, false);
+      jackElem.addEventListener('mouseenter', handleJackMouseEnter, false);
+      jackElem.addEventListener('mouseleave', handleJackMouseLeave, false);
+
+      const portElem = document.createElement('div');
+      if (isInput) {
+        portElem.appendChild(jackElem);
+      }
+      portElem.appendChild(document.createTextNode(portName));
+      if (!isInput) {
+        portElem.appendChild(jackElem);
+      }
+
+      if (!isInput) {
+        portElem.style.textAlign = 'right';
+      }
+
+      container.appendChild(portElem);
+    };
+
     const addBlock = (code, settings, blockId, displayName) => {
       const blockClass = eval(code);
       const blockInst = new blockClass(document, audioContext, settings);
@@ -197,15 +444,36 @@ export default class Racket {
         instance: blockInst,
         displayName: displayName || blockClass.blockName,
         wrapperElem: undefined,
+        panelWidth: undefined,
+        panelHeight: undefined,
+        portContainerElem: undefined,
       };
       uniquifyDisplayName(bid);
+
+      let effectivePanelViewElem; // either the real panel view element or a placeholder
+      if (blockInst.panelView) {
+        effectivePanelViewElem = blockInst.panelView;
+      } else {
+        const PLACEHOLDER_WIDTH = 62;
+        const PLACEHOLDER_HEIGHT = 256;
+        const tmpElem = document.createElement('div');
+        tmpElem.innerHTML = '<div style="box-sizing:border-box;width:' + PLACEHOLDER_WIDTH + 'px;height:' + PLACEHOLDER_HEIGHT + 'px;text-align:center;font-size:14px;background:white;font-style:italic;color:gray;padding:100px 5px">No panel view</div>';
+        effectivePanelViewElem = tmpElem.firstChild;
+      }
 
       const wrapperElem = document.createElement('div');
       wrapperElem.style = 'margin: 1px';
       wrapperElem.setAttribute('data-blockid', bid);
+      wrapperElem.appendChild(effectivePanelViewElem);
 
-      const headerElem = document.createElement('div');
-      headerElem.style = 'background-color: #555; font-size: 12px; padding: 4px 6px; color: #ccc';
+      blockContainerElem.appendChild(wrapperElem);
+      blockInfo[bid].wrapperElem = wrapperElem;
+
+      // Can only query these dimensions once the elem has been added to page
+      blockInfo[bid].panelWidth = effectivePanelViewElem.offsetWidth;
+      blockInfo[bid].panelHeight = effectivePanelViewElem.offsetHeight;
+
+      // Create back panel
       const removeBlockElem = document.createElement('a');
       removeBlockElem.style = 'float:right;color: #ccc;text-decoration: none';
       removeBlockElem.href = '#';
@@ -214,21 +482,31 @@ export default class Racket {
         e.preventDefault();
         removeBlock(bid);
       });
+
+      const headerElem = document.createElement('div');
+      headerElem.style = 'background-color: #555; font-size: 12px; padding: 4px 6px; color: #ccc';
       headerElem.appendChild(removeBlockElem);
       headerElem.appendChild(document.createTextNode(blockInfo[bid].displayName));
-      wrapperElem.appendChild(headerElem);
 
-      if (blockInst.panelView) {
-        wrapperElem.appendChild(blockInst.panelView);
-      } else {
-        const placeholderElem = document.createElement('div');
-        placeholderElem.innerHTML = '<div style="box-sizing:border-box;width:62px;height:256px;text-align:center;font-size:14px;background:white;font-style:italic;color:gray;padding:100px 5px">No panel view</div>';
-        wrapperElem.appendChild(placeholderElem);
+      const portContainerElem = document.createElement('div');
+      portContainerElem.style = 'padding: 5px';
+      blockInfo[bid].portContainerElem = portContainerElem;
+
+      const backPanelElem = document.createElement('div');
+      backPanelElem.style = 'width:' + blockInfo[bid].panelWidth + 'px;height:' + blockInfo[bid].panelHeight + 'px;background-color:#ccc';
+      backPanelElem.appendChild(headerElem);
+      backPanelElem.appendChild(portContainerElem);
+      wrapperElem.appendChild(backPanelElem);
+
+      // Add elements representing ports
+      for (const pn in blockInst.inputs) {
+        addPortElem(bid, 'input', pn, true, portContainerElem);
+      }
+      for (const pn in blockInst.outputs) {
+        addPortElem(bid, 'output', pn, false, portContainerElem);
       }
 
-      blockContainerElem.appendChild(wrapperElem);
-      blockInfo[bid].wrapperElem = wrapperElem;
-
+      updateFrontBackDisplay(); // sort of overkill to update all blocks, but keeps code neat
       updatePatchConnectOptions();
     }
 
@@ -268,6 +546,7 @@ export default class Racket {
           const dummyNode = audioContext.createGain();
           this.inputs[portName] = {type: 'audio', node: dummyNode};
           rackInputPseudoblock.outputs[portName] = {type: 'audio', node: dummyNode};
+          addPortElem('ri', 'output', portName, false, blockInfo['ri'].portContainerElem);
           break;
 
         default:
@@ -284,6 +563,7 @@ export default class Racket {
           const dummyNode = audioContext.createGain();
           this.outputs[portName] = {type: 'audio', node: dummyNode};
           rackOutputPseudoblock.inputs[portName] = {type: 'audio', node: dummyNode};
+          addPortElem('ro', 'input', portName, true, blockInfo['ro'].portContainerElem);
           break;
 
         default:
@@ -325,6 +605,7 @@ export default class Racket {
 
       updatePatchConnectionList();
       updatePatchConnectionValidity();
+      updateWires();
     }
 
     const removeConnection = (cid) => {
@@ -333,6 +614,7 @@ export default class Racket {
       delete cxnInfo[cid];
       updatePatchConnectionList();
       updatePatchConnectionValidity();
+      updateWires();
     };
 
     patchInputSelectElem.addEventListener('input', () => {
@@ -399,12 +681,45 @@ export default class Racket {
       addRackOutput('audio', 'audio');
     }
 
+    const onKeydownFunc = (e) => {
+      if (e.key === ' ') {
+        toggleFrontBackDisplay();
+        e.preventDefault();
+      }
+    };
+    document.addEventListener('keydown', onKeydownFunc);
+
+    this.windowView.querySelector('.toggle-front-back-button').addEventListener('click', () => {
+      toggleFrontBackDisplay();
+    });
+
     // Do initial UI updates
     updatePatchConnectionValidity();
     updatePatchConnectOptions();
+    updateWires();
+
+    this.deactivate = () => {
+      // NOTE: We remove blocks one by one. It might be safe to just directly
+      //  deactivate them and do less work, but this is easy and should be robust.
+      const bids = [];
+      for (const bid in blockInfo) {
+        if (pseudoblockIds.has(bid)) {
+          continue; // Skip pseudoblocks
+        }
+        bids.push(bid);
+      }
+
+      for (const bid of bids) {
+        removeBlock(bid);
+      }
+
+      document.removeEventListener('keydown', onKeydownFunc);
+      document.removeEventListener('mouseup', handleMouseUp, false);
+      document.removeEventListener('mousemove', handleMouseMove, false);
+    };
 
     // Store some stuff as member variables
-    // TODO: hide these
+    // TODO: move save definition in here and get rid of these
     this.blockInfo = blockInfo;
     this.pseudoblockIds = pseudoblockIds;
     this.blockContainerElem = blockContainerElem;
@@ -412,22 +727,6 @@ export default class Racket {
     this.rackInputPseudoblock = rackInputPseudoblock;
     this.rackOutputPseudoblock = rackOutputPseudoblock;
     this.removeBlock = removeBlock;
-  }
-
-  deactivate() {
-    // NOTE: We remove blocks one by one. It might be safe to just directly
-    //  deactivate them and do less work, but this is easy and should be robust.
-    const bids = [];
-    for (const bid in this.blockInfo) {
-      if (this.pseudoblockIds.has(bid)) {
-        continue; // Skip pseudoblocks
-      }
-      bids.push(bid);
-    }
-
-    for (const bid of bids) {
-      this.removeBlock(bid);
-    }
   }
 
   save() {

@@ -1,11 +1,22 @@
-<div style="display: flex; flex-direction: column; min-height: 100%; background-color: #222">
-    <div style="font-size: 18px; padding: 5px 10px; color: #ddd; background-color: #666">Racket</div>
-    <div style="flex-grow: 1; display: flex">
-        <div class="block-container" style="flex: 1; flex-wrap: wrap; display: flex; align-content: flex-start; padding: 1px"></div>
-        <div style="flex: 0 0 400px; background-color: #444; padding: 10px">
-            <div style="color: #bbb; font-size: 16px; margin-bottom: 10px;">Patch Management</div>
-            <div><select class="patch-output-select"></select> &rarr; <select class="patch-input-select"></select> <button class="patch-connect-button">Connect</button></div>
-            <ul class="patch-connection-list" style="list-style-type: none;padding:0"></ul>
+<div style="display: flex; min-height: 100%; background-color: #222">
+    <div style="width: 100px; padding: 5px 10px; color: #ddd; background-color: #666">
+        <div style="font-size: 18px">Racket</div>
+        <div style="margin-top: 10px">
+            <button class="toggle-front-back-button">Flip [space]</button>
         </div>
+        <div style="margin-top: 10px">
+            <div>Inbound</div>
+            <div class="rack-input-ports"></div>
+        </div>
+        <div style="margin-top: 10px">
+            <div>Outbound</div>
+            <div class="rack-output-ports"></div>
+        </div>
+    </div>
+    <div class="block-container" style="flex: 1; flex-wrap: wrap; display: flex; align-content: flex-start; padding: 1px"></div>
+    <div style="flex: 0 0 400px; background-color: #444; padding: 10px">
+        <div style="color: #bbb; font-size: 16px; margin-bottom: 10px;">Patch Management</div>
+        <div><select class="patch-output-select"></select> &rarr; <select class="patch-input-select"></select> <button class="patch-connect-button">Connect</button></div>
+        <ul class="patch-connection-list" style="list-style-type: none;padding:0"></ul>
     </div>
 </div>
