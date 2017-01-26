@@ -409,7 +409,7 @@ export default class Racket {
       currentEnteredJack = null;
     }
 
-    const addJackElem = (blockId, inout, portName, isInput, container) => {
+    const createJackElem = (blockId, inout, portName, ralign) => {
       const jackElem = document.createElement('div');
       jackElem.style = 'color:black;font-size:12px;display:inline-block;box-sizing:border-box;border:1px solid #555;margin:2px 0;padding:3px 6px;border-radius:2px;word-break:break-word';
       jackElem.style.backgroundColor = JACK_NORMAL_BACKGROUND_COLOR;
@@ -420,15 +420,15 @@ export default class Racket {
       jackElem.addEventListener('mousedown', handleJackMouseDown, false);
       jackElem.addEventListener('mouseenter', handleJackMouseEnter, false);
       jackElem.addEventListener('mouseleave', handleJackMouseLeave, false);
-      jackElem.textContent = isInput ? ('\u25B7 ' + portName) : (portName + ' \u25BA');
+      jackElem.textContent = (inout === 'input') ? ('\u25B7 ' + portName) : (portName + ' \u25BA');
 
       const wrapperElem = document.createElement('div');
-      if (!isInput) {
+      if (ralign) {
         wrapperElem.style.textAlign = 'right';
       }
       wrapperElem.appendChild(jackElem);
 
-      container.appendChild(wrapperElem);
+      return wrapperElem;
     };
 
     const addBlock = (code, settings, blockId, displayName) => {
@@ -500,10 +500,10 @@ export default class Racket {
 
       // Add elements representing ports
       for (const pn in blockInst.inputs) {
-        addJackElem(bid, 'input', pn, true, portContainerElem);
+        portContainerElem.appendChild(createJackElem(bid, 'input', pn));
       }
       for (const pn in blockInst.outputs) {
-        addJackElem(bid, 'output', pn, false, portContainerElem);
+        portContainerElem.appendChild(createJackElem(bid, 'output', pn, true));
       }
 
       updateFrontBackDisplay(); // sort of overkill to update all blocks, but keeps code neat
@@ -546,7 +546,7 @@ export default class Racket {
           const dummyNode = audioContext.createGain();
           this.inputs[portName] = {type: 'audio', node: dummyNode};
           rackInputPseudoblock.outputs[portName] = {type: 'audio', node: dummyNode};
-          addJackElem('ri', 'output', portName, false, blockInfo['ri'].portContainerElem);
+          blockInfo['ri'].portContainerElem.appendChild(createJackElem('ri', 'output', portName));
           break;
 
         default:
@@ -563,7 +563,7 @@ export default class Racket {
           const dummyNode = audioContext.createGain();
           this.outputs[portName] = {type: 'audio', node: dummyNode};
           rackOutputPseudoblock.inputs[portName] = {type: 'audio', node: dummyNode};
-          addJackElem('ro', 'input', portName, true, blockInfo['ro'].portContainerElem);
+          blockInfo['ro'].portContainerElem.appendChild(createJackElem('ro', 'input', portName));
           break;
 
         default:
