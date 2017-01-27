@@ -2,9 +2,10 @@
     <div style="width: 100px; padding: 5px 10px; color: #ddd; background-color: #666">
         <div style="font-size: 18px">Racket</div>
         <div style="margin-top: 10px">
-            <button class="toggle-front-back-button">Flip [space]</button>
+            <button class="toggle-front-back-button" style="width:100px;padding:5px;font-size:14px;border:1px solid #222;border-radius:5px;background-color:#eee;color:#222;cursor:pointer">Flip<br>[space]</button>
         </div>
-        <div class="rack-jacks-subpanel" style="display: none">
+        <div class="rack-jacks-subpanel" style="display: none;margin-top:10px">
+            <button class="delete-wires-button" style="width:100px;padding:5px;font-size:14px;border:1px solid #222;border-radius:5px;background-color:#eee;color:#222;cursor:pointer">Delete Wires<br>[d]</button>
             <div style="margin-top: 10px">
                 <div>Inbound</div>
                 <div class="rack-input-ports"></div>
@@ -16,8 +17,8 @@
         </div>
     </div>
     <div class="block-container" style="flex: 1; flex-wrap: wrap; display: flex; align-content: flex-start; padding: 1px"></div>
-    <div style="flex: 0 0 400px; background-color: #444; padding: 10px">
-        <div style="color: #bbb; font-size: 16px; margin-bottom: 10px;">Patch Management</div>
+    <div style="flex: 0 0 400px; background-color: #444; padding: 10px;display:none">
+        <div style="color: #bbb; font-size: 16px; margin-bottom: 10px">Patch Management</div>
         <div><select class="patch-output-select"></select> &rarr; <select class="patch-input-select"></select> <button class="patch-connect-button">Connect</button></div>
         <ul class="patch-connection-list" style="list-style-type: none;padding:0"></ul>
     </div>

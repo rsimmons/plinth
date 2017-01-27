@@ -22,9 +22,12 @@ export default class Racket {
     let addingWireAttachedJack = null; // jack element of anchored end of wire we are currently adding, if any
     let addingWireLooseCoord = null;
     let currentEnteredJack = null;
+    let mousePos = null;
+    let deletingWiresMode = false; // Are we in delete-wires mode?
 
     const blockContainerElem = this.windowView.querySelector('.block-container');
     const rackJacksSubpanelElem = this.windowView.querySelector('.rack-jacks-subpanel');
+    const deleteWiresButtonElem = this.windowView.querySelector('.delete-wires-button');
     const patchInputSelectElem = this.windowView.querySelector('.patch-input-select');
     const patchOutputSelectElem = this.windowView.querySelector('.patch-output-select');
     const patchConnectButtonElem = this.windowView.querySelector('.patch-connect-button');
@@ -220,6 +223,8 @@ export default class Racket {
     };
 
     const updateWires = () => {
+      const hitWireCxnIds = [];
+
       if (showFront) {
         wiresCanvasElem.style.display = 'none';
       } else {
@@ -235,20 +240,42 @@ export default class Racket {
 
         ctx.clearRect(0, 0, cWidth, cHeight);
 
-        ctx.lineWidth = 5;
-        ctx.strokeStyle = 'rgb(0, 255, 0)';
+        ctx.lineCap = 'round';
         ctx.globalAlpha = 0.5;
 
-        ctx.beginPath();
         for (const cid in cxnInfo) {
           const cinfo = cxnInfo[cid];
           const outCoords = getJackCoords(cinfo.outBlockId, 'output', cinfo.outPortName);
           const inCoords = getJackCoords(cinfo.inBlockId, 'input', cinfo.inPortName);
-          ctx.moveTo(outCoords.x - overElem.offsetLeft, outCoords.y - overElem.offsetTop);
-          ctx.lineTo(inCoords.x - overElem.offsetLeft, inCoords.y - overElem.offsetTop);
+
+          const strokeWire = () => {
+            ctx.beginPath();
+            ctx.moveTo(outCoords.x - overElem.offsetLeft, outCoords.y - overElem.offsetTop);
+            ctx.lineTo(inCoords.x - overElem.offsetLeft, inCoords.y - overElem.offsetTop);
+            ctx.stroke();
+          };
+
+          let hit = false;
+          if (deletingWiresMode) {
+            // Do a "test" stroke just for hit detection
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0)';
+            ctx.lineWidth = 20;
+            strokeWire();
+            hit = ctx.isPointInStroke(mousePos.x - overElem.offsetLeft, mousePos.y - overElem.offsetTop);
+          }
+
+          // Now do the real stroke with color based on hit detection
+          ctx.strokeStyle = hit ? 'rgb(255, 0, 0)' : 'rgb(0, 255, 0)';
+          ctx.lineWidth = 6;
+          strokeWire();
+
+          if (hit) {
+            hitWireCxnIds.push(cid);
+          }
         }
-        ctx.stroke();
       }
+
+      return hitWireCxnIds;
     };
 
     const addingWireCxnSpec = () => {
@@ -308,8 +335,9 @@ export default class Racket {
 
         ctx.clearRect(0, 0, cWidth, cHeight);
 
-        ctx.lineWidth = 5;
-        ctx.strokeStyle = willBeValid ? 'rgb(0, 255, 0)' : 'rgb(255, 0, 0)';
+        ctx.lineWidth = 6;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = willBeValid ? 'rgb(0, 255, 0)' : 'rgb(255,105,180)';
         ctx.globalAlpha = 0.75;
 
         ctx.beginPath();
@@ -344,6 +372,25 @@ export default class Racket {
       }
     };
 
+    const toggleDeleteWiresMode = () => {
+      if (deletingWiresMode) {
+        deletingWiresMode = false;
+        deleteWiresButtonElem.style.backgroundColor = '#eee';
+        updateWires();
+      } else {
+        addingWireAttachedJack = null;
+        addingWireLooseCoord = null;
+        deletingWiresMode = true;
+        deleteWiresButtonElem.style.backgroundColor = 'red';
+        if (currentEnteredJack) {
+          currentEnteredJack.style.backgroundColor = JACK_NORMAL_BACKGROUND_COLOR;
+          currentEnteredJack.style.cursor = 'default';
+        }
+        updateWires();
+        updateAddingWire();
+      }
+    };
+
     const finishAddingWire = () => {
       if (!addingWireAttachedJack) {
         throw new Error('internal error');
@@ -361,6 +408,10 @@ export default class Racket {
     };
 
     const handleJackMouseDown = (e) => {
+      if (deletingWiresMode) {
+        return;
+      }
+
       e.preventDefault();
       const jackElem = e.currentTarget;
 
@@ -372,6 +423,19 @@ export default class Racket {
       }
       updateAddingWire();
     };
+
+    const handleMouseDown = (e) => {
+      if (deletingWiresMode) {
+        const hitWireCxnIds = updateWires();
+        if (hitWireCxnIds.length > 0) {
+          e.preventDefault();
+          for (const cid of hitWireCxnIds) {
+            removeConnection(cid);
+          }
+        }
+      }
+    };
+    document.addEventListener('mousedown', handleMouseDown, false);
 
     const handleMouseUp = (e) => {
       if (addingWireAttachedJack) {
@@ -387,6 +451,10 @@ export default class Racket {
     document.addEventListener('mouseup', handleMouseUp, false);
 
     const handleMouseMove = (e) => {
+      mousePos = {x: e.clientX, y: e.clientY};
+      if (!showFront && deletingWiresMode) {
+        updateWires();
+      }
       if (addingWireAttachedJack) {
         addingWireLooseCoord = {x: e.clientX, y: e.clientY};
         updateAddingWire();
@@ -399,19 +467,23 @@ export default class Racket {
 
     const handleJackMouseEnter = (e) => {
       const jackElem = e.currentTarget;
-      jackElem.style.backgroundColor = JACK_HOVER_BACKGROUND_COLOR;
-      currentEnteredJack = e.currentTarget;
+      if (!deletingWiresMode) {
+        jackElem.style.backgroundColor = JACK_HOVER_BACKGROUND_COLOR;
+        jackElem.style.cursor = 'pointer';
+      }
+      currentEnteredJack = jackElem;
     }
 
     const handleJackMouseLeave = (e) => {
       const jackElem = e.currentTarget;
       jackElem.style.backgroundColor = JACK_NORMAL_BACKGROUND_COLOR;
+      jackElem.style.cursor = 'default';
       currentEnteredJack = null;
     }
 
     const createJackElem = (blockId, inout, portName, ralign) => {
       const jackElem = document.createElement('div');
-      jackElem.style = 'color:black;font-size:12px;display:inline-block;box-sizing:border-box;border:1px solid #555;margin:2px 0;padding:3px 6px;border-radius:2px;word-break:break-word';
+      jackElem.style = 'color:black;font-size:12px;display:inline-block;box-sizing:border-box;border:1px solid #555;margin:2px 0;padding:3px 6px;border-radius:2px;word-break:break-word;cursor:pointer;user-select:none';
       jackElem.style.backgroundColor = JACK_NORMAL_BACKGROUND_COLOR;
       jackElem.dataset.blockid = blockId;
       jackElem.dataset.inout = inout;
@@ -685,12 +757,21 @@ export default class Racket {
       if (e.key === ' ') {
         toggleFrontBackDisplay();
         e.preventDefault();
+      } else if (e.key === 'd') {
+        if (!showFront) {
+          toggleDeleteWiresMode();
+          e.preventDefault();
+        }
       }
     };
     document.addEventListener('keydown', onKeydownFunc);
 
     this.windowView.querySelector('.toggle-front-back-button').addEventListener('click', () => {
       toggleFrontBackDisplay();
+    });
+
+    this.windowView.querySelector('.delete-wires-button').addEventListener('click', () => {
+      toggleDeleteWiresMode();
     });
 
     // Do initial UI updates
@@ -714,6 +795,7 @@ export default class Racket {
       }
 
       document.removeEventListener('keydown', onKeydownFunc);
+      document.removeEventListener('mousedown', handleMouseDown, false);
       document.removeEventListener('mouseup', handleMouseUp, false);
       document.removeEventListener('mousemove', handleMouseMove, false);
     };
