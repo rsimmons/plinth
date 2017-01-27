@@ -27,6 +27,10 @@ body {
   margin: 5px 0;
   background-color: white;
   border: 1px solid #888;
+  cursor: move;
+  cursor: grab;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
 }
 
 #root-container {
@@ -54,7 +58,7 @@ p {
           <h2 class="header">Presets</h2>
           <div>
             <div class="preset-option"><button id="load-racket-button">Load Racket (empty)</button></div>
-            <div class="preset-option"><input id="load-preset-file-chooser" type="file"><button id="load-preset-button">Load Preset File</button></div>
+            <div class="preset-option"><input id="load-preset-file-chooser" type="file" style="max-width:200px"><button id="load-preset-button">Load Preset File</button></div>
             <div class="preset-option"><button id="save-preset-button">Save Preset File</button></div>
           </div>
           <h2 class="header">Block Palette</h2>
