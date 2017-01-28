@@ -59,7 +59,7 @@ export default class Racket {
         instance: rackInputPseudoblock,
         displayName: 'RACK INPUT',
         wrapperElem: null,
-        portContainerElem: this.windowView.querySelector('.rack-input-ports'),
+        jackContainerElem: this.windowView.querySelector('.rack-input-ports'),
       },
       'ro': {
         id: 'ro',
@@ -68,7 +68,7 @@ export default class Racket {
         instance: rackOutputPseudoblock,
         displayName: 'RACK OUTPUT',
         wrapperElem: null,
-        portContainerElem: this.windowView.querySelector('.rack-output-ports'),
+        jackContainerElem: this.windowView.querySelector('.rack-output-ports'),
       }
     };
 
@@ -180,6 +180,16 @@ export default class Racket {
       updatePatchConnectionValidity();
     };
 
+    const updateBackPanelDimensions = (bid) => {
+      const we = blockInfo[bid].wrapperElem;
+      if (we) {
+        const frontPanelElem = we.firstChild;
+        const backPanelElem = we.lastChild;
+        backPanelElem.style.width = frontPanelElem.offsetWidth + 'px';
+        backPanelElem.style.height = frontPanelElem.offsetHeight + 'px';
+      }
+    };
+
     const updateFrontBackDisplay = () => {
       for (const bid in blockInfo) {
         const we = blockInfo[bid].wrapperElem;
@@ -201,6 +211,13 @@ export default class Racket {
     };
 
     const toggleFrontBackDisplay = () => {
+      if (showFront) {
+        // Update all back panel dimensions before we switch to back view
+        for (const bid in blockInfo) {
+          updateBackPanelDimensions(bid);
+        }
+      }
+
       showFront = !showFront;
       updateFrontBackDisplay();
     };
@@ -215,7 +232,7 @@ export default class Racket {
     };
 
     const getJackCoords = (bid, inout, pn) => {
-      const jackElem = blockInfo[bid].portContainerElem.querySelector('.port-jack[data-inout="' + inout + '"][data-portname="' + pn + '"]');
+      const jackElem = blockInfo[bid].jackContainerElem.querySelector('.port-jack[data-inout="' + inout + '"][data-portname="' + pn + '"]');
       return {
         x: jackElem.offsetLeft + ((inout === 'output') ? (jackElem.offsetWidth-12) : 12),
         y: jackElem.offsetTop + 0.5*jackElem.offsetHeight,
@@ -515,14 +532,12 @@ export default class Racket {
         _class: blockClass,
         instance: blockInst,
         displayName: displayName || blockClass.blockName,
-        wrapperElem: undefined,
-        panelWidth: undefined,
-        panelHeight: undefined,
-        portContainerElem: undefined,
+        wrapperElem: undefined, // first child is front panel, second child is back panel
+        jackContainerElem: undefined,
       };
       uniquifyDisplayName(bid);
 
-      let effectivePanelViewElem; // either the real panel view element or a placeholder
+      let effectivePanelViewElem;
       if (blockInst.panelView) {
         effectivePanelViewElem = blockInst.panelView;
       } else {
@@ -541,10 +556,6 @@ export default class Racket {
       blockContainerElem.appendChild(wrapperElem);
       blockInfo[bid].wrapperElem = wrapperElem;
 
-      // Can only query these dimensions once the elem has been added to page
-      blockInfo[bid].panelWidth = effectivePanelViewElem.offsetWidth;
-      blockInfo[bid].panelHeight = effectivePanelViewElem.offsetHeight;
-
       // Create back panel
       const removeBlockElem = document.createElement('a');
       removeBlockElem.style = 'float:right;color: #ccc;text-decoration: none';
@@ -560,24 +571,25 @@ export default class Racket {
       headerElem.appendChild(removeBlockElem);
       headerElem.appendChild(document.createTextNode(blockInfo[bid].displayName));
 
-      const portContainerElem = document.createElement('div');
-      portContainerElem.style = 'padding: 5px';
-      blockInfo[bid].portContainerElem = portContainerElem;
+      const jackContainerElem = document.createElement('div');
+      jackContainerElem.style = 'padding: 5px';
+      blockInfo[bid].jackContainerElem = jackContainerElem;
 
       const backPanelElem = document.createElement('div');
-      backPanelElem.style = 'width:' + blockInfo[bid].panelWidth + 'px;height:' + blockInfo[bid].panelHeight + 'px;background-color:#ddd';
+      backPanelElem.style = 'background-color:#ddd';
       backPanelElem.appendChild(headerElem);
-      backPanelElem.appendChild(portContainerElem);
+      backPanelElem.appendChild(jackContainerElem);
       wrapperElem.appendChild(backPanelElem);
 
       // Add elements representing ports
       for (const pn in blockInst.inputs) {
-        portContainerElem.appendChild(createJackElem(bid, 'input', pn));
+        jackContainerElem.appendChild(createJackElem(bid, 'input', pn));
       }
       for (const pn in blockInst.outputs) {
-        portContainerElem.appendChild(createJackElem(bid, 'output', pn, true));
+        jackContainerElem.appendChild(createJackElem(bid, 'output', pn, true));
       }
 
+      updateBackPanelDimensions(bid);
       updateFrontBackDisplay(); // sort of overkill to update all blocks, but keeps code neat
       updatePatchConnectOptions();
     }
@@ -618,7 +630,7 @@ export default class Racket {
           const dummyNode = audioContext.createGain();
           this.inputs[portName] = {type: 'audio', node: dummyNode};
           rackInputPseudoblock.outputs[portName] = {type: 'audio', node: dummyNode};
-          blockInfo['ri'].portContainerElem.appendChild(createJackElem('ri', 'output', portName));
+          blockInfo['ri'].jackContainerElem.appendChild(createJackElem('ri', 'output', portName));
           break;
 
         default:
@@ -635,7 +647,7 @@ export default class Racket {
           const dummyNode = audioContext.createGain();
           this.outputs[portName] = {type: 'audio', node: dummyNode};
           rackOutputPseudoblock.inputs[portName] = {type: 'audio', node: dummyNode};
-          blockInfo['ro'].portContainerElem.appendChild(createJackElem('ro', 'input', portName));
+          blockInfo['ro'].jackContainerElem.appendChild(createJackElem('ro', 'input', portName));
           break;
 
         default:
