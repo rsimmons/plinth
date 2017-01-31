@@ -4,14 +4,14 @@ import FileSaver from 'file-saver';
 //  to simulate the scenario where they are dynamically loaded from a server
 //  or from arbitrary (3rd party) URLs.
 const availableBlockCodes = {
-  'BeatClock': require('!raw!./blocks/beatclock/bundle.js'),
+  'Big Ben': require('!raw!./blocks/bigben/bundle.js'),
   'Convolux': require('!raw!./blocks/convolux/bundle.js'),
-  'DrumSynth': require('!raw!./blocks/drumsynth/bundle.js'),
   'Egen': require('!raw!./blocks/egen/bundle.js'),
   'Gainer': require('!raw!./blocks/gainer/bundle.js'),
   'Orinami': require('!raw!./blocks/orinami/bundle.js'),
   'Racket': require('!raw!./blocks/racket/bundle.js'),
   'Scope': require('!raw!./blocks/scope/bundle.js'),
+  'Thumper': require('!raw!./blocks/thumper/bundle.js'),
   'Waverly': require('!raw!./blocks/waverly/bundle.js'),
 };
 

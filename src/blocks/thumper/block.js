@@ -1,4 +1,4 @@
-export default class DrumSynth {
+export default class Thumper {
   constructor(document, audioContext) {
     const PITCH_LOW = 1;
     const PITCH_START = 440;
@@ -27,9 +27,9 @@ export default class DrumSynth {
     };
 
     const tmpElem = document.createElement('div');
-    tmpElem.innerHTML = '<div style="box-sizing: border-box; width: 126px; height: 256px; padding: 5px; background-color: white;">DrumSynth</div>';
+    tmpElem.innerHTML = '<div style="box-sizing: border-box; width: 126px; height: 256px; padding: 5px; background-color: white;">Thumper</div>';
     this.panelView = tmpElem.childNodes[0];
   }
 }
 
-DrumSynth.blockName = 'DrumSynth';
+Thumper.blockName = 'Thumper';

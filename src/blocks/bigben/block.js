@@ -18,7 +18,7 @@ function createEventOutput() {
   return [subscribe, emit];
 }
 
-export default class BeatClock {
+export default class BigBen {
   constructor(document, audioContext, settings) {
     const TICKS_PER_BEAT = 4;
     const divs = [
@@ -45,7 +45,7 @@ export default class BeatClock {
     }
 
     const tmpElem = document.createElement('div');
-    tmpElem.innerHTML = '<div style="box-sizing: border-box; width: 190px; height: 256px; padding: 5px; background-color: white;"><div>BeatClock</div><form><label>Tempo <input type="number" value="' + this.tempo + '" min="' + MIN_TEMPO + '" style="width: 50px" />bpm</label></form></div>';
+    tmpElem.innerHTML = '<div style="box-sizing: border-box; width: 190px; height: 256px; padding: 5px; background-color: white;"><div>Big Ben</div><form><label>Tempo <input type="number" value="' + this.tempo + '" min="' + MIN_TEMPO + '" style="width: 50px" />bpm</label></form></div>';
     this.panelView = tmpElem.childNodes[0];
 
     this.panelView.querySelector('input').addEventListener('input', (e) => {
@@ -92,4 +92,4 @@ export default class BeatClock {
   }
 }
 
-BeatClock.blockName = 'BeatClock';
+BigBen.blockName = 'Big Ben';
