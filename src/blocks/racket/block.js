@@ -34,11 +34,11 @@ export default class Racket {
     const patchConnectionListElem = this.windowView.querySelector('.patch-connection-list');
 
     const wiresCanvasElem = document.createElement('canvas');
-    wiresCanvasElem.style = 'position:absolute;pointer-events:none';
+    wiresCanvasElem.style.cssText = 'position:absolute;pointer-events:none';
     this.windowView.appendChild(wiresCanvasElem);
 
     const addingWireCanvasElem = document.createElement('canvas');
-    addingWireCanvasElem.style = 'position:absolute;pointer-events:none';
+    addingWireCanvasElem.style.cssText = 'position:absolute;pointer-events:none';
     this.windowView.appendChild(addingWireCanvasElem);
 
     // We create a sort of fake block instances for the rack input and output, to simplify some things
@@ -500,7 +500,7 @@ export default class Racket {
 
     const createJackElem = (blockId, inout, portName, ralign) => {
       const jackElem = document.createElement('div');
-      jackElem.style = 'color:black;font-size:12px;display:inline-block;box-sizing:border-box;border:1px solid #555;margin:2px 0;padding:3px 6px;border-radius:2px;word-break:break-word;cursor:pointer;user-select:none';
+      jackElem.style.cssText = 'color:black;font-size:12px;display:inline-block;box-sizing:border-box;border:1px solid #555;margin:2px 0;padding:3px 6px;border-radius:2px;word-break:break-word;cursor:pointer;user-select:none';
       jackElem.style.backgroundColor = JACK_NORMAL_BACKGROUND_COLOR;
       jackElem.dataset.blockid = blockId;
       jackElem.dataset.inout = inout;
@@ -549,7 +549,7 @@ export default class Racket {
       }
 
       const wrapperElem = document.createElement('div');
-      wrapperElem.style = 'margin: 1px';
+      wrapperElem.style.cssText = 'margin: 1px';
       wrapperElem.setAttribute('data-blockid', bid);
       wrapperElem.appendChild(effectivePanelViewElem);
 
@@ -558,7 +558,7 @@ export default class Racket {
 
       // Create back panel
       const removeBlockElem = document.createElement('a');
-      removeBlockElem.style = 'float:right;color: #ccc;text-decoration: none';
+      removeBlockElem.style.cssText = 'float:right;color: #ccc;text-decoration: none';
       removeBlockElem.href = '#';
       removeBlockElem.textContent = 'X';
       removeBlockElem.addEventListener('click', (e) => {
@@ -567,16 +567,16 @@ export default class Racket {
       });
 
       const headerElem = document.createElement('div');
-      headerElem.style = 'background-color: #555; font-size: 12px; padding: 4px 6px; color: #ccc';
+      headerElem.style.cssText = 'background-color: #555; font-size: 12px; padding: 4px 6px; color: #ccc';
       headerElem.appendChild(removeBlockElem);
       headerElem.appendChild(document.createTextNode(blockInfo[bid].displayName));
 
       const jackContainerElem = document.createElement('div');
-      jackContainerElem.style = 'padding: 5px';
+      jackContainerElem.style.cssText = 'padding: 5px';
       blockInfo[bid].jackContainerElem = jackContainerElem;
 
       const backPanelElem = document.createElement('div');
-      backPanelElem.style = 'background-color:#ddd';
+      backPanelElem.style.cssText = 'background-color:#ddd';
       backPanelElem.appendChild(headerElem);
       backPanelElem.appendChild(jackContainerElem);
       wrapperElem.appendChild(backPanelElem);
