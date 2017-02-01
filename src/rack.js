@@ -1,5 +1,6 @@
 import FileSaver from 'file-saver';
 import applyPolyfills from './polyfills';
+import initWebAudio from './initWebAudio';
 
 applyPolyfills();
 
@@ -31,7 +32,7 @@ for (const blockName in availableBlockCodes) {
 }
 
 // Create a Web Audio context
-const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+const audioContext = initWebAudio(window);
 
 let rootBlockCode;
 let rootBlockClass;

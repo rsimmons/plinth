@@ -2,10 +2,11 @@ import BigBen from './blocks/bigben/block';
 import Thumper from './blocks/thumper/block';
 import Scope from './blocks/scope/block';
 import applyPolyfills from './polyfills';
+import initWebAudio from './initWebAudio';
 
 applyPolyfills();
 
-const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+const audioContext = initWebAudio(window);
 
 // Instantiate some blocks
 const bigBen = new BigBen(document, audioContext);
