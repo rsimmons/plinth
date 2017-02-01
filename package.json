@@ -19,6 +19,7 @@
     "webpack": "^1.14.0"
   },
   "dependencies": {
+    "drag-drop-webkit-mobile": "^1.2.0",
     "file-saver": "^1.3.3"
   }
 }

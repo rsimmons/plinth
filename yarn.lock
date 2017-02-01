@@ -761,6 +761,10 @@ domain-browser@^1.1.1:
   version "1.1.7"
   resolved "https://registry.yarnpkg.com/domain-browser/-/domain-browser-1.1.7.tgz#867aa4b093faa05f1de08c06f4d7b21fdf8698bc"
 
+drag-drop-webkit-mobile@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/drag-drop-webkit-mobile/-/drag-drop-webkit-mobile-1.2.0.tgz#3250afee7cefa5c7558303144986732d4a7151c7"
+
 ecc-jsbn@~0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/ecc-jsbn/-/ecc-jsbn-0.1.1.tgz#0fc73a9ed5f0d53c38193398523ef7e543777505"

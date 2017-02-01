@@ -2,6 +2,10 @@ import FileSaver from 'file-saver';
 import applyPolyfills from './polyfills';
 import initWebAudio from './initWebAudio';
 
+// Shim drag and drop for mobile browsers
+var iosDragDropShim = { enableEnterLeave: true };
+require('drag-drop-webkit-mobile');
+
 applyPolyfills();
 
 // These are JS code strings, to be eval()'d. We load them directly here
