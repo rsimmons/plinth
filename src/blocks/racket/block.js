@@ -436,7 +436,7 @@ export default class Racket {
         finishAddingWire();
       } else {
         addingWireAttachedJack = jackElem;
-        addingWireLooseCoord = {x: e.clientX, y: e.clientY};
+        addingWireLooseCoord = {x: e.pageX, y: e.pageY};
       }
       updateAddingWire();
     };
@@ -468,12 +468,12 @@ export default class Racket {
     document.addEventListener('mouseup', handleMouseUp, false);
 
     const handleMouseMove = (e) => {
-      mousePos = {x: e.clientX, y: e.clientY};
+      mousePos = {x: e.pageX, y: e.pageY};
       if (!showFront && deletingWiresMode) {
         updateWires();
       }
       if (addingWireAttachedJack) {
-        addingWireLooseCoord = {x: e.clientX, y: e.clientY};
+        addingWireLooseCoord = {x: e.pageX, y: e.pageY};
         updateAddingWire();
       }
     };
