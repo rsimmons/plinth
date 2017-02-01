@@ -1,5 +1,5 @@
 export default class Orinami {
-  constructor(document, audioContext) {
+  constructor(document, audioContext, settings) {
     const MIN_STAGES = 0;
     const INIT_STAGES = 4;
 

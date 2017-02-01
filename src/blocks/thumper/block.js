@@ -2,7 +2,7 @@
 const DRUM_SVG_URL = require('svg-url!./drum.svg');
 
 export default class Thumper {
-  constructor(document, audioContext) {
+  constructor(document, audioContext, settings) {
     const PITCH_LOW = 1;
     const PITCH_START = 440;
     const PITCH_DECAY = 0.1;
