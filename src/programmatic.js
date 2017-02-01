@@ -1,6 +1,9 @@
 import BigBen from './blocks/bigben/block';
 import Thumper from './blocks/thumper/block';
 import Scope from './blocks/scope/block';
+import applyPolyfills from './polyfills';
+
+applyPolyfills();
 
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 

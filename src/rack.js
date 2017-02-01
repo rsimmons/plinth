@@ -1,4 +1,7 @@
 import FileSaver from 'file-saver';
+import applyPolyfills from './polyfills';
+
+applyPolyfills();
 
 // These are JS code strings, to be eval()'d. We load them directly here
 //  to simulate the scenario where they are dynamically loaded from a server
