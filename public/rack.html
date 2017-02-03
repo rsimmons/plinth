@@ -11,7 +11,7 @@ body {
 
 #main {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
 }
 
 #left-column {
@@ -20,6 +20,21 @@ body {
   padding: 10px;
   z-index: 10;
   box-shadow: 0 0 20px 5px rgba(0,0,0,0.3);
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
+
+#left-column::-webkit-scrollbar {
+  width: 10px;
+}
+
+#left-column::-webkit-scrollbar-track {
+  background: #c6e3d5;
+}
+
+#left-column::-webkit-scrollbar-thumb {
+  background: #6e7d75;
+  border-right: 2px solid #c6e3d5;
 }
 
 .block-palette-item {
@@ -35,6 +50,7 @@ body {
 
 #root-container {
   flex-grow: 1;
+  height: 100%;
 }
 
 .header {

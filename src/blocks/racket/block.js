@@ -233,9 +233,10 @@ export default class Racket {
 
     const getJackCoords = (bid, inout, pn) => {
       const jackElem = blockInfo[bid].jackContainerElem.querySelector('.port-jack[data-inout="' + inout + '"][data-portname="' + pn + '"]');
+      const pseudo = pseudoblockIds.has(bid);
       return {
-        x: jackElem.offsetLeft + ((inout === 'output') ? (jackElem.offsetWidth-12) : 12),
-        y: jackElem.offsetTop + 0.5*jackElem.offsetHeight,
+        x: jackElem.offsetLeft + ((inout === 'output') ? (jackElem.offsetWidth-12) : 12) - (pseudo ? 0 : blockContainerElem.scrollLeft),
+        y: jackElem.offsetTop + 0.5*jackElem.offsetHeight - (pseudo ? 0 : blockContainerElem.scrollTop),
       };
     };
 
@@ -784,6 +785,11 @@ export default class Racket {
 
     this.windowView.querySelector('.delete-wires-button').addEventListener('click', () => {
       toggleDeleteWiresMode();
+    });
+
+    blockContainerElem.addEventListener('scroll', () => {
+      updateWires();
+      updateAddingWire();
     });
 
     // Do initial UI updates
