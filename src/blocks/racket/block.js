@@ -792,6 +792,12 @@ export default class Racket {
       updateAddingWire();
     });
 
+    const onResizeFunc = () => {
+      updateWires();
+      updateAddingWire();
+    };
+    window.addEventListener('resize', onResizeFunc);
+
     // Do initial UI updates
     updatePatchConnectionValidity();
     updatePatchConnectOptions();
@@ -816,6 +822,7 @@ export default class Racket {
       document.removeEventListener('mousedown', handleMouseDown, false);
       document.removeEventListener('mouseup', handleMouseUp, false);
       document.removeEventListener('mousemove', handleMouseMove, false);
+      window.removeEventListener('resize', onResizeFunc);
     };
 
     // Store some stuff as member variables
