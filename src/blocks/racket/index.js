@@ -51,7 +51,7 @@ class Racket {
       const el = document.createElement('div');
       el.textContent = blockClass.blockName;
       el.setAttribute('draggable', true);
-      el.style.cssText = 'padding:5px 10px;margin:5px 0;color:#222;background-color:white;border:1px solid #888;cursor:move;cursor:grab;cursor:-moz-grab;cursor:-webkit-grab';
+      el.style.cssText = 'padding:5px 10px;margin:5px 0;color:#222;background-color:white;border:1px solid #222;cursor:move;cursor:grab;cursor:-moz-grab;cursor:-webkit-grab';
       blockPaletteElem.appendChild(el);
       el.addEventListener('dragstart', function(e) {
         e.dataTransfer.setData(BLOCK_CLASS_ID_MIME_TYPE, blockClassId);
@@ -408,13 +408,13 @@ class Racket {
     const toggleDeleteWiresMode = () => {
       if (deletingWiresMode) {
         deletingWiresMode = false;
-        deleteWiresButtonElem.style.backgroundColor = '#eee';
+        deleteWiresButtonElem.style.backgroundColor = 'transparent';
         updateWires();
       } else {
         addingWireAttachedJack = null;
         addingWireLooseCoord = null;
         deletingWiresMode = true;
-        deleteWiresButtonElem.style.backgroundColor = 'red';
+        deleteWiresButtonElem.style.backgroundColor = 'rgb(170,0,0)';
         if (currentEnteredJack) {
           currentEnteredJack.style.backgroundColor = JACK_NORMAL_BACKGROUND_COLOR;
           currentEnteredJack.style.cursor = 'default';
