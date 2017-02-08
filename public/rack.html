@@ -11,28 +11,31 @@ body {
 
 #main {
   display: flex;
+  flex-flow: column;
   height: 100vh;
 }
 
-#left-column {
-  width: 200px;
-  background-color: #c6e3d5;
-  padding: 10px;
-  z-index: 10;
-  box-shadow: 0 0 20px 5px rgba(0,0,0,0.3);
+#preset-controls {
+  float: right;
+  line-height: 1;
+}
+
+#frame {
+  background-color: #555;
+  color: #ddd;
+  padding: 5px 10px;
+  font-size: 24px;
 }
 
 #root-container {
-  flex-grow: 1;
-  height: 100%;
+  flex: 1;
+  overflow: scroll;
+  display: flex;
+  flex-direction: column;
 }
 
-.header {
-  margin: 0.75em 0 0.25em;
-}
-
-.preset-option {
-  margin: 10px 0;
+#logo {
+  float: left;
 }
 
 p {
@@ -43,12 +46,12 @@ p {
   </head>
   <body>
     <div id="main">
-        <div id="left-column">
-          <h1 class="header" style="margin-top: 0">Plinth</h1>
-          <div>
-            <div class="preset-option"><button id="load-racket-button">Load Racket (empty)</button></div>
-            <div class="preset-option"><input id="load-preset-file-chooser" type="file" style="max-width:200px"><button id="load-preset-button">Load Preset File</button></div>
-            <div class="preset-option"><button id="save-preset-button">Save Preset File</button></div>
+        <div id="frame">
+          <div id="logo">Plinth</div>
+          <div id="preset-controls">
+            <button id="load-racket-button">Load Racket (empty)</button>
+            <input id="load-preset-file-chooser" type="file" style="max-width:200px"><button id="load-preset-button">Load Preset File</button>
+            <button id="save-preset-button">Save Preset File</button>
           </div>
         </div>
         <div id="root-container"></div>
