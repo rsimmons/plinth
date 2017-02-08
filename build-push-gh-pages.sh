@@ -13,15 +13,8 @@ git clone --depth 1 $REPO $BUILDTMP/src
 
 SRC_SHA="$(cd $BUILDTMP/src && git rev-parse HEAD)"
 
-echo "Doing build ..."
-(
-cd $BUILDTMP/src
-for d in src/blocks/*/ ; do
-    echo "Building $d"
-    (cd "$d" ; yarn && yarn run build)
-done
+echo "Building ..."
 yarn && yarn run build
-)
 
 echo "Cloning gh-pages from github ..."
 git clone --depth 1 --branch gh-pages $REPO $BUILDTMP/dst

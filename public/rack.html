@@ -20,32 +20,6 @@ body {
   padding: 10px;
   z-index: 10;
   box-shadow: 0 0 20px 5px rgba(0,0,0,0.3);
-  overflow-x: hidden;
-  overflow-y: scroll;
-}
-
-#left-column::-webkit-scrollbar {
-  width: 10px;
-}
-
-#left-column::-webkit-scrollbar-track {
-  background: #c6e3d5;
-}
-
-#left-column::-webkit-scrollbar-thumb {
-  background: #6e7d75;
-  border-right: 2px solid #c6e3d5;
-}
-
-.block-palette-item {
-  padding: 5px 10px;
-  margin: 5px 0;
-  background-color: white;
-  border: 1px solid #888;
-  cursor: move;
-  cursor: grab;
-  cursor: -moz-grab;
-  cursor: -webkit-grab;
 }
 
 #root-container {
@@ -70,16 +44,12 @@ p {
   <body>
     <div id="main">
         <div id="left-column">
-          <h1 class="header" style="margin-top: 0">Rack Demo</h1>
-          <h2 class="header">Presets</h2>
+          <h1 class="header" style="margin-top: 0">Plinth</h1>
           <div>
             <div class="preset-option"><button id="load-racket-button">Load Racket (empty)</button></div>
             <div class="preset-option"><input id="load-preset-file-chooser" type="file" style="max-width:200px"><button id="load-preset-button">Load Preset File</button></div>
             <div class="preset-option"><button id="save-preset-button">Save Preset File</button></div>
           </div>
-          <h2 class="header">Block Palette</h2>
-          <p><small>Drag and drop these blocks into other "rack" blocks, like Racket.</small></p>
-          <div id="block-palette"></div>
         </div>
         <div id="root-container"></div>
     </div>

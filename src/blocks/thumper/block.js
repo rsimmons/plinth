@@ -1,5 +1,5 @@
 // Drum icon by Raz Cohen, CC BY 3.0 US, from https://thenounproject.com/term/bass-drum/118259/
-const DRUM_SVG_URL = require('svg-url!./drum.svg');
+const DRUM_SVG_URL = require('./drum.svg');
 
 export default class Thumper {
   constructor(document, audioContext, settings) {

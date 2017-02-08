@@ -1,5 +1,5 @@
 import {encode as b64encode, decode as b64decode} from 'base64-arraybuffer';
-const template = require('!raw!./template.html');
+const template = require('./template.html');
 
 export default class Convolux {
   constructor(document, audioContext, settings) {

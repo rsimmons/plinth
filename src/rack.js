@@ -8,41 +8,30 @@ require('drag-drop-webkit-mobile');
 
 applyPolyfills();
 
-// These are JS code strings, to be eval()'d. We load them directly here
-//  to simulate the scenario where they are dynamically loaded from a server
-//  or from arbitrary (3rd party) URLs.
-const availableBlockCodes = {
-  'Big Ben': require('!raw!./blocks/bigben/bundle.js'),
-  'Convolux': require('!raw!./blocks/convolux/bundle.js'),
-  'Egen': require('!raw!./blocks/egen/bundle.js'),
-  'Gainer': require('!raw!./blocks/gainer/bundle.js'),
-  'Orinami': require('!raw!./blocks/orinami/bundle.js'),
-  'Racket': require('!raw!./blocks/racket/bundle.js'),
-  'Scope': require('!raw!./blocks/scope/bundle.js'),
-  'Thumper': require('!raw!./blocks/thumper/bundle.js'),
-  'Waverly': require('!raw!./blocks/waverly/bundle.js'),
-};
+const availableBlockClasses = {}; // maps block class id to block class
+[
+  'bigben',
+  'convolux',
+  'egen',
+  'gainer',
+  'orinami',
+  'scope',
+  'thumper',
+  'waverly',
+].forEach(n => {
+  availableBlockClasses[n] = require('./blocks/' + n + '/block.js').default; // hacky for now
+});
 
-const blockPaletteElem = document.querySelector('#block-palette');
-for (const blockName in availableBlockCodes) {
-  const el = document.createElement('div');
-  el.textContent = blockName;
-  el.setAttribute('draggable', true);
-  el.className = 'block-palette-item';
-  blockPaletteElem.appendChild(el);
-  el.addEventListener('dragstart', function(e) {
-    e.dataTransfer.setData('text/javascript', availableBlockCodes[blockName]);
-  }, false);
-}
+import createRacketWithBlocks from './blocks/racket';
+availableBlockClasses['racket'] = createRacketWithBlocks(availableBlockClasses);
 
 // Create a Web Audio context
 const audioContext = initWebAudio(window);
 
-let rootBlockCode;
-let rootBlockClass;
+let rootBlockClassId;
 let rootBlockInst;
 
-function loadRootBlock(code, settings) {
+function loadRootBlock(blockClassId, settings) {
   // Unload any current root block
   if (rootBlockInst) {
     rootBlockInst.outputs.audio.node.disconnect(audioContext.destination);
@@ -52,12 +41,11 @@ function loadRootBlock(code, settings) {
     document.querySelector('#root-container').innerHTML = '';
   }
 
-  rootBlockCode = code;
-  rootBlockClass = eval(code);
+  rootBlockClassId = blockClassId;
 
   // Instantiate the root block, which will let the user dynamically instantiate
   //  and connect up other blocks.
-  rootBlockInst = new rootBlockClass(document, audioContext, settings);
+  rootBlockInst = new (availableBlockClasses[blockClassId])(document, audioContext, settings);
 
   // Mount the root block's window view
   // TODO: Handle case where windowView is undefined
@@ -68,7 +56,7 @@ function loadRootBlock(code, settings) {
 }
 
 function loadEmptyRacket() {
-  loadRootBlock(availableBlockCodes['Racket'], undefined);
+  loadRootBlock('racket', undefined);
 }
 
 document.querySelector('#load-racket-button').addEventListener('click', e => {
@@ -93,7 +81,7 @@ document.querySelector('#load-preset-button').addEventListener('click', e => {
     if (!presetObj.plinthPreset) {
       console.log('not a preset');
     }
-    loadRootBlock(presetObj.code, presetObj.settings);
+    loadRootBlock(presetObj.blockClassId, presetObj.settings);
   };
   reader.readAsText(file, 'utf-8');
 });
@@ -110,7 +98,7 @@ document.querySelector('#save-preset-button').addEventListener('click', e => {
 
   const presetObj = {
     'plinthPreset': '0.1.0',
-    'code': rootBlockCode,
+    'blockClassId': rootBlockClassId,
     'settings': settings,
   };
 

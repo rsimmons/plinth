@@ -1,4 +1,4 @@
-const template = require('!raw!./template.html');
+const template = require('./template.html');
 
 export default class Scope {
   constructor(document, audioContext) {

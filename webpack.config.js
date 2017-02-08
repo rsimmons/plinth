@@ -8,18 +8,29 @@ module.exports = {
     filename: 'build/[name].bundle.js',
   },
   module: {
-    loaders: [
+    rules: [
       {
         test: /\.js$/,
         exclude: /node_modules/,
         loader: 'babel-loader',
-        query: {
+        options: {
           presets: ['es2015'],
         },
       },
       {
+        test: /\.html$/,
+        loader: 'html-loader',
+      },
+/*
+      {
         test: /\.css$/,
         loader: 'style!css',
+      },
+*/
+      {
+        test: /\.svg/,
+        loader: 'svg-url-loader',
+        options: {},
       },
     ]
   },

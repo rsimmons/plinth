@@ -1,4 +1,4 @@
-const template = require('!raw!./template.html');
+const template = require('./template.html');
 
 function removeChildren(node) {
   while (node.firstChild) {
@@ -9,7 +9,9 @@ function removeChildren(node) {
 const uid32 = () => Math.random().toString(16).substring(2, 10);
 const uid64 = () => uid32() + uid32();
 
-export default class Racket {
+export default (availableBlockClasses) => {
+// Don't indent to keep things nicer-looking
+class Racket {
   constructor(document, audioContext, settings) {
     this.inputs = {
     };
@@ -25,9 +27,10 @@ export default class Racket {
     let mousePos = null;
     let deletingWiresMode = false; // Are we in delete-wires mode?
 
-    const blockContainerElem = this.windowView.querySelector('.block-container');
+    const blockPaletteElem = this.windowView.querySelector('.block-palette');
     const rackJacksSubpanelElem = this.windowView.querySelector('.rack-jacks-subpanel');
     const deleteWiresButtonElem = this.windowView.querySelector('.delete-wires-button');
+    const blockContainerElem = this.windowView.querySelector('.block-container');
     const patchInputSelectElem = this.windowView.querySelector('.patch-input-select');
     const patchOutputSelectElem = this.windowView.querySelector('.patch-output-select');
     const patchConnectButtonElem = this.windowView.querySelector('.patch-connect-button');
@@ -40,6 +43,20 @@ export default class Racket {
     const addingWireCanvasElem = document.createElement('canvas');
     addingWireCanvasElem.style.cssText = 'position:absolute;pointer-events:none';
     this.windowView.appendChild(addingWireCanvasElem);
+
+    // Fill block palette
+    const BLOCK_CLASS_ID_MIME_TYPE = 'application/prs.plinth-block-class-id';
+    for (const blockClassId in availableBlockClasses) {
+      const blockClass = availableBlockClasses[blockClassId];
+      const el = document.createElement('div');
+      el.textContent = blockClass.blockName;
+      el.setAttribute('draggable', true);
+      el.style.cssText = 'padding:5px 10px;margin:5px 0;color:#222;background-color:white;border:1px solid #888;cursor:move;cursor:grab;cursor:-moz-grab;cursor:-webkit-grab';
+      blockPaletteElem.appendChild(el);
+      el.addEventListener('dragstart', function(e) {
+        e.dataTransfer.setData(BLOCK_CLASS_ID_MIME_TYPE, blockClassId);
+      }, false);
+    }
 
     // We create a sort of fake block instances for the rack input and output, to simplify some things
     const rackInputPseudoblock = {
@@ -54,8 +71,7 @@ export default class Racket {
     const blockInfo = {// maps block id (our local unique id for block instances) to an info object
       'ri': {
         id: 'ri',
-        code: null,
-        _class: null,
+        blockClassId: null,
         instance: rackInputPseudoblock,
         displayName: 'RACK INPUT',
         wrapperElem: null,
@@ -63,8 +79,7 @@ export default class Racket {
       },
       'ro': {
         id: 'ro',
-        code: null,
-        _class: null,
+        blockClassId: null,
         instance: rackOutputPseudoblock,
         displayName: 'RACK OUTPUT',
         wrapperElem: null,
@@ -521,16 +536,15 @@ export default class Racket {
       return wrapperElem;
     };
 
-    const addBlock = (code, settings, blockId, displayName) => {
-      const blockClass = eval(code);
+    const addBlock = (blockClassId, settings, blockId, displayName) => {
+      const blockClass = availableBlockClasses[blockClassId];
       const blockInst = new blockClass(document, audioContext, settings);
 
       const bid = blockId || 'b' + uid64();
 
       blockInfo[bid] = {
         id: bid,
-        code: code,
-        _class: blockClass,
+        blockClassId,
         instance: blockInst,
         displayName: displayName || blockClass.blockName,
         wrapperElem: undefined, // first child is front panel, second child is back panel
@@ -732,21 +746,18 @@ export default class Racket {
 
     this.windowView.addEventListener('drop', e => {
       e.preventDefault();
-      const blockCode = e.dataTransfer.getData('text/javascript');
-      addBlock(blockCode);
+      const blockClassId = e.dataTransfer.getData(BLOCK_CLASS_ID_MIME_TYPE);
+      addBlock(blockClassId);
     }, false);
 
     // Load settings if present, otherwise set up some defaults
     if (settings) {
       const settingsObj = JSON.parse(settings);
 
-      // Load de-duped code for contained blocks
-      const codeMap = new Map(settingsObj.codeMap); // restore from array of pairs
-
       // Load blocks (sans pseudoblocks)
       for (const bid of settingsObj.blockOrder) {
         const binfo = settingsObj.blockMap[bid];
-        addBlock(codeMap.get(binfo.codeId), binfo.settings, bid, binfo.displayName);
+        addBlock(binfo.blockClassId, binfo.settings, bid, binfo.displayName);
       }
 
       // Create rack inputs/output ports
@@ -837,27 +848,6 @@ export default class Racket {
   }
 
   save() {
-    // Build map from block codes to unique ids
-    const codeToId = new Map(); // maps code strings to unique integer ids
-    let nextCodeId = 1;
-
-    for (const bid in this.blockInfo) {
-      if (this.pseudoblockIds.has(bid)) {
-        continue; // Skip pseudoblocks
-      }
-      const binfo = this.blockInfo[bid];
-      if (!codeToId.has(binfo.code)) {
-        codeToId.set(binfo.code, nextCodeId);
-        nextCodeId++;
-      }
-    }
-
-    // Build reverse map from code id to code string, that we will save
-    const codeMap = new Map();
-    for (const [k, v] of codeToId) {
-      codeMap.set(v, k);
-    }
-
     // Build map from block id to saved block info
     const blockMap = {}; // since keys are strings, don't need to use Map
     for (const bid in this.blockInfo) {
@@ -866,7 +856,7 @@ export default class Racket {
       }
       const binfo = this.blockInfo[bid];
       blockMap[bid] = {
-        codeId: codeToId.get(binfo.code),
+        blockClassId: binfo.blockClassId,
         settings: binfo.instance.save ? binfo.instance.save() : null,
         displayName: binfo.displayName,
       }
@@ -907,7 +897,6 @@ export default class Racket {
     }
 
     return JSON.stringify({
-      codeMap: [...codeMap], // convert to array of pairs for JSONification
       blockMap,
       blockOrder,
       connections,
@@ -918,3 +907,7 @@ export default class Racket {
 }
 
 Racket.blockName = 'Racket';
+
+// End of un-indented Racket class definition
+return Racket;
+}

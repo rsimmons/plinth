@@ -1,4 +1,4 @@
-const template = require('!raw!./template.html');
+const template = require('./template.html');
 const Fastidious = require('fastidious-envelope-generator');
 
 export default class Egen {
