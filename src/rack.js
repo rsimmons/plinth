@@ -23,7 +23,8 @@ const availableBlockClasses = {}; // maps block class id to block class
 });
 
 import createRacketWithBlocks from './blocks/racket';
-availableBlockClasses['racket'] = createRacketWithBlocks(availableBlockClasses);
+const availableBlockClassesIncludingRacks = Object.assign({}, availableBlockClasses);
+availableBlockClassesIncludingRacks['racket'] = createRacketWithBlocks(availableBlockClasses);
 
 // Create a Web Audio context
 const audioContext = initWebAudio(window);
@@ -45,7 +46,7 @@ function loadRootBlock(blockClassId, settings) {
 
   // Instantiate the root block, which will let the user dynamically instantiate
   //  and connect up other blocks.
-  rootBlockInst = new (availableBlockClasses[blockClassId])(document, audioContext, settings);
+  rootBlockInst = new (availableBlockClassesIncludingRacks[blockClassId])(document, audioContext, settings);
 
   // Mount the root block's window view
   // TODO: Handle case where windowView is undefined
