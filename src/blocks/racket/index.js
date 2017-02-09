@@ -293,8 +293,8 @@ class Racket {
       } else {
         wiresCanvasElem.style.display = 'block';
 
-        // Size and position canvas to overlay view
-        const overElem = this.windowView;
+        // Size and position canvas to overlay block container
+        const overElem = blockContainerElem;
         matchElemSize(wiresCanvasElem, overElem);
 
         const ctx = wiresCanvasElem.getContext('2d');
@@ -388,8 +388,8 @@ class Racket {
         const cxnSpec = addingWireCxnSpec();
         const willBeValid = cxnSpec && isValidConnection(cxnSpec);
 
-        // Size and position canvas to overlay view
-        const overElem = this.windowView;
+        // Size and position canvas to overlay block container
+        const overElem = blockContainerElem;
         matchElemSize(addingWireCanvasElem, overElem);
 
         const ctx = addingWireCanvasElem.getContext('2d');
