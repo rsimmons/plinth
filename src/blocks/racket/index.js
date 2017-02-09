@@ -1,4 +1,6 @@
 const template = require('./template.html');
+const ENTER_SVG_URL = require('./enter.svg');
+const EXIT_SVG_URL = require('./exit.svg');
 
 function removeChildren(node) {
   while (node.firstChild) {
@@ -9,14 +11,73 @@ function removeChildren(node) {
 const uid32 = () => Math.random().toString(16).substring(2, 10);
 const uid64 = () => uid32() + uid32();
 
+const makeRackPseudoBlockClass = (rackInst, isInput) => (class {
+  constructor(document, audioContext, settings) {
+    this.inputs = {};
+    this.outputs = {};
+
+    // Enter/Exit icons CC BY 3.0 by Rockicon, https://thenounproject.com/rockicon/collection/famous-icons-bold/
+    const tmpElem = document.createElement('div');
+    tmpElem.innerHTML = '<div style="box-sizing:border-box;width:62px;height:256px;text-align:center;font-size:14px;background:#ccc;color:black;padding:95px 5px"><img width="52" height="52" src=' + (isInput ? ENTER_SVG_URL : EXIT_SVG_URL) + '><br>' + (isInput ? 'IN' : 'OUT') + '</div>';
+    this.panelView = tmpElem.firstChild;
+
+    const rackPortGroup = isInput ? rackInst.inputs : rackInst.outputs;
+    const thisPortGroup = isInput ? this.outputs : this.inputs;
+
+    const addPort = (portName, type) => {
+      if (rackPortGroup[portName]) {
+        throw new Error('port name already exists');
+      }
+      switch (type) {
+        case 'audio':
+          const dummyNode = audioContext.createGain();
+          rackPortGroup[portName] = {type: 'audio', node: dummyNode};
+          thisPortGroup[portName] = {type: 'audio', node: dummyNode};
+          break;
+
+        default:
+          throw new Error('Unsupported rack port type');
+      }
+    };
+
+    if (settings) {
+      const settingsObj = JSON.parse(settings);
+      for (const pn in settingsObj.p) {
+        addPort(pn, settingsObj.p[pn].t);
+      }
+    } else {
+      // Set up default ports
+      if (!isInput) {
+        addPort('audio', 'audio');
+      }
+    }
+
+    this.save = () => {
+      const ports = {};
+      for (const pn in thisPortGroup) {
+        ports[pn] = {t: thisPortGroup[pn].type};
+      }
+      return JSON.stringify({
+        p: ports,
+      });
+    };
+  }
+});
+
 export default (availableBlockClasses) => {
 // Don't indent to keep things nicer-looking
 class Racket {
   constructor(document, audioContext, settings) {
-    this.inputs = {
-    };
-    this.outputs = {
-    };
+    const RACK_INPUTS_PSEUDO_CLASS_ID = '__rack-inputs';
+    const RACK_OUTPUTS_PSEUDO_CLASS_ID = '__rack-outputs';
+    const RACK_INPUTS_PSEUDO_BLOCK_ID = 'ri';
+    const RACK_OUTPUTS_PSEUDO_BLOCK_ID = 'ro';
+    const availableBlockClassesPlusPseudo = Object.assign({}, availableBlockClasses);
+    availableBlockClassesPlusPseudo[RACK_INPUTS_PSEUDO_CLASS_ID] = makeRackPseudoBlockClass(this, true);
+    availableBlockClassesPlusPseudo[RACK_OUTPUTS_PSEUDO_CLASS_ID] = makeRackPseudoBlockClass(this, false);
+
+    this.inputs = {};
+    this.outputs = {};
 
     const tmpElem = document.createElement('div');
     tmpElem.innerHTML = template;
@@ -28,7 +89,6 @@ class Racket {
     let deletingWiresMode = false; // Are we in delete-wires mode?
 
     const blockPaletteElem = this.windowView.querySelector('.block-palette');
-    const rackJacksSubpanelElem = this.windowView.querySelector('.rack-jacks-subpanel');
     const deleteWiresButtonElem = this.windowView.querySelector('.delete-wires-button');
     const blockContainerElem = this.windowView.querySelector('.block-container');
     const patchInputSelectElem = this.windowView.querySelector('.patch-input-select');
@@ -58,36 +118,7 @@ class Racket {
       }, false);
     }
 
-    // We create a sort of fake block instances for the rack input and output, to simplify some things
-    const rackInputPseudoblock = {
-      outputs: {
-      }
-    };
-    const rackOutputPseudoblock = {
-      inputs: {
-      }
-    };
-
-    const blockInfo = {// maps block id (our local unique id for block instances) to an info object
-      'ri': {
-        id: 'ri',
-        blockClassId: null,
-        instance: rackInputPseudoblock,
-        displayName: 'RACK INPUT',
-        wrapperElem: null,
-        jackContainerElem: this.windowView.querySelector('.rack-input-ports'),
-      },
-      'ro': {
-        id: 'ro',
-        blockClassId: null,
-        instance: rackOutputPseudoblock,
-        displayName: 'RACK OUTPUT',
-        wrapperElem: null,
-        jackContainerElem: this.windowView.querySelector('.rack-output-ports'),
-      }
-    };
-
-    const pseudoblockIds = new Set(['ri', 'ro']);
+    const blockInfo = {}; // maps block id (our local unique id for block instances) to an info object
 
     const cxnInfo = {}; // maps connection id to info about connection
 
@@ -219,7 +250,7 @@ class Racket {
         }
       }
 
-      rackJacksSubpanelElem.style.display = showFront ? 'none' : 'block';
+      deleteWiresButtonElem.style.visibility = showFront ? 'hidden' : 'visible';
 
       updateWires();
       updateAddingWire();
@@ -248,10 +279,9 @@ class Racket {
 
     const getJackCoords = (bid, inout, pn) => {
       const jackElem = blockInfo[bid].jackContainerElem.querySelector('.port-jack[data-inout="' + inout + '"][data-portname="' + pn + '"]');
-      const pseudo = pseudoblockIds.has(bid);
       return {
-        x: jackElem.offsetLeft + ((inout === 'output') ? (jackElem.offsetWidth-12) : 12) - (pseudo ? 0 : blockContainerElem.scrollLeft),
-        y: jackElem.offsetTop + 0.5*jackElem.offsetHeight - (pseudo ? 0 : blockContainerElem.scrollTop),
+        x: jackElem.offsetLeft + ((inout === 'output') ? (jackElem.offsetWidth-12) : 12) - blockContainerElem.scrollLeft,
+        y: jackElem.offsetTop + 0.5*jackElem.offsetHeight - blockContainerElem.scrollTop,
       };
     };
 
@@ -537,7 +567,7 @@ class Racket {
     };
 
     const addBlock = (blockClassId, settings, blockId, displayName) => {
-      const blockClass = availableBlockClasses[blockClassId];
+      const blockClass = availableBlockClassesPlusPseudo[blockClassId];
       const blockInst = new blockClass(document, audioContext, settings);
 
       const bid = blockId || 'b' + uid64();
@@ -583,7 +613,9 @@ class Racket {
 
       const headerElem = document.createElement('div');
       headerElem.style.cssText = 'background-color: #555; font-size: 12px; padding: 4px 6px; color: #ccc';
-      headerElem.appendChild(removeBlockElem);
+      if (!blockClassId.startsWith('__')) { // Hacky way to test if pseudoblock
+        headerElem.appendChild(removeBlockElem);
+      }
       headerElem.appendChild(document.createTextNode(blockInfo[bid].displayName));
 
       const jackContainerElem = document.createElement('div');
@@ -634,40 +666,6 @@ class Racket {
       delete blockInfo[bid];
 
       updatePatchConnectOptions();
-    };
-
-    const addRackInput = (portName, type) => {
-      if (this.inputs[portName]) {
-        throw new Error('port name already exists');
-      }
-      switch (type) {
-        case 'audio':
-          const dummyNode = audioContext.createGain();
-          this.inputs[portName] = {type: 'audio', node: dummyNode};
-          rackInputPseudoblock.outputs[portName] = {type: 'audio', node: dummyNode};
-          blockInfo['ri'].jackContainerElem.appendChild(createJackElem('ri', 'output', portName));
-          break;
-
-        default:
-          throw new Error('Unsupported rack port type');
-      }
-    };
-
-    const addRackOutput = (portName, type) => {
-      if (this.outputs[portName]) {
-        throw new Error('port name already exists');
-      }
-      switch (type) {
-        case 'audio':
-          const dummyNode = audioContext.createGain();
-          this.outputs[portName] = {type: 'audio', node: dummyNode};
-          rackOutputPseudoblock.inputs[portName] = {type: 'audio', node: dummyNode};
-          blockInfo['ro'].jackContainerElem.appendChild(createJackElem('ro', 'input', portName));
-          break;
-
-        default:
-          throw new Error('Unsupported rack port type');
-      }
     };
 
     const addConnection = ({outBlockId, outPortName, inBlockId, inPortName}) => {
@@ -754,18 +752,10 @@ class Racket {
     if (settings) {
       const settingsObj = JSON.parse(settings);
 
-      // Load blocks (sans pseudoblocks)
+      // Load blocks
       for (const bid of settingsObj.blockOrder) {
         const binfo = settingsObj.blockMap[bid];
         addBlock(binfo.blockClassId, binfo.settings, bid, binfo.displayName);
-      }
-
-      // Create rack inputs/output ports
-      for (const pn in settingsObj.rackInputPorts) {
-        addRackInput(pn, settingsObj.rackInputPorts[pn].type);
-      }
-      for (const pn in settingsObj.rackOutputPorts) {
-        addRackOutput(pn, settingsObj.rackOutputPorts[pn].type);
       }
 
       // Load connections
@@ -773,8 +763,9 @@ class Racket {
         addConnection(cxn);
       }
     } else {
-      // Set up single output port, audio
-      addRackOutput('audio', 'audio');
+      // Set up default (pseudo) blocks
+      // addBlock(RACK_INPUTS_PSEUDO_CLASS_ID, null, RACK_INPUTS_PSEUDO_BLOCK_ID, 'Rack Inputs') // Don't need this yet
+      addBlock(RACK_OUTPUTS_PSEUDO_CLASS_ID, null, RACK_OUTPUTS_PSEUDO_BLOCK_ID, 'Rack Outputs');
     }
 
     const onKeydownFunc = (e) => {
@@ -794,7 +785,7 @@ class Racket {
       toggleFrontBackDisplay();
     });
 
-    this.windowView.querySelector('.delete-wires-button').addEventListener('click', () => {
+    deleteWiresButtonElem.addEventListener('click', () => {
       toggleDeleteWiresMode();
     });
 
@@ -819,9 +810,6 @@ class Racket {
       //  deactivate them and do less work, but this is easy and should be robust.
       const bids = [];
       for (const bid in blockInfo) {
-        if (pseudoblockIds.has(bid)) {
-          continue; // Skip pseudoblocks
-        }
         bids.push(bid);
       }
 
@@ -839,11 +827,8 @@ class Racket {
     // Store some stuff as member variables
     // TODO: move save definition in here and get rid of these
     this.blockInfo = blockInfo;
-    this.pseudoblockIds = pseudoblockIds;
     this.blockContainerElem = blockContainerElem;
     this.cxnInfo = cxnInfo;
-    this.rackInputPseudoblock = rackInputPseudoblock;
-    this.rackOutputPseudoblock = rackOutputPseudoblock;
     this.removeBlock = removeBlock;
   }
 
@@ -851,9 +836,6 @@ class Racket {
     // Build map from block id to saved block info
     const blockMap = {}; // since keys are strings, don't need to use Map
     for (const bid in this.blockInfo) {
-      if (this.pseudoblockIds.has(bid)) {
-        continue; // Skip pseudoblocks
-      }
       const binfo = this.blockInfo[bid];
       blockMap[bid] = {
         blockClassId: binfo.blockClassId,
@@ -884,24 +866,10 @@ class Racket {
       });
     }
 
-    // Save the rack input and output ports
-    const rackInputPorts = {};
-    for (const pn in this.rackInputPseudoblock.outputs) {
-      const pinfo = this.rackInputPseudoblock.outputs[pn];
-      rackInputPorts[pn] = {type: pinfo.type};
-    }
-    const rackOutputPorts = {};
-    for (const pn in this.rackOutputPseudoblock.inputs) {
-      const pinfo = this.rackOutputPseudoblock.inputs[pn];
-      rackOutputPorts[pn] = {type: pinfo.type};
-    }
-
     return JSON.stringify({
       blockMap,
       blockOrder,
       connections,
-      rackInputPorts,
-      rackOutputPorts,
     });
   }
 }
