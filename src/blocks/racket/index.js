@@ -111,7 +111,7 @@ class Racket {
       const el = document.createElement('div');
       el.textContent = blockClass.blockName;
       el.setAttribute('draggable', true);
-      el.style.cssText = 'padding:5px 10px;margin:5px 0;color:#222;background-color:white;border:1px solid #222;cursor:move;cursor:grab;cursor:-moz-grab;cursor:-webkit-grab';
+      el.style.cssText = 'padding:5px 10px;margin:6px 0;color:#222;background:#bbb;cursor:move;cursor:grab;cursor:-moz-grab;cursor:-webkit-grab';
       blockPaletteElem.appendChild(el);
       el.addEventListener('dragstart', function(e) {
         e.dataTransfer.setData(BLOCK_CLASS_ID_MIME_TYPE, blockClassId);

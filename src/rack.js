@@ -56,23 +56,47 @@ function loadRootBlock(blockClassId, settings) {
   rootBlockInst.outputs.audio.node.connect(audioContext.destination);
 }
 
-function loadEmptyRacket() {
+function loadEmptyRack() {
   loadRootBlock('racket', undefined);
 }
 
-document.querySelector('#load-racket-button').addEventListener('click', e => {
+const loadScreenElem = document.querySelector('#load-screen');
+
+const LOAD_SCREEN_FADE_TIME = 0.15;
+
+function showLoadScreen() {
+  loadScreenElem.style.transition = 'visibility 0s,opacity ' + LOAD_SCREEN_FADE_TIME + 's linear';
+  loadScreenElem.style.visibility = 'visible';
+  loadScreenElem.style.opacity = '1';
+}
+
+function hideLoadScreen() {
+  loadScreenElem.style.transition = 'visibility 0s linear ' + LOAD_SCREEN_FADE_TIME + 's,opacity ' + LOAD_SCREEN_FADE_TIME + 's linear';
+  loadScreenElem.style.visibility = 'hidden';
+  loadScreenElem.style.opacity = '0';
+}
+
+document.querySelector('#new-patch-button').addEventListener('click', e => {
   e.preventDefault();
-  loadEmptyRacket();
+  showLoadScreen();
 });
 
-document.querySelector('#load-preset-button').addEventListener('click', e => {
+document.querySelector('#load-empty-rack-button').addEventListener('click', e => {
+  e.preventDefault();
+  loadEmptyRack();
+  hideLoadScreen();
+});
+
+const loadPresetFileChooserElem = document.querySelector('#load-preset-file-chooser');
+loadPresetFileChooserElem.addEventListener('change', e => {
   e.preventDefault();
 
-  const files = document.querySelector('#load-preset-file-chooser').files;
+  const files = loadPresetFileChooserElem.files;
   if (files.length < 1) {
-    console.log('no file chosen');
+    // No file chosen
     return;
   }
+  loadPresetFileChooserElem.files = null;
   const file = files[0];
   const reader = new FileReader();
   reader.onload = (e) => {
@@ -83,6 +107,7 @@ document.querySelector('#load-preset-button').addEventListener('click', e => {
       console.log('not a preset');
     }
     loadRootBlock(presetObj.blockClassId, presetObj.settings);
+    hideLoadScreen();
   };
   reader.readAsText(file, 'utf-8');
 });
@@ -107,5 +132,3 @@ document.querySelector('#save-preset-button').addEventListener('click', e => {
 
   FileSaver.saveAs(new Blob([presetJSON], {type: "application/json;charset=utf-8"}), 'preset.json');
 });
-
-loadEmptyRacket();

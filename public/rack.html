@@ -16,20 +16,36 @@ body {
   height: 100vh;
 }
 
-#logo {
-  font-family: Megrim,sans-serif;
-}
-
 #preset-controls {
   float: right;
   line-height: 1;
 }
 
-#frame {
-  background-color: #4e6356;
-  color: #eee;
+#preset-controls button {
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  background: transparent;
+  color: inherit;
+}
+
+#preset-controls button:hover {
+  color: white;
+}
+
+#preset-controls button svg {
+  width: 32px;
+  height: 32px;
+  fill: currentColor;
+}
+
+#header {
+  box-sizing: border-box;
+  height: 45px;
+  background-color: #455049;
+  color: #ccc;
   padding: 5px 10px;
-  font-size: 24px;
+  font-size: 32px;
 }
 
 #root-container {
@@ -40,27 +56,80 @@ body {
 }
 
 #logo {
-  float: left;
+  position: absolute;
+  top: 4px;
+  left: 0;
+  right: 0;
+  height: 45px;
+  color: #ccc;
+  font-family: Megrim,sans-serif;
+  font-size: 32px;
+  background: transparent;
+  text-align: center;
+  pointer-events: none;
 }
 
-p {
-  margin: 0.25em 0;
+#load-screen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: #0a0a0a;
+  color: #ccc;
+  padding: 10px;
+  text-align: center;
+}
+
+#load-screen-spacer {
+  height: 45px;
+}
+
+#load-screen .load-screen-buttony {
+  display: inline-block;
+  background: transparent;
+  font-size: 18px;
+  padding: 0.75em;
+  color: inherit;
+  border: 1px solid currentColor;
+  cursor: pointer;
+  box-sizing: border-box;
+  width: 15em;
+  margin: 0.5em 0;
+}
+
+#load-screen .load-screen-buttony:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+#load-screen input[type=file] {
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
 }
 
     </style>
   </head>
   <body>
     <div id="main">
-        <div id="frame">
-          <div id="logo">Plinth</div>
-          <div id="preset-controls">
-            <button id="load-racket-button">Load Racket (empty)</button>
-            <input id="load-preset-file-chooser" type="file" style="max-width:200px"><button id="load-preset-button">Load Preset File</button>
-            <button id="save-preset-button">Save Preset File</button>
-          </div>
+      <div id="header">
+        <div id="preset-controls">
+          <!-- Icons by Bernar Novalyi, CC BY 3.0, https://thenounproject.com/bernar.novalyi/collection/basic-ui/ -->
+          <button id="new-patch-button" title="New Patch"><svg xmlns="http://www.w3.org/2000/svg" fill="#000000" viewBox="0 0 100 100" x="0px" y="0px"><path d="M80.19,33.88l-22-22H21v82H80.19ZM59.85,23.45l8.72,8.72H59.85ZM73.19,86.86H28v-68H52.85V39.17H73.19Z"/><polygon points="47.1 58.83 37.15 58.83 37.15 65.83 47.1 65.83 47.1 75.79 54.1 75.79 54.1 65.83 64.06 65.83 64.06 58.83 54.1 58.83 54.1 48.88 47.1 48.88 47.1 58.83"/></svg></button>
+          <button id="save-preset-button" title="Save Patch File"><svg xmlns="http://www.w3.org/2000/svg" fill="#000000" viewBox="0 0 100 70" x="0px" y="0px"><polygon points="47.78 17.98 47.78 38.48 34.28 38.48 51.28 62.68 68.29 38.48 54.78 38.48 54.78 17.98 47.78 17.98"/><rect x="14.75" y="70" width="73.06" height="7"/></svg></button>
         </div>
-        <div id="root-container"></div>
+      </div>
+      <div id="root-container"></div>
     </div>
+    <div id="load-screen">
+      <div id="load-screen-spacer"></div>
+      <div><button id="load-empty-rack-button" class="load-screen-buttony">Load Empty Rack</button></div>
+      <div><label class="load-screen-buttony">Open Patch File<input id="load-preset-file-chooser" type="file"></label></div>
+    </div>
+    <div id="logo">Plinth</div>
     <script src="rack.bundle.js" charset="utf-8"></script>
   </body>
 </html>
