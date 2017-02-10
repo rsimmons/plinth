@@ -61,10 +61,17 @@ function loadEmptyRack() {
 }
 
 const loadScreenElem = document.querySelector('#load-screen');
+const loadScreenCloseButtonElem = document.querySelector('#load-screen-close-button');
 
 const LOAD_SCREEN_FADE_TIME = 0.15;
 
 function showLoadScreen() {
+  if (rootBlockInst) {
+    loadScreenCloseButtonElem.style.visibility = 'visible';
+  } else {
+    loadScreenCloseButtonElem.style.visibility = 'hidden';
+  }
+
   loadScreenElem.style.transition = 'visibility 0s,opacity ' + LOAD_SCREEN_FADE_TIME + 's linear';
   loadScreenElem.style.visibility = 'visible';
   loadScreenElem.style.opacity = '1';
@@ -75,6 +82,11 @@ function hideLoadScreen() {
   loadScreenElem.style.visibility = 'hidden';
   loadScreenElem.style.opacity = '0';
 }
+
+loadScreenCloseButtonElem.addEventListener('click', e => {
+  e.preventDefault();
+  hideLoadScreen();
+});
 
 document.querySelector('#new-patch-button').addEventListener('click', e => {
   e.preventDefault();

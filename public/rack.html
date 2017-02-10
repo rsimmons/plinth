@@ -111,6 +111,24 @@ body {
   z-index: -1;
 }
 
+#load-screen-close-button {
+  position: absolute;
+  border: none;
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  right: 0;
+  top: 0;
+  cursor: pointer;
+  visibility: hidden;
+}
+
+#load-screen-close-button svg {
+  width: 48px;
+  height: 48px;
+  fill: currentColor;
+}
+
     </style>
   </head>
   <body>
@@ -125,6 +143,7 @@ body {
       <div id="root-container"></div>
     </div>
     <div id="load-screen">
+      <button id="load-screen-close-button"><svg xmlns="http://www.w3.org/2000/svg" fill="#000000" viewBox="0 0 100 100" x="0px" y="0px"><polygon points="67.04 26.5 49.54 44 32.03 26.5 27.09 31.45 44.59 48.95 27.09 66.45 32.03 71.4 49.54 53.9 67.04 71.4 71.99 66.45 54.49 48.95 71.99 31.45 67.04 26.5"/></svg></button>
       <div id="load-screen-spacer"></div>
       <div><button id="load-empty-rack-button" class="load-screen-buttony">Load Empty Rack</button></div>
       <div><label class="load-screen-buttony">Open Patch File<input id="load-preset-file-chooser" type="file"></label></div>
