@@ -199,11 +199,8 @@ export default class Convolux {
     }, false);
 
     // Load settings or defaults
-    let settingsObj;
-    if (settings) {
-      settingsObj = JSON.parse(settings);
-    } else {
-      settingsObj = {
+    if (!settings) {
+      settings = {
         responses: [],
         activeResponseIdx: null,
         bypass: false,
@@ -212,23 +209,23 @@ export default class Convolux {
     }
 
     // Enact settings
-    for (let ri = 0; ri < settingsObj.responses.length; ri++) {
-      addResponse(settingsObj.responses[ri].name, b64decode(settingsObj.responses[ri].responseFileData), (ri === settingsObj.activeResponseIdx));
+    for (let ri = 0; ri < settings.responses.length; ri++) {
+      addResponse(settings.responses[ri].name, b64decode(settings.responses[ri].responseFileData), (ri === settings.activeResponseIdx));
     }
     updateResponseSelector();
     if (activeResponseIdx === null) {
       setActiveResponse(null);
     }
-    setWetness(settingsObj.wetness);
-    setBypass(settingsObj.bypass);
+    setWetness(settings.wetness);
+    setBypass(settings.bypass);
 
     this.save = () => {
-      return JSON.stringify({
+      return {
         responses: responses.map(r => ({name: r.name, responseFileData: b64encode(r.responseFileData)})),
         activeResponseIdx,
         bypass,
         wetness,
-      });
+      };
     };
   }
 }

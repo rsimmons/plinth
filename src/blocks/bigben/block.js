@@ -43,8 +43,7 @@ export default class BigBen {
     const MIN_TEMPO = 10;
 
     if (settings) {
-      const settingsObj = JSON.parse(settings);
-      this.tempo = settingsObj.tempo;
+      this.tempo = settings.t;
     }
 
     const tmpElem = document.createElement('div');
@@ -89,9 +88,9 @@ export default class BigBen {
   }
 
   save() {
-    return JSON.stringify({
-      tempo: this.tempo,
-    });
+    return {
+      t: this.tempo,
+    };
   }
 }
 

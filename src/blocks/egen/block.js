@@ -22,25 +22,22 @@ export default class Egen {
     fast.attackShape = fast.LINEAR;
 
     // Load settings or defaults
-    let settingsObj;
-    if (settings) {
-      settingsObj = JSON.parse(settings);
-    } else {
-      settingsObj = {
-        mode: 'AD',
-        riseTime: 0.01,
-        fallTime: 0.1,
-        fallShape: Fastidious.EXPONENTIAL,
+    if (!settings) {
+      settings = {
+        m: 'AD',
+        rt: 0.01,
+        ft: 0.1,
+        fs: Fastidious.EXPONENTIAL,
       };
     }
 
     // Enact settings
-    fast.mode = settingsObj.mode;
-    fast.attackRate = 1.0/settingsObj.riseTime;
-    fast.decayShape = settingsObj.fallShape;
-    fast.decayRate = 1.0/settingsObj.fallTime;
-    fast.releaseShape = settingsObj.fallShape;
-    fast.releaseRate = 1.0/settingsObj.fallTime;
+    fast.mode = settings.m;
+    fast.attackRate = 1.0/settings.rt;
+    fast.decayShape = settings.fs;
+    fast.decayRate = 1.0/settings.ft;
+    fast.releaseShape = settings.fs;
+    fast.releaseRate = 1.0/settings.ft;
 
     const gateNotify = (time, value) => {
       fast.gate(value, time);
@@ -91,12 +88,12 @@ export default class Egen {
     });
 
     this.save = () => {
-      return JSON.stringify({
-        mode: fast.mode,
-        riseTime: 1.0/fast.attackRate,
-        fallTime: 1.0/fast.decayRate,
-        fallShape: 1.0/fast.decayShape,
-      });
+      return {
+        m: fast.mode,
+        rt: 1.0/fast.attackRate,
+        ft: 1.0/fast.decayRate,
+        fs: 1.0/fast.decayShape,
+      };
     };
   }
 }

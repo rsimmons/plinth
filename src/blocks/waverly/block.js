@@ -16,10 +16,9 @@ export default class Waverly {
     fmScalerNode.connect(oscNode.frequency);
 
     if (settings) {
-      const settingsObj = JSON.parse(settings);
-      oscNode.type = settingsObj.waveform;
-      oscNode.frequency.value = settingsObj.frequency;
-      fmScalerNode.gain.value = settingsObj.fmScale;
+      oscNode.type = settings.w;
+      oscNode.frequency.value = settings.f;
+      fmScalerNode.gain.value = settings.fm;
     }
 
     this.inputs = {
@@ -56,11 +55,11 @@ export default class Waverly {
     });
 
     this.save = () => {
-      return JSON.stringify({
-        waveform: oscNode.type,
-        frequency: oscNode.frequency.value,
-        fmScale: fmScalerNode.gain.value,
-      });
+      return {
+        w: oscNode.type,
+        f: oscNode.frequency.value,
+        fm: fmScalerNode.gain.value,
+      };
     };
   }
 }

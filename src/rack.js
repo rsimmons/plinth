@@ -1,4 +1,5 @@
 import FileSaver from 'file-saver';
+import LZString from 'lz-string';
 import applyPolyfills from './polyfills';
 import initWebAudio from './initWebAudio';
 
@@ -118,7 +119,7 @@ loadPresetFileChooserElem.addEventListener('change', e => {
     if (!presetObj.plinthPreset) {
       console.log('not a preset');
     }
-    loadRootBlock(presetObj.blockClassId, presetObj.settings);
+    loadRootBlock(presetObj.b, presetObj.s);
     hideLoadScreen();
   };
   reader.readAsText(file, 'utf-8');
@@ -135,12 +136,15 @@ document.querySelector('#save-preset-button').addEventListener('click', e => {
   }
 
   const presetObj = {
-    'plinthPreset': '0.1.0',
-    'blockClassId': rootBlockClassId,
-    'settings': settings,
+    plinthPreset: '0.1.0',
+    b: rootBlockClassId,
+    s: settings,
   };
 
   const presetJSON = JSON.stringify(presetObj);
+
+  const uriPresetJSON = LZString.compressToEncodedURIComponent(presetJSON);
+  console.log('encoded URI length:', uriPresetJSON.length);
 
   FileSaver.saveAs(new Blob([presetJSON], {type: "application/json;charset=utf-8"}), 'preset.json');
 });

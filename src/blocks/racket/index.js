@@ -8,8 +8,15 @@ function removeChildren(node) {
   }
 }
 
-const uid32 = () => Math.random().toString(16).substring(2, 10);
-const uid64 = () => uid32() + uid32();
+class Sequence {
+  constructor() {
+    this.value = 1;
+  }
+
+  next() {
+    return this.value++;
+  }
+}
 
 const makeRackPseudoBlockClass = (rackInst, isInput) => (class {
   constructor(document, audioContext, settings) {
@@ -41,9 +48,8 @@ const makeRackPseudoBlockClass = (rackInst, isInput) => (class {
     };
 
     if (settings) {
-      const settingsObj = JSON.parse(settings);
-      for (const pn in settingsObj.p) {
-        addPort(pn, settingsObj.p[pn].t);
+      for (const pn in settings.p) {
+        addPort(pn, settings.p[pn].t);
       }
     } else {
       // Set up default ports
@@ -57,9 +63,9 @@ const makeRackPseudoBlockClass = (rackInst, isInput) => (class {
       for (const pn in thisPortGroup) {
         ports[pn] = {t: thisPortGroup[pn].type};
       }
-      return JSON.stringify({
+      return {
         p: ports,
-      });
+      };
     };
   }
 });
@@ -68,8 +74,8 @@ export default (availableBlockClasses) => {
 // Don't indent to keep things nicer-looking
 class Racket {
   constructor(document, audioContext, settings) {
-    const RACK_INPUTS_PSEUDO_CLASS_ID = '__rack-inputs';
-    const RACK_OUTPUTS_PSEUDO_CLASS_ID = '__rack-outputs';
+    const RACK_INPUTS_PSEUDO_CLASS_ID = '__ri';
+    const RACK_OUTPUTS_PSEUDO_CLASS_ID = '__ro';
     const RACK_INPUTS_PSEUDO_BLOCK_ID = 'ri';
     const RACK_OUTPUTS_PSEUDO_BLOCK_ID = 'ro';
     const availableBlockClassesPlusPseudo = Object.assign({}, availableBlockClasses);
@@ -121,6 +127,9 @@ class Racket {
     const blockInfo = {}; // maps block id (our local unique id for block instances) to an info object
 
     const cxnInfo = {}; // maps connection id to info about connection
+
+    const blockIdSeq = new Sequence();
+    const cxnIdSeq = new Sequence();
 
     let showFront = true;
 
@@ -570,7 +579,7 @@ class Racket {
       const blockClass = availableBlockClassesPlusPseudo[blockClassId];
       const blockInst = new blockClass(document, audioContext, settings);
 
-      const bid = blockId || 'b' + uid64();
+      const bid = blockId || 'b' + blockIdSeq.next();
 
       blockInfo[bid] = {
         id: bid,
@@ -669,7 +678,7 @@ class Racket {
     };
 
     const addConnection = ({outBlockId, outPortName, inBlockId, inPortName}) => {
-      const cid = 'c' + uid64();
+      const cid = 'c' + cxnIdSeq.next();
 
       const info = {
         outBlockId,
@@ -750,17 +759,20 @@ class Racket {
 
     // Load settings if present, otherwise set up some defaults
     if (settings) {
-      const settingsObj = JSON.parse(settings);
-
       // Load blocks
-      for (const bid of settingsObj.blockOrder) {
-        const binfo = settingsObj.blockMap[bid];
-        addBlock(binfo.blockClassId, binfo.settings, bid, binfo.displayName);
+      for (const bid of settings.bo) {
+        const binfo = settings.bm[bid];
+        addBlock(binfo.b, binfo.s, bid, binfo.n);
       }
 
       // Load connections
-      for (const cxn of settingsObj.connections) {
-        addConnection(cxn);
+      for (const cxn of settings.c) {
+        addConnection({
+          outBlockId: cxn.ob,
+          outPortName: cxn.op,
+          inBlockId: cxn.ib,
+          inPortName: cxn.ip,
+        });
       }
     } else {
       // Set up default (pseudo) blocks
@@ -838,9 +850,9 @@ class Racket {
     for (const bid in this.blockInfo) {
       const binfo = this.blockInfo[bid];
       blockMap[bid] = {
-        blockClassId: binfo.blockClassId,
-        settings: binfo.instance.save ? binfo.instance.save() : null,
-        displayName: binfo.displayName,
+        b: binfo.blockClassId,
+        s: binfo.instance.save ? binfo.instance.save() : null,
+        n: binfo.displayName,
       }
     }
 
@@ -859,18 +871,18 @@ class Racket {
     for (const cid in this.cxnInfo) {
       const cinfo = this.cxnInfo[cid];
       connections.push({
-        outBlockId: cinfo.outBlockId,
-        outPortName: cinfo.outPortName,
-        inBlockId: cinfo.inBlockId,
-        inPortName: cinfo.inPortName,
+        ob: cinfo.outBlockId,
+        op: cinfo.outPortName,
+        ib: cinfo.inBlockId,
+        ip: cinfo.inPortName,
       });
     }
 
-    return JSON.stringify({
-      blockMap,
-      blockOrder,
-      connections,
-    });
+    return {
+      bm: blockMap,
+      bo: blockOrder,
+      c: connections,
+    };
   }
 }
 

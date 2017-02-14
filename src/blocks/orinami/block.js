@@ -25,8 +25,7 @@ export default class Orinami {
     };
 
     if (settings) {
-      const settingsObj = JSON.parse(settings);
-      setNumStages(settingsObj.stages);
+      setNumStages(settings.st);
     } else {
       setNumStages(INIT_STAGES);
     }
@@ -54,9 +53,9 @@ export default class Orinami {
   }
 
   save() {
-    return JSON.stringify({
-      stages: this.stages,
-    });
+    return {
+      st: this.stages,
+    };
   }
 }
 
