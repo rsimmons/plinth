@@ -76,12 +76,14 @@ function showLoadScreen() {
   loadScreenElem.style.transition = 'visibility 0s,opacity ' + LOAD_SCREEN_FADE_TIME + 's linear';
   loadScreenElem.style.visibility = 'visible';
   loadScreenElem.style.opacity = '1';
+  loadScreenElem.style.pointerEvents = 'auto';
 }
 
 function hideLoadScreen() {
   loadScreenElem.style.transition = 'visibility 0s linear ' + LOAD_SCREEN_FADE_TIME + 's,opacity ' + LOAD_SCREEN_FADE_TIME + 's linear';
   loadScreenElem.style.visibility = 'hidden';
   loadScreenElem.style.opacity = '0';
+  loadScreenElem.style.pointerEvents = 'none';
 }
 
 loadScreenCloseButtonElem.addEventListener('click', e => {
