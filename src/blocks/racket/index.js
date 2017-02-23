@@ -745,16 +745,29 @@ class Racket {
       addConnection(cxnSpec);
     });
 
-    this.windowView.addEventListener('dragover', e => {
-      // TODO: check if this is something we can accept
-      e.dataTransfer.dropEffect = 'copy';
-      e.preventDefault();
-    }, false);
+    const extractFromDataTransfer = (dt) => {
+      if (dt.types.indexOf(BLOCK_CLASS_ID_MIME_TYPE) >= 0) {
+        return dt.getData(BLOCK_CLASS_ID_MIME_TYPE);
+      }
 
-    this.windowView.addEventListener('drop', e => {
+      return null;
+    };
+
+    blockContainerElem.addEventListener('dragover', e => {
+      if (extractFromDataTransfer) {
+        e.dataTransfer.dropEffect = 'copy';
+      }
       e.preventDefault();
-      const blockClassId = e.dataTransfer.getData(BLOCK_CLASS_ID_MIME_TYPE);
-      addBlock(blockClassId);
+      e.stopPropagation();
+  }, false);
+
+    blockContainerElem.addEventListener('drop', e => {
+      const blockClassId = extractFromDataTransfer(e.dataTransfer);
+      if (blockClassId) {
+        addBlock(blockClassId);
+      }
+      e.preventDefault();
+      e.stopPropagation();
     }, false);
 
     // Load settings if present, otherwise set up some defaults
