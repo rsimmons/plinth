@@ -165,12 +165,20 @@ export default class Convolux {
     // Handle drag and drop of IRs
     const dropElem = this.panelView;
 
-    const dtIsAcceptable = (dt) => {
-      return (dt.types.indexOf('Files') >= 0);
+    const extractAudioFileFromDataTransfer = (dt) => {
+      if (dt.types.indexOf('Files') >= 0) {
+        const files = dt.files;
+        const file = files[0];
+        if (file.type.startsWith('audio/')) {
+          return file;
+        }
+      }
+
+      return null;
     };
 
     dropElem.addEventListener('dragover', e => {
-      if (dtIsAcceptable(e.dataTransfer)) {
+      if (extractAudioFileFromDataTransfer(e.dataTransfer)) {
         e.dataTransfer.dropEffect = 'copy';
         e.preventDefault();
         e.stopPropagation();
@@ -178,23 +186,17 @@ export default class Convolux {
     }, false);
 
     dropElem.addEventListener('drop', e => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (e.dataTransfer.types.indexOf('Files') >= 0) {
-        const files = e.dataTransfer.files;
-        const file = files[0];
-        if (file.type.startsWith('audio/')) {
-          // Got what appears to be audio, try decoding it
-          const reader = new FileReader();
-          reader.onload = () => {
-            addResponse(file.name, reader.result, true);
-          }
-          reader.readAsArrayBuffer(file);
-        } else {
-          console.warn('Dropped file does not appear to be audio, ignoring');
+      const file = extractAudioFileFromDataTransfer(e.dataTransfer);
+      if (file) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        // Got what appears to be audio, try decoding it
+        const reader = new FileReader();
+        reader.onload = () => {
+          addResponse(file.name, reader.result, true);
         }
-      } else {
-        throw new Error('internal error');
+        reader.readAsArrayBuffer(file);
       }
     }, false);
 
