@@ -233,3 +233,11 @@ export default class Convolux {
 }
 
 Convolux.blockName = 'Convolux';
+Convolux.helpText =
+`Convolux is an audio convolver, typically used for applying reverb.
+
+A special audio sample called an "impulse response" is used to capture the sound of a space. An impulse response sounds like a single loud click or clap recorded in a reverberating space. Using that impulse response, the same reverberation can be applied to any audio you want using a process called "convolution".
+
+To load an impulse repsonse into Convolux, drag and drop the audio file onto the Convolux panel. Multiple responses can be added, and switched betweeb using the dropdown menu. The Dry↔Wet slider sets the mix between between the original "dry" input sound and the "wet" convolved sound in the output.
+
+Many impulse responses can be found for free on the internet. Also, percussive samples such as cymbals, snares, and claps can be used as impulse responses to get unusual reverb-type sounds.`;

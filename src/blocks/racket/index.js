@@ -18,57 +18,73 @@ class Sequence {
   }
 }
 
-const makeRackPseudoBlockClass = (rackInst, isInput) => (class {
-  constructor(document, audioContext, settings) {
-    this.inputs = {};
-    this.outputs = {};
+const makeRackPseudoBlockClass = (rackInst, isInput) => {
+  const cls = class {
+    constructor(document, audioContext, settings) {
+      this.inputs = {};
+      this.outputs = {};
 
-    // Enter/Exit icons CC BY 3.0 by Rockicon, https://thenounproject.com/rockicon/collection/famous-icons-bold/
-    const tmpElem = document.createElement('div');
-    tmpElem.innerHTML = '<div style="box-sizing:border-box;width:62px;height:256px;text-align:center;font-size:14px;background:#ccc;color:black;padding:95px 5px"><img width="52" height="52" src=' + (isInput ? ENTER_SVG_URL : EXIT_SVG_URL) + '><br>' + (isInput ? 'IN' : 'OUT') + '</div>';
-    this.panelView = tmpElem.firstChild;
+      // Enter/Exit icons CC BY 3.0 by Rockicon, https://thenounproject.com/rockicon/collection/famous-icons-bold/
+      const tmpElem = document.createElement('div');
+      tmpElem.innerHTML = '<div style="box-sizing:border-box;width:62px;height:256px;text-align:center;font-size:14px;background:#ccc;color:black;padding:95px 5px"><img width="52" height="52" src=' + (isInput ? ENTER_SVG_URL : EXIT_SVG_URL) + '><br>' + (isInput ? 'IN' : 'OUT') + '</div>';
+      this.panelView = tmpElem.firstChild;
 
-    const rackPortGroup = isInput ? rackInst.inputs : rackInst.outputs;
-    const thisPortGroup = isInput ? this.outputs : this.inputs;
+      const rackPortGroup = isInput ? rackInst.inputs : rackInst.outputs;
+      const thisPortGroup = isInput ? this.outputs : this.inputs;
 
-    const addPort = (portName, type) => {
-      if (rackPortGroup[portName]) {
-        throw new Error('port name already exists');
-      }
-      switch (type) {
-        case 'audio':
-          const dummyNode = audioContext.createGain();
-          rackPortGroup[portName] = {type: 'audio', node: dummyNode};
-          thisPortGroup[portName] = {type: 'audio', node: dummyNode};
-          break;
+      const addPort = (portName, type) => {
+        if (rackPortGroup[portName]) {
+          throw new Error('port name already exists');
+        }
+        switch (type) {
+          case 'audio':
+            const dummyNode = audioContext.createGain();
+            rackPortGroup[portName] = {type: 'audio', node: dummyNode};
+            thisPortGroup[portName] = {type: 'audio', node: dummyNode};
+            break;
 
-        default:
-          throw new Error('Unsupported rack port type');
-      }
-    };
-
-    if (settings) {
-      for (const pn in settings.p) {
-        addPort(pn, settings.p[pn].t);
-      }
-    } else {
-      // Set up default ports
-      if (!isInput) {
-        addPort('audio', 'audio');
-      }
-    }
-
-    this.save = () => {
-      const ports = {};
-      for (const pn in thisPortGroup) {
-        ports[pn] = {t: thisPortGroup[pn].type};
-      }
-      return {
-        p: ports,
+          default:
+            throw new Error('Unsupported rack port type');
+        }
       };
-    };
-  }
-});
+
+      if (settings) {
+        for (const pn in settings.p) {
+          addPort(pn, settings.p[pn].t);
+        }
+      } else {
+        // Set up default ports
+        if (!isInput) {
+          addPort('audio', 'audio');
+        }
+      }
+
+      this.save = () => {
+        const ports = {};
+        for (const pn in thisPortGroup) {
+          ports[pn] = {t: thisPortGroup[pn].type};
+        }
+        return {
+          p: ports,
+        };
+      };
+    }
+  };
+  cls.blockName = isInput ? 'Rack Inputs' : 'Rack Outputs';
+  cls.helpText = isInput ?
+`Rack Inputs is a special block that lets you output audio from the rack.
+
+Any input signals provided to the rack can be accessed via the output ports of the Rack Inputs block.
+
+Unlike normal blocks, there can be only one Rack Inputs block in a rack, and it can't be deleted.`:
+`Rack Outputs is a special block that lets you output signals from the rack. Currently, it only supports a single audio signal.
+
+Connect any audio signal to the Rack Outputs audio input, and that signal will be the final output of the rack.
+
+Unlike normal blocks, there can be only one Rack Outputs block in a rack, and it can't be deleted.`;
+
+  return cls;
+};
 
 export default (availableBlockClasses) => {
 // Don't indent to keep things nicer-looking
@@ -122,6 +138,9 @@ class Racket {
       el.addEventListener('dragstart', function(e) {
         e.dataTransfer.setData(BLOCK_CLASS_ID_MIME_TYPE, blockClassId);
       }, false);
+      (() => {
+        el.addEventListener('click', () => { showBlockHelp(blockClass); });
+      })();
     }
 
     const blockInfo = {}; // maps block id (our local unique id for block instances) to an info object
@@ -132,6 +151,37 @@ class Racket {
     const cxnIdSeq = new Sequence();
 
     let showFront = true;
+
+    const blockHelpPanelElem = this.windowView.querySelector('.block-help-panel');
+    const blockHelpTitleElem = this.windowView.querySelector('.block-help-title');
+    const blockHelpBodyElem = this.windowView.querySelector('.block-help-body');
+    const newlinesToPs = (s) => {
+      const result = document.createElement('div');
+      for (const v of s.split('\n')) {
+        const pElem = document.createElement('p');
+        pElem.textContent = v;
+        result.appendChild(pElem);
+      }
+      return result;
+    }
+    const showBlockHelp = (blockClass) => {
+      blockHelpPanelElem.style.display = 'block';
+      blockHelpTitleElem.textContent = blockClass.blockName;
+      if (blockClass.helpText) {
+        blockHelpBodyElem.innerHTML = '';
+        blockHelpBodyElem.appendChild(newlinesToPs(blockClass.helpText));
+      } else {
+        blockHelpBodyElem.innerHTML = '<em>No help text available</em>';
+      }
+    };
+
+    const hideBlockHelp = () => {
+      blockHelpPanelElem.style.display = 'none';
+    };
+
+    blockHelpPanelElem.querySelector('.block-help-panel-close-button').addEventListener('click', () => {
+      hideBlockHelp();
+    });
 
     const updatePatchConnectionList = () => {
       removeChildren(patchConnectionListElem);
@@ -611,6 +661,15 @@ class Racket {
       blockInfo[bid].wrapperElem = wrapperElem;
 
       // Create back panel
+      const showHelpElem = document.createElement('a');
+      showHelpElem.style.cssText = 'float:right;color: #ccc;text-decoration: none;margin-right:3px';
+      showHelpElem.href = '#';
+      showHelpElem.textContent = '?';
+      showHelpElem.addEventListener('click', (e) => {
+        e.preventDefault();
+        showBlockHelp(blockClass);
+      });
+
       const removeBlockElem = document.createElement('a');
       removeBlockElem.style.cssText = 'float:right;color: #ccc;text-decoration: none';
       removeBlockElem.href = '#';
@@ -625,6 +684,7 @@ class Racket {
       if (!blockClassId.startsWith('__')) { // Hacky way to test if pseudoblock
         headerElem.appendChild(removeBlockElem);
       }
+        headerElem.appendChild(showHelpElem);
       headerElem.appendChild(document.createTextNode(blockInfo[bid].displayName));
 
       const jackContainerElem = document.createElement('div');

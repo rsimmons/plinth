@@ -95,3 +95,9 @@ export default class BigBen {
 }
 
 BigBen.blockName = 'Big Ben';
+BigBen.helpText =
+`Big Ben is a clock generator. It outputs gate signals at a steady tempo, which is useful for advancing sequencers or triggering repetitive sounds.
+
+The panel input lets you specify a tempo in beats per minute (BPM).
+
+There are three gate outputs that emit gates at different time divisions of the specified tempo: gate16 is 16th notes, gate8 is 8th notes, and gate4 is quarter notes.`;
