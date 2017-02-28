@@ -316,10 +316,9 @@ class Racket {
         }
       }
 
-      deleteWiresButtonElem.style.visibility = showFront ? 'hidden' : 'visible';
-
       updateWires();
       updateAddingWire();
+      updateDeleteWiresButton();
     };
 
     const toggleFrontBackDisplay = () => {
@@ -501,16 +500,21 @@ class Racket {
       }
     };
 
+    const updateDeleteWiresButton = () => {
+      deleteWiresButtonElem.style.color = showFront ? 'rgb(92, 104, 97)' : '#9aada2';
+      deleteWiresButtonElem.style.cursor = showFront ? 'default' : 'pointer';
+      deleteWiresButtonElem.style.backgroundColor = (!showFront && deletingWiresMode) ? 'rgb(170,0,0)' : 'transparent';
+      deleteWiresButtonElem.disabled = showFront;
+    };
+
     const toggleDeleteWiresMode = () => {
       if (deletingWiresMode) {
         deletingWiresMode = false;
-        deleteWiresButtonElem.style.backgroundColor = 'transparent';
         updateWires();
       } else {
         addingWireAttachedJack = null;
         addingWireLooseCoord = null;
         deletingWiresMode = true;
-        deleteWiresButtonElem.style.backgroundColor = 'rgb(170,0,0)';
         if (currentEnteredJack) {
           currentEnteredJack.style.backgroundColor = JACK_NORMAL_BACKGROUND_COLOR;
           currentEnteredJack.style.cursor = 'default';
@@ -518,6 +522,7 @@ class Racket {
         updateWires();
         updateAddingWire();
       }
+      updateDeleteWiresButton();
     };
 
     const finishAddingWire = () => {
