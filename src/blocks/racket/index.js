@@ -866,6 +866,10 @@ class Racket {
     }
 
     const onKeydownFunc = (e) => {
+      if (!((e.target === document.body) || (e.target == document.documentElement))) {
+        // This should ignore keypresses that were done while an input element was focused
+        return;
+      }
       if (e.key === ' ') {
         toggleFrontBackDisplay();
         e.preventDefault();
