@@ -59,7 +59,8 @@ function loadRootBlock(blockClassId, settings) {
 }
 
 function loadEmptyRack() {
-  loadRootBlock('racket', undefined);
+  const EMPTY_RACK_SETTINGS = {"bm":{"ro":{"b":"__ro","s":{"p":{"audio":{"t":"audio"}}},"n":"Rack Outputs"},"b1":{"b":"remark","s":{"t":"WELCOME TO PLINTH!\n\nSome tips to get you started:\n- Drag blocks from the block palette on the left into the rack area on the right.\n- Press the Flip button (or space bar) to show the back view of the rack, where you can click or drag to wire connections between block ports.\n- To remove wires, toggle Delete Wires mode and click on them.\n- Click on any block in the palette for help.\n- To hear something, connect an audio generating block (such as Waverly) to the Rack Outputs block audio port.\n- Unwanted blocks can be deleted with the small X button in the back view. Once you've read this, feel free to delete this block.\n\nHappy patching!"},"n":"Remark"}},"bo":["b1","ro"],"c":[]};
+  loadRootBlock('racket', EMPTY_RACK_SETTINGS);
 }
 
 const loadScreenElem = document.querySelector('#load-screen');
