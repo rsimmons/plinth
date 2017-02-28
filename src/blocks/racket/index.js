@@ -13,6 +13,10 @@ class Sequence {
     this.value = 1;
   }
 
+  set(v) {
+    this.value = v;
+  }
+
   next() {
     return this.value++;
   }
@@ -849,6 +853,15 @@ class Racket {
         const binfo = settings.bm[bid];
         addBlock(binfo.b, binfo.s, bid, binfo.n);
       }
+
+      // Advance block id sequence number
+      const blockSeqNums = [];
+      for (const bid of settings.bo) {
+        if (bid[0] === 'b') {
+          blockSeqNums.push(+bid.slice(1));
+        }
+      }
+      blockIdSeq.set(Math.max(blockSeqNums)+1);
 
       // Load connections
       for (const cxn of settings.c) {
