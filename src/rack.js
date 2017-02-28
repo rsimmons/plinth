@@ -120,7 +120,7 @@ loadPresetFileChooserElem.addEventListener('change', e => {
     // TODO: various error handling
     const presetJSON = e.target.result;
     const presetObj = JSON.parse(presetJSON);
-    if (!presetObj.plinthPreset) {
+    if (!presetObj.plinthPresetVersion) {
       console.log('not a preset');
     }
     loadRootBlock(presetObj.b, presetObj.s);
@@ -140,7 +140,7 @@ document.querySelector('#save-preset-button').addEventListener('click', e => {
   }
 
   const presetObj = {
-    plinthPreset: '0.1.0',
+    plinthPresetVersion: 0,
     b: rootBlockClassId,
     s: settings,
   };
