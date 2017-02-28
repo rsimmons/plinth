@@ -65,3 +65,9 @@ export default class Waverly {
 }
 
 Waverly.blockName = 'Waverly';
+Waverly.helpText =
+`Waverly is a oscillator with switchable waveform and linear FM input.
+
+The available waveforms are sine (SIN), triangle, (TRI), square (SQR), sawtooth (SAW).
+
+The fm input is scaled by the FM Scale panel setting and then added to the oscillator frequency in hertz. So for example, if an audio signal in the range [-1,1] is connected to the fm input, and the FM Scale is set to 100, the oscillator frequency will be modulated between 100hz up and 100hz down.`;

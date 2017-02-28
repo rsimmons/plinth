@@ -60,3 +60,11 @@ export default class Orinami {
 }
 
 Orinami.blockName = 'Orinami';
+Orinami.helpText =
+`Orinami (折り波) is a wavefolder. It stretches and folds input waveforms in the amplitude dimension, introducing extremely non-linear distortion.
+
+Orinami first increases the amplitude of its input audio, and then any parts of the resulting waveform that exceed certain limits (the range -1 to 1) are "folded" back over those limits. In other words, when the waveform hits the limit, its direction is reversed to keep it within the range -1 to 1. A waveform visualizer (such as Scope) is useful to understand what's going on.
+
+If an input waveform has a low amplitude, it may not hit the thresholds for folding, and just have its amplitude increased.
+
+Orinami has a control to set the number of "stages". Increasing numbers of stages cause more stretching and folding, and hence more distortion.`;

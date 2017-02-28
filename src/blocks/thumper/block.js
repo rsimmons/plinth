@@ -36,3 +36,9 @@ export default class Thumper {
 }
 
 Thumper.blockName = 'Thumper';
+Thumper.helpText =
+`Thumper is a simple kick drum synthesizer.
+
+It has one gate input to trigger the kick, and one audio output with the resulting sound.
+
+Thumper doesn't yet have any panel controls.`;

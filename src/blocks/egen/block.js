@@ -99,3 +99,21 @@ export default class Egen {
 }
 
 Egen.blockName = 'Egen';
+Egen.helpText =
+`Egen is a multi-mode envelope generator.
+
+Egen has a single gate-type input and a single audio-type output. Generally speaking, as the input gate signal turns on and off, the output value makes gradual transitions back and forth between 0 and 1.
+
+Egen has two modes: attack-decay (/\\ shape) and attack-sustain-release (/‾\\ shape).
+
+In attack-decay mode, as soon as the output value reaches 1 (end of attack phase), it immediately starts transitioning back to 0 (decay phase). Even if the gate goes off during the attack phase, the attack phase will continue uninterrupted. This means that it only matters when the input gate goes on, not when it goes off. Attack-decay mode is sometimes referred to as "trigger" mode, and is useful for generating percussive sounds that always have the same envelope shape regardless of how long the gate is held high.
+
+In attack-sustain-release mode, the output value starts moving towards 1 when the gate goes on (attack phase). If it reaches 1 while the gate is still on, it stays at 1 (sustain phase). When the gate goes off, the output value starts moving towards 0 (release phase). If the gate goes off during attack phase, the envelope will immediately enter release phase and decay towards 0.
+
+For all envelope types, if the gate goes high during the falling phase (decay or release), a new attack will begin from the current output value. In other words, the envelope will restart WITHOUT dropping to 0 and the output will not have any sudden jumps.
+
+The Rise control sets the speed of the attack phase, i.e. how quickly the envelope transitions towards 1. The attack shape is always linear.
+
+The Fall control sets the speed of the decay and release phases, i.e. how quickly the envelope transitions towards 0. The Fall Shape control can be set to LIN (fall linearly to 0) or EXP (decay exponentially to 0). Exponential decay tends to sound more like natural sounds.
+
+Tip: Very fast envelopes that rise and fall in less than the time of a single audio wave cycle can be used to make "click" sounds.`;

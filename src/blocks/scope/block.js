@@ -76,3 +76,11 @@ export default class Scope {
 }
 
 Scope.blockName = 'Scope';
+Scope.helpText =
+`Scope is an audio waveform visualizer, similar to an oscilloscope.
+
+Scope visualizes the audio signal connected to its input. Its output is a copy of of its input, so it can be placed "in line" in a signal chain. However its output needn't be connected for it to work.
+
+The vertical range of scope is [-1, 1], and the horizontal range is 510 samples, or about 12 milliseconds at a 44.1kHz sample rate.
+
+If possible, Scope will align the displayed waveform so that it crosses zero at the left edge of the display. This can make wave shapes easier to discern. But if the input signal does not have a recent zero-crossing, alignment is not possible.`;
