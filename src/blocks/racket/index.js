@@ -883,10 +883,10 @@ class Racket {
         // This should ignore keypresses that were done while an input element was focused
         return;
       }
-      if (e.key === ' ') {
+      if (e.keyCode === 32) {
         toggleFrontBackDisplay();
         e.preventDefault();
-      } else if (e.key === 'd') {
+      } else if (e.keyCode === 68) {
         if (!showFront) {
           toggleDeleteWiresMode();
           e.preventDefault();
