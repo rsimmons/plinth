@@ -16,6 +16,7 @@ const availableBlockClasses = {}; // maps block class id to block class
   'egen',
   'gainer',
   'orinami',
+  'remark',
   'scope',
   'thumper',
   'waverly',
