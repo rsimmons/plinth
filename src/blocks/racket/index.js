@@ -133,6 +133,7 @@ class Racket {
       const el = document.createElement('div');
       el.textContent = blockClass.blockName;
       el.setAttribute('draggable', true);
+      el.setAttribute('title', 'Click for help');
       el.style.cssText = 'padding:5px 10px;margin:6px 0;color:#222;background:#bbb;cursor:move;cursor:grab;cursor:-moz-grab;cursor:-webkit-grab';
       blockPaletteElem.appendChild(el);
       el.addEventListener('dragstart', function(e) {
@@ -141,6 +142,12 @@ class Racket {
       (() => {
         el.addEventListener('click', () => { showBlockHelp(blockClass); });
       })();
+      el.addEventListener('mouseenter', (e) => {
+        e.target.style.background = '#ddd';
+      });
+      el.addEventListener('mouseleave', (e) => {
+        e.target.style.background = '#bbb';
+      });
     }
 
     const blockInfo = {}; // maps block id (our local unique id for block instances) to an info object
