@@ -822,8 +822,10 @@ class Racket {
     });
 
     const extractFromDataTransfer = (dt) => {
-      if (dt.types.indexOf(BLOCK_CLASS_ID_MIME_TYPE) >= 0) {
-        return dt.getData(BLOCK_CLASS_ID_MIME_TYPE);
+      for (const t of dt.types) {
+        if (t === BLOCK_CLASS_ID_MIME_TYPE) {
+          return dt.getData(BLOCK_CLASS_ID_MIME_TYPE);
+        }
       }
 
       return null;

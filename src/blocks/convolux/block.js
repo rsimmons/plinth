@@ -165,8 +165,16 @@ export default class Convolux {
     // Handle drag and drop of IRs
     const dropElem = this.panelView;
 
+    const isFilesTransfer = (dt) => {
+      for (const t of dt.types) {
+        if (t === 'Files') {
+          return true;
+        }
+      }
+    };
+
     const extractAudioFileFromDataTransfer = (dt) => {
-      if (dt.types.indexOf('Files') >= 0) {
+      if (isFilesTransfer(dt)) {
         const files = dt.files;
         const file = files[0];
         if (file.type.startsWith('audio/')) {
@@ -178,7 +186,7 @@ export default class Convolux {
     };
 
     dropElem.addEventListener('dragover', e => {
-      if (extractAudioFileFromDataTransfer(e.dataTransfer)) {
+      if (isFilesTransfer(e.dataTransfer)) {
         e.dataTransfer.dropEffect = 'copy';
         e.preventDefault();
         e.stopPropagation();
