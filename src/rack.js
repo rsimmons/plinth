@@ -120,8 +120,8 @@ loadPresetFileChooserElem.addEventListener('change', e => {
     // TODO: various error handling
     const presetJSON = e.target.result;
     const presetObj = JSON.parse(presetJSON);
-    if (!presetObj.plinthPresetVersion) {
-      console.log('not a preset');
+    if (presetObj.plinthPresetVersion === undefined) {
+      throw new Error('Not a preset');
     }
     loadRootBlock(presetObj.b, presetObj.s);
     hideLoadScreen();
