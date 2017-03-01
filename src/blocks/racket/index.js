@@ -863,7 +863,7 @@ class Racket {
           blockSeqNums.push(+bid.slice(1));
         }
       }
-      blockIdSeq.set(Math.max(blockSeqNums)+1);
+      blockIdSeq.set(Math.max(...blockSeqNums)+1);
 
       // Load connections
       for (const cxn of settings.c) {
