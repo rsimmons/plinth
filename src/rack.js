@@ -113,7 +113,6 @@ loadPresetFileChooserElem.addEventListener('change', e => {
     // No file chosen
     return;
   }
-  loadPresetFileChooserElem.files = null;
   const file = files[0];
   const reader = new FileReader();
   reader.onload = (e) => {
