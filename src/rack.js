@@ -19,6 +19,7 @@ const availableBlockClasses = {}; // maps block class id to block class
   'remark',
   'scope',
   'thumper',
+  'verbatim',
   'waverly',
 ].forEach(n => {
   availableBlockClasses[n] = require('./blocks/' + n + '/block.js').default; // hacky for now
