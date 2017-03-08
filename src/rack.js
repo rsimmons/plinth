@@ -2,7 +2,7 @@ import FileSaver from 'file-saver';
 import LZString from 'lz-string';
 import applyPolyfills from './polyfills';
 import initWebAudio from './initWebAudio';
-import {presetToJSON, presetFromJSON} from './presetSerialization';
+import {presetSaveToJSON, presetLoadFromJSON} from './presetSerialization';
 
 // Shim drag and drop for mobile browsers
 var iosDragDropShim = { enableEnterLeave: true };
@@ -120,7 +120,7 @@ loadPresetFileChooserElem.addEventListener('change', e => {
   reader.onload = (e) => {
     // TODO: various error handling
     const presetJSON = e.target.result;
-    const {blockClassId, settings} =  presetFromJSON(presetJSON);
+    const {blockClassId, settings} =  presetLoadFromJSON(presetJSON);
     loadRootBlock(blockClassId, settings);
     hideLoadScreen();
   };
@@ -137,10 +137,10 @@ document.querySelector('#save-preset-button').addEventListener('click', e => {
     console.log("Loaded block doesn't support saving settings");
   }
 
-  const presetJSON = presetToJSON(rootBlockClassId, settings);
+  const presetJSON = presetSaveToJSON(rootBlockClassId, settings);
 
-  const uriPresetJSON = LZString.compressToEncodedURIComponent(presetJSON);
-  console.log('encoded URI length:', uriPresetJSON.length);
+  // const uriPresetJSON = LZString.compressToEncodedURIComponent(presetJSON);
+  // console.log('encoded URI length:', uriPresetJSON.length);
 
   FileSaver.saveAs(new Blob([presetJSON], {type: "application/json;charset=utf-8"}), 'preset.json');
 });

@@ -1,4 +1,3 @@
-import {encode as b64encode, decode as b64decode} from 'base64-arraybuffer';
 const template = require('./template.html');
 
 export default class Convolux {
@@ -220,7 +219,7 @@ export default class Convolux {
 
     // Enact settings
     for (let ri = 0; ri < settings.responses.length; ri++) {
-      addResponse(settings.responses[ri].name, b64decode(settings.responses[ri].responseFileData), (ri === settings.activeResponseIdx));
+      addResponse(settings.responses[ri].name, settings.responses[ri].responseFileData, (ri === settings.activeResponseIdx));
     }
     updateResponseSelector();
     if (activeResponseIdx === null) {
@@ -231,7 +230,7 @@ export default class Convolux {
 
     this.save = () => {
       return {
-        responses: responses.map(r => ({name: r.name, responseFileData: b64encode(r.responseFileData)})),
+        responses: responses.map(r => ({name: r.name, responseFileData: r.responseFileData})),
         activeResponseIdx,
         bypass,
         wetness,
