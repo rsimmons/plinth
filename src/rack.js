@@ -2,7 +2,7 @@ import FileSaver from 'file-saver';
 import LZString from 'lz-string';
 import applyPolyfills from './polyfills';
 import initWebAudio from './initWebAudio';
-import {presetSaveToJSON, presetLoadFromJSON} from './presetSerialization';
+import {presetSaveToBlob, presetLoadFromArrayBuffer} from './presetSerialization';
 
 // Shim drag and drop for mobile browsers
 var iosDragDropShim = { enableEnterLeave: true };
@@ -119,12 +119,14 @@ loadPresetFileChooserElem.addEventListener('change', e => {
   const reader = new FileReader();
   reader.onload = (e) => {
     // TODO: various error handling
-    const presetJSON = e.target.result;
-    const {blockClassId, settings} =  presetLoadFromJSON(presetJSON);
+    const presetArrayBuffer = e.target.result;
+    console.time('preset load');
+    const {blockClassId, settings} =  presetLoadFromArrayBuffer(presetArrayBuffer);
+    console.timeEnd('preset load');
     loadRootBlock(blockClassId, settings);
     hideLoadScreen();
   };
-  reader.readAsText(file, 'utf-8');
+  reader.readAsArrayBuffer(file);
 });
 
 document.querySelector('#save-preset-button').addEventListener('click', e => {
@@ -137,10 +139,12 @@ document.querySelector('#save-preset-button').addEventListener('click', e => {
     console.log("Loaded block doesn't support saving settings");
   }
 
-  const presetJSON = presetSaveToJSON(rootBlockClassId, settings);
+  console.time('preset save');
+  const presetBlob = presetSaveToBlob(rootBlockClassId, settings);
+  console.timeEnd('preset save');
 
   // const uriPresetJSON = LZString.compressToEncodedURIComponent(presetJSON);
   // console.log('encoded URI length:', uriPresetJSON.length);
 
-  FileSaver.saveAs(new Blob([presetJSON], {type: "application/json;charset=utf-8"}), 'preset.json');
+  FileSaver.saveAs(presetBlob, 'preset.plinth');
 });

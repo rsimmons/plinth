@@ -1,115 +1,80 @@
-import Rusha from 'rusha';
-import {encode as b64encode, decode as b64decode} from 'base64-arraybuffer';
+import {extractBlobs, injectBlobs} from './blobExtraction';
+import UTF8 from 'utf-8';
 
-function isArray(v) {
-  return Array.isArray(v);
-}
+const CURRENT_VERSION_STRING = 'plinthPresetVersion:1';
 
-function isPlainObject(v) {
-  return ((typeof(v) === 'object') && (v !== null) && (v.constructor === Object));
-}
+export function presetSaveToBlob(blockClassId, settings) {
+  const fileBlobParts = [];
 
-function isPrimitive(v) {
-  const t = typeof(v);
-  return ((v === null) || (t === 'undefined') || (t === 'number') || (t === 'string') || (t === 'boolean'));
-}
+  fileBlobParts.push(CURRENT_VERSION_STRING + '\n');
 
-// Values are passed to visit function, and return value is replacement. Only "leaves" get replaced.
-function traverse(v, visit) {
-  if (isArray(v)) {
-    return v.map(x => traverse(x, visit));
-  } else if (isPlainObject(v)) {
-    const newObj = {};
-    for (const k in v) {
-      if (v.hasOwnProperty(k)) {
-        newObj[k] = traverse(v[k], visit);
-      }
-    }
-    return newObj;
-  } else {
-    return visit(v);
+  const {newObj: deblobbedSettings, hashMap} = extractBlobs(settings);
+
+  // Derive some info about hashed blobs
+  const orderedHashes = Object.keys(hashMap).sort();
+  const hashInfo = {};
+  let lastHashBlobOffset = 0;
+  for (const hash of orderedHashes) {
+    const len = hashMap[hash].byteLength;
+    hashInfo[hash] = {
+      l: len,
+      o: lastHashBlobOffset,
+    };
+    lastHashBlobOffset += len;
   }
-}
 
-const uid32 = () => Math.random().toString(16).substring(2, 10);
-const uid64 = () => uid32() + uid32();
-
-function hashFunc(ab) {
-  return (new Rusha()).digestFromArrayBuffer(ab);
-}
-
-export function presetSaveToJSON(blockClassId, settings) {
-  const presetObj = {
-    plinthPresetVersion: 0,
+  const presetInfo = {
     b: blockClassId,
+    s: deblobbedSettings,
+    h: hashInfo,
   };
 
-  const uidToBlobInfo = {};
-  const hashToArrayBuffer = {};
+  fileBlobParts.push(JSON.stringify(presetInfo));
+  fileBlobParts.push('\n');
 
-  presetObj.s = traverse(settings, (v) => {
-    if (v instanceof ArrayBuffer) {
-      const hash = hashFunc(v);
-      hashToArrayBuffer[hash] = v;
-
-      const uid = uid64();
-      uidToBlobInfo[uid] = {
-        t: 'ArrayBuffer',
-        h: hash,
-      };
-
-      return uid;
-    } else {
-      if (!isPrimitive(v)) {
-        throw new Error('settings contain unserializable value');
-      }
-      return v;
-    }
+  // Append any blob data at end, in order of hash
+  orderedHashes.forEach(hash => {
+    fileBlobParts.push(hashMap[hash]);
   });
 
-  if (Object.keys(uidToBlobInfo).length > 0) {
-    const hashToBase64 = {};
-    for (const k in hashToArrayBuffer) {
-      hashToBase64[k] = b64encode(hashToArrayBuffer[k]);
-    }
-
-    presetObj.d = uidToBlobInfo;
-    presetObj.h = hashToBase64;
-  }
-
-  return JSON.stringify(presetObj);
+  return new Blob(fileBlobParts, {type: 'application/prs.plinth-preset'}); // 'application/prs.plinth-preset' or 'application/octet-stream'?
 }
 
-export function presetLoadFromJSON(s) {
-  const presetObj = JSON.parse(s);
+export function presetLoadFromArrayBuffer(ab) {
+  const byteView = new Uint8Array(ab);
+  const newlineCode = '\n'.charCodeAt(0);
 
-  if (presetObj.plinthPresetVersion !== 0) {
-    throw new Error('Can\'t load preset');
+  const firstNewlineOffset = byteView.indexOf(newlineCode);
+  if (firstNewlineOffset < 0) {
+    throw new Error('Missing first newline');
+  }
+  const versionStr = UTF8.getStringFromBytes(byteView.subarray(0, firstNewlineOffset));
+
+  // TODO: parse this instead of simple comparison
+  if (versionStr !== CURRENT_VERSION_STRING) {
+    throw new Error('Invalid preset');
   }
 
-  if ('d' in presetObj) {
-    const hashToArrayBuffer = {};
-    for (const k in presetObj.h) {
-      hashToArrayBuffer[k] = b64decode(presetObj.h[k]);
-    }
-
-    presetObj.s = traverse(presetObj.s, (v) => {
-      if (v in presetObj.d) {
-        switch (presetObj.d[v].t) {
-          case 'ArrayBuffer':
-            return hashToArrayBuffer[presetObj.d[v].h];
-
-          default:
-            throw new Error('unrecognized type');
-        }
-      } else {
-        return v;
-      }
-    });
+  const secondNewlineOffset = byteView.indexOf(newlineCode, firstNewlineOffset+1);
+  if (secondNewlineOffset < 0) {
+    throw new Error('Missing second newline');
   }
+  const presetJSONStr = UTF8.getStringFromBytes(byteView.subarray(firstNewlineOffset, secondNewlineOffset));
+
+  const presetInfo = JSON.parse(presetJSONStr);
+
+  // Recreate hashMap (hash -> ArrayBuffer)
+  const hashMap = {};
+  for (const k in presetInfo.h) {
+    const {o: off, l: len} = presetInfo.h[k];
+    const start = secondNewlineOffset+1+off;
+    hashMap[k] = ab.slice(start, start+len); // note that we slice original ArrayBuffer
+  }
+
+  const reblobbedSettings = injectBlobs(presetInfo.s, hashMap);
 
   return {
-    blockClassId: presetObj.b,
-    settings: presetObj.s,
+    blockClassId: presetInfo.b,
+    settings: reblobbedSettings,
   };
 }
