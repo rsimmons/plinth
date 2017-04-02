@@ -95,11 +95,15 @@ body {
   cursor: pointer;
   box-sizing: border-box;
   width: 15em;
-  margin: 0.5em 0;
+  margin: 0.5em 0.5em;
 }
 
 #load-screen .load-screen-buttony:hover {
   background: rgba(255, 255, 255, 0.1);
+}
+
+#load-screen-demo-patches-container {
+  margin-top: 20px;
 }
 
 #load-screen input[type=file] {
@@ -147,6 +151,7 @@ body {
       <div id="load-screen-spacer"></div>
       <div><button id="load-empty-rack-button" class="load-screen-buttony">Load Empty Rack</button></div>
       <div><label class="load-screen-buttony">Open Patch File<input id="load-preset-file-chooser" type="file"></label></div>
+      <div id="load-screen-demo-patches-container"></div>
     </div>
     <div id="logo">Plinth</div>
     <script src="rack.bundle.js" charset="utf-8"></script>

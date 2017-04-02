@@ -121,7 +121,7 @@ loadPresetFileChooserElem.addEventListener('change', e => {
     // TODO: various error handling
     const presetArrayBuffer = e.target.result;
     console.time('preset load');
-    const {blockClassId, settings} =  presetLoadFromArrayBuffer(presetArrayBuffer);
+    const {blockClassId, settings} = presetLoadFromArrayBuffer(presetArrayBuffer);
     console.timeEnd('preset load');
     loadRootBlock(blockClassId, settings);
     hideLoadScreen();
@@ -149,3 +149,42 @@ document.querySelector('#save-preset-button').addEventListener('click', e => {
   const datetimeStr = (new Date()).toISOString().replace(/[-:.ZT]/g, '').substring(0, 14);
   FileSaver.saveAs(presetBlob, 'preset_' + datetimeStr + '.plinth');
 });
+
+const loadPresetFromURL = (url) => {
+  const req = new XMLHttpRequest();
+  req.open('GET', url, true);
+  req.responseType = 'arraybuffer';
+  req.onload = (event) => {
+    const presetArrayBuffer = req.response;
+    const {blockClassId, settings} = presetLoadFromArrayBuffer(presetArrayBuffer);
+    loadRootBlock(blockClassId, settings);
+    hideLoadScreen();
+  };
+  req.send(null);
+};
+
+const DEMO_RACKS = [
+  {
+    title: 'Kick',
+    file: 'kick.plinth',
+  },
+  {
+    title: 'Blips',
+    file: 'blips.plinth',
+  },
+];
+
+const handleLoadDemoClick = (e) => {
+  e.preventDefault();
+  loadPresetFromURL('demo_racks/' + e.target.dataset.file);
+};
+
+const demoRacksContainerElem = document.querySelector('#load-screen-demo-patches-container');
+for (const rack of DEMO_RACKS) {
+  const el = document.createElement('button');
+  el.className = 'load-screen-buttony';
+  el.textContent = 'Demo / ' + rack.title;
+  el.dataset.file = rack.file;
+  el.addEventListener('click', handleLoadDemoClick, false);
+  demoRacksContainerElem.appendChild(el);
+}
