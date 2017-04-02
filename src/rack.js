@@ -146,5 +146,6 @@ document.querySelector('#save-preset-button').addEventListener('click', e => {
   // const uriPresetJSON = LZString.compressToEncodedURIComponent(presetJSON);
   // console.log('encoded URI length:', uriPresetJSON.length);
 
-  FileSaver.saveAs(presetBlob, 'preset.plinth');
+  const datetimeStr = (new Date()).toISOString().replace(/[-:.ZT]/g, '').substring(0, 14);
+  FileSaver.saveAs(presetBlob, 'preset_' + datetimeStr + '.plinth');
 });
