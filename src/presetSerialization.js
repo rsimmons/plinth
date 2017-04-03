@@ -1,6 +1,33 @@
 import {extractBlobs, injectBlobs} from './blobExtraction';
 import UTF8 from 'utf-8';
 
+export function presetSaveToJSONIfNoBlobs(blockClassId, settings) {
+  const {newObj: deblobbedSettings, hashMap} = extractBlobs(settings);
+
+  if (Object.keys(hashMap).length > 0) {
+    return null;
+  }
+
+  return JSON.stringify({
+    plinthPresetVersion: 1,
+    b: blockClassId,
+    s: settings,
+  });
+}
+
+export function presetLoadFromJSON(s) {
+  const presetInfo = JSON.parse(s);
+
+  if (presetInfo.plinthPresetVersion !== 1) {
+    throw new Error('Incorrect version');
+  }
+
+  return {
+    blockClassId: presetInfo.b,
+    settings: presetInfo.s,
+  };
+}
+
 const CURRENT_VERSION_STRING = 'plinthPresetVersion:1';
 
 export function presetSaveToBlob(blockClassId, settings) {

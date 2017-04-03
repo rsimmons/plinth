@@ -3,7 +3,7 @@ import FileSaver from 'file-saver';
 import LZString from 'lz-string';
 import applyPolyfills from './polyfills';
 import initWebAudio from './initWebAudio';
-import {presetSaveToBlob, presetLoadFromArrayBuffer} from './presetSerialization';
+import {presetSaveToBlob, presetLoadFromArrayBuffer, presetSaveToJSONIfNoBlobs, presetLoadFromJSON} from './presetSerialization';
 
 // Shim drag and drop for mobile browsers
 var iosDragDropShim = { enableEnterLeave: true };
@@ -96,11 +96,6 @@ loadScreenCloseButtonElem.addEventListener('click', e => {
   hideLoadScreen();
 });
 
-document.querySelector('#new-patch-button').addEventListener('click', e => {
-  e.preventDefault();
-  showLoadScreen();
-});
-
 document.querySelector('#load-empty-rack-button').addEventListener('click', e => {
   e.preventDefault();
   loadEmptyRack();
@@ -130,22 +125,37 @@ loadPresetFileChooserElem.addEventListener('change', e => {
   reader.readAsArrayBuffer(file);
 });
 
+document.querySelector('#new-patch-button').addEventListener('click', e => {
+  e.preventDefault();
+  showLoadScreen();
+});
+
+document.querySelector('#link-preset-button').addEventListener('click', e => {
+  e.preventDefault();
+
+  const settings = rootBlockInst.save(); // blocks don't always have save method, but here we assume it does
+  const presetJSON = presetSaveToJSONIfNoBlobs(rootBlockClassId, settings);
+
+  if (presetJSON) {
+    const compressedPresetJSON = LZString.compressToEncodedURIComponent(presetJSON);
+    console.log(compressedPresetJSON.length, location.href + '#' + queryString.stringify({ // TODO: make sure location.href has no hash?
+      a: 'preset',
+      p: compressedPresetJSON,
+    }));
+  } else {
+    // TODO: handle this
+    console.log('Can\'t save because blobs');
+  }
+});
+
 document.querySelector('#save-preset-button').addEventListener('click', e => {
   e.preventDefault();
 
-  let settings = null;
-  if (rootBlockInst.save) {
-    settings = rootBlockInst.save();
-  } else {
-    console.log("Loaded block doesn't support saving settings");
-  }
+  const settings = rootBlockInst.save(); // blocks don't always have save method, but here we assume it does
 
   console.time('preset save');
   const presetBlob = presetSaveToBlob(rootBlockClassId, settings);
   console.timeEnd('preset save');
-
-  // const uriPresetJSON = LZString.compressToEncodedURIComponent(presetJSON);
-  // console.log('encoded URI length:', uriPresetJSON.length);
 
   const datetimeStr = (new Date()).toISOString().replace(/[-:.ZT]/g, '').substring(0, 14);
   FileSaver.saveAs(presetBlob, 'preset_' + datetimeStr + '.plinth');
@@ -201,6 +211,13 @@ const handleLocationHash = () => {
     switch (parsed.a) {
       case 'demo':
         loadDemoId(parsed.i);
+        break;
+
+      case 'preset':
+        const presetJSON = LZString.decompressFromEncodedURIComponent(parsed.p);
+        const {blockClassId, settings} = presetLoadFromJSON(presetJSON);
+        loadRootBlock(blockClassId, settings);
+        hideLoadScreen();
         break;
 
       default:
