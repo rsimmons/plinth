@@ -130,6 +130,26 @@ document.querySelector('#new-patch-button').addEventListener('click', e => {
   showLoadScreen();
 });
 
+const linkScreenElem = document.querySelector('#link-screen');
+const linkScreenURLElem = document.querySelector('#link-screen textarea');
+const linkURLLengthElem = document.querySelector('#link-url-length');
+
+const showLinkScreen = (url) => {
+  linkScreenURLElem.value = url;
+  linkURLLengthElem.textContent = url.length;
+  linkScreenElem.style.display = 'block';
+};
+
+const hideLinkScreen = () => {
+  linkScreenElem.style.display = 'none';
+};
+
+linkScreenElem.addEventListener('click', (e) => {
+  if (e.target === linkScreenElem) {
+    hideLinkScreen();
+  }
+}, false);
+
 document.querySelector('#link-preset-button').addEventListener('click', e => {
   e.preventDefault();
 
@@ -138,13 +158,14 @@ document.querySelector('#link-preset-button').addEventListener('click', e => {
 
   if (presetJSON) {
     const compressedPresetJSON = LZString.compressToEncodedURIComponent(presetJSON);
-    console.log(compressedPresetJSON.length, location.href + '#' + queryString.stringify({ // TODO: make sure location.href has no hash?
+    const url = location.href + '#' + queryString.stringify({ // TODO: make sure location.href has no hash?
       a: 'preset',
       p: compressedPresetJSON,
-    }));
+    });
+    showLinkScreen(url);
   } else {
-    // TODO: handle this
-    console.log('Can\'t save because blobs');
+    // TODO: handle this better
+    alert('Can\'t make links to patches that include samples');
   }
 });
 
