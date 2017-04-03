@@ -133,6 +133,35 @@ body {
   fill: currentColor;
 }
 
+#link-screen {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: rgba(10,10,10,0.95);
+  color: #ccc;
+  padding: 10px;
+  text-align: center;
+}
+
+#link-box {
+  margin: 30vh auto;
+  width: 400px;
+  padding: 20px;
+  border: 1px solid #555;
+  background: rgb(10,10,10);
+}
+
+#link-box textarea {
+  background: black;
+  color: #aaa;
+  font-family: inherit;
+  width: 100%;
+  word-break: break-all;
+}
+
     </style>
   </head>
   <body>
@@ -153,6 +182,12 @@ body {
       <div><button id="load-empty-rack-button" class="load-screen-buttony">Load Empty Rack</button></div>
       <div><label class="load-screen-buttony">Open Patch File<input id="load-preset-file-chooser" type="file"></label></div>
       <div id="load-screen-demo-patches-container"></div>
+    </div>
+    <div id="link-screen">
+      <div id="link-box">
+        Link to this patch (<span id="link-url-length"></span> characters):<br>
+        <textarea readonly="true" rows="5"></textarea>
+      </div>
     </div>
     <div id="logo">Plinth</div>
     <script src="rack.bundle.js" charset="utf-8"></script>
