@@ -1,3 +1,4 @@
+import queryString from 'query-string';
 import FileSaver from 'file-saver';
 import LZString from 'lz-string';
 import applyPolyfills from './polyfills';
@@ -165,18 +166,22 @@ const loadPresetFromURL = (url) => {
 
 const DEMO_RACKS = [
   {
-    title: 'Kick',
-    file: 'kick.plinth',
+    id: 'kick',
+    title: 'Simple Kick',
   },
   {
+    id: 'blips',
     title: 'Blips',
-    file: 'blips.plinth',
   },
 ];
 
+const loadDemoId = (id) => {
+  loadPresetFromURL('demo_racks/' + id + '.plinth');
+};
+
 const handleLoadDemoClick = (e) => {
   e.preventDefault();
-  loadPresetFromURL('demo_racks/' + e.target.dataset.file);
+  loadDemoId(e.target.dataset.demoid);
 };
 
 const demoRacksContainerElem = document.querySelector('#load-screen-demo-patches-container');
@@ -184,7 +189,24 @@ for (const rack of DEMO_RACKS) {
   const el = document.createElement('button');
   el.className = 'load-screen-buttony';
   el.textContent = 'Demo / ' + rack.title;
-  el.dataset.file = rack.file;
+  el.dataset.demoid = rack.id;
   el.addEventListener('click', handleLoadDemoClick, false);
   demoRacksContainerElem.appendChild(el);
 }
+
+const handleLocationHash = () => {
+  if (location.hash && (location.hash.length > 0)) {
+    const parsed = queryString.parse(location.hash);
+    history.replaceState({}, document.title, location.href.substr(0, location.href.length-location.hash.length));
+    switch (parsed.a) {
+      case 'demo':
+        loadDemoId(parsed.i);
+        break;
+
+      default:
+        // do nothing
+    }
+  }
+}
+
+handleLocationHash();
