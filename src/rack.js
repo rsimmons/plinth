@@ -202,7 +202,11 @@ const DEMO_RACKS = [
   },
   {
     id: 'blips',
-    title: 'Blips',
+    title: 'Verb Blips',
+  },
+  {
+    id: 'fm_scope',
+    title: 'FM Scope',
   },
 ];
 
