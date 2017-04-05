@@ -197,16 +197,20 @@ const loadPresetFromURL = (url) => {
 
 const DEMO_PATCHES = [
   {
-    id: 'kick',
-    title: 'Simple Kick',
-  },
-  {
     id: 'blips',
     title: 'Verb Blips',
   },
   {
+    id: 'fold_drone',
+    title: 'Fold Drone',
+  },
+  {
     id: 'fm_scope',
     title: 'FM Scope',
+  },
+  {
+    id: 'kick',
+    title: 'Simple Kick',
   },
 ];
 
