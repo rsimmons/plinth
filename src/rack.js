@@ -195,7 +195,7 @@ const loadPresetFromURL = (url) => {
   req.send(null);
 };
 
-const DEMO_RACKS = [
+const DEMO_PATCHES = [
   {
     id: 'kick',
     title: 'Simple Kick',
@@ -211,7 +211,7 @@ const DEMO_RACKS = [
 ];
 
 const loadDemoId = (id) => {
-  loadPresetFromURL('demo_racks/' + id + '.plinth');
+  loadPresetFromURL('demo_patches/' + id + '.plinth');
 };
 
 const handleLoadDemoClick = (e) => {
@@ -219,14 +219,14 @@ const handleLoadDemoClick = (e) => {
   loadDemoId(e.target.dataset.demoid);
 };
 
-const demoRacksContainerElem = document.querySelector('#load-screen-demo-patches-container');
-for (const rack of DEMO_RACKS) {
+const demoPatchesContainerElem = document.querySelector('#load-screen-demo-patches-container');
+for (const patch of DEMO_PATCHES) {
   const el = document.createElement('button');
   el.className = 'load-screen-buttony';
-  el.textContent = 'Demo / ' + rack.title;
-  el.dataset.demoid = rack.id;
+  el.textContent = 'Demo / ' + patch.title;
+  el.dataset.demoid = patch.id;
   el.addEventListener('click', handleLoadDemoClick, false);
-  demoRacksContainerElem.appendChild(el);
+  demoPatchesContainerElem.appendChild(el);
 }
 
 const handleLocationHash = () => {
