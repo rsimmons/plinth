@@ -29,6 +29,7 @@ h2 {
   <body>
     <h1 id="about">About Plinth</h1>
     <p>Plinth is an open source <a href="https://en.wikipedia.org/wiki/Modular_synthesizer">modular synthesis</a> system that runs in your web browser. It currently consists of a <a href="rack.html">demo page</a> that lets you load and patch a set of sample modules (aka <em>blocks</em>), and a <a href="https://github.com/rsimmons/plinth">draft spec</a> of a module API.</p>
+    <p>If you have have any feedback or want to contribute to the project, open an issue on <a href="https://github.com/rsimmons/plinth">GitHub</a> or drop me a line. My name is Russ Simmons, and my email is in the format first-name@first-initial-last-name.org.</p>
     <h1 id="guide">Guide</h1>
     <h2>Quick Start</h2>
     <ul>
@@ -48,5 +49,7 @@ h2 {
     <p>A single output port can be connected to multiple inputs, in which case the same output signal is broadcast to all the inputs. Multiple output ports can also be connected to a single input. If the ports are audio-type, the signals will be summed together at the input. <em>(If the ports are gate-type, the results are currently undefined.)</em>
     <p>Connecting blocks in a "feedback loop" will work only in certain circumstances. For audio signals, a short delay is required somewhere in the signal path, otherwise the looping connections will be ignored. With gate signals, it is possible to cause the system to freeze in an "infinite loop", so be careful.</p>
     <p>The rack has a special block called <em>Rack Outputs</em> that is used to output a final audio signal for listening. This block cannot be deleted.</p>
+    <h1>Acknowledgements</h1>
+    <p>Icons are by <a href="https://thenounproject.com/bernar.novalyi/collection/basic-ui/">Bernar Novalyi</a>, <a href="https://creativecommons.org/licenses/by/3.0/">CC BY 3.0</a>.</p>
   </body>
 </html>
