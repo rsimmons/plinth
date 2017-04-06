@@ -79,26 +79,27 @@ body {
   color: #ccc;
   padding: 10px;
   text-align: center;
+  font-size: 18px;
 }
 
 #load-screen-spacer {
   height: 45px;
 }
 
-#load-screen .load-screen-buttony {
+.overlay-buttony {
   display: inline-block;
   background: transparent;
-  font-size: 18px;
   padding: 0.75em;
   color: inherit;
   border: 1px solid currentColor;
   cursor: pointer;
   box-sizing: border-box;
-  width: 15em;
+  width: 12em;
   margin: 0.5em 0.5em;
+  font-size: inherit;
 }
 
-#load-screen .load-screen-buttony:hover {
+.overlay-buttony:hover {
   background: rgba(255, 255, 255, 0.1);
 }
 
@@ -195,14 +196,17 @@ body {
       <button id="load-screen-close-button"><svg xmlns="http://www.w3.org/2000/svg" fill="#000000" viewBox="10 10 80 80" x="0px" y="0px"><polygon points="67.04 26.5 49.54 44 32.03 26.5 27.09 31.45 44.59 48.95 27.09 66.45 32.03 71.4 49.54 53.9 67.04 71.4 71.99 66.45 54.49 48.95 71.99 31.45 67.04 26.5"/></svg></button>
       <div id="load-screen-spacer"></div>
       <div id="load-screen-links">Modular synthesis in the web browser<br><a href="help.html#about">About</a> &middot; <a href="help.html#guide">Guide</a> &middot; <a href="https://github.com/rsimmons/plinth">GitHub</a></div>
-      <div><button id="load-empty-rack-button" class="load-screen-buttony">Load Empty Rack</button></div>
-      <div><label class="load-screen-buttony">Open Patch File<input id="load-preset-file-chooser" type="file"></label></div>
+      <div><button id="load-empty-rack-button" class="overlay-buttony">Load Empty Rack</button></div>
+      <div><label class="overlay-buttony">Open Patch File<input id="load-preset-file-chooser" type="file"></label></div>
       <div id="load-screen-demo-patches-container"></div>
     </div>
     <div id="link-screen">
       <div id="link-box">
-        Link to this patch (<span id="link-url-length"></span> characters):<br>
-        <textarea readonly="true" rows="5"></textarea>
+        <div style="text-align: left; margin-bottom: 20px">
+          Link to this patch (<span id="link-url-length"></span> characters):<br>
+          <textarea readonly="true" rows="5"></textarea>
+        </div>
+        <div style="font-size: 14px"><button id="link-screen-copy-button" class="overlay-buttony">Copy to Clipboard</button><button id="link-screen-done-button" class="overlay-buttony">Done</button></div>
       </div>
     </div>
     <div id="logo">Plinth</div>

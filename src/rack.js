@@ -150,6 +150,18 @@ linkScreenElem.addEventListener('click', (e) => {
   }
 }, false);
 
+document.querySelector('#link-screen-copy-button').addEventListener('click', e => {
+  e.preventDefault();
+  linkScreenURLElem.select();
+  document.execCommand('copy');
+  linkScreenURLElem.blur();
+}, false);
+
+document.querySelector('#link-screen-done-button').addEventListener('click', e => {
+  e.preventDefault();
+  hideLinkScreen();
+}, false);
+
 document.querySelector('#link-preset-button').addEventListener('click', e => {
   e.preventDefault();
 
@@ -226,7 +238,7 @@ const handleLoadDemoClick = (e) => {
 const demoPatchesContainerElem = document.querySelector('#load-screen-demo-patches-container');
 for (const patch of DEMO_PATCHES) {
   const el = document.createElement('button');
-  el.className = 'load-screen-buttony';
+  el.className = 'overlay-buttony';
   el.textContent = 'Demo / ' + patch.title;
   el.dataset.demoid = patch.id;
   el.addEventListener('click', handleLoadDemoClick, false);
