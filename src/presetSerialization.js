@@ -67,6 +67,33 @@ export function presetSaveToBlob(blockClassId, settings) {
   return new Blob(fileBlobParts, {type: 'application/prs.plinth-preset'}); // 'application/prs.plinth-preset' or 'application/octet-stream'?
 }
 
+// ugh, polyfill
+if (!Uint8Array.prototype.indexOf) {
+  Uint8Array.prototype.indexOf = function(searchElement, fromIndex) {
+    var k;
+    if (this == null) {
+      throw new TypeError('"this" is null or not defined');
+    }
+    var o = Object(this);
+    var len = o.length >>> 0;
+    if (len === 0) {
+      return -1;
+    }
+    var n = fromIndex | 0;
+    if (n >= len) {
+      return -1;
+    }
+    k = Math.max(n >= 0 ? n : len - Math.abs(n), 0);
+    while (k < len) {
+      if (k in o && o[k] === searchElement) {
+        return k;
+      }
+      k++;
+    }
+    return -1;
+  };
+}
+
 export function presetLoadFromArrayBuffer(ab) {
   const byteView = new Uint8Array(ab);
   const newlineCode = '\n'.charCodeAt(0);
