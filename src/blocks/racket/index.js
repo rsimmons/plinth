@@ -962,7 +962,7 @@ class Racket {
 
     // Iterate displayed blocks to find their order
     const blockOrder = [];
-    for (const el of this.blockContainerElem.childNodes) {
+    for (const el of [...this.blockContainerElem.childNodes]) {
       const bid = el.dataset.blockid;
       if (!bid || !blockMap[bid]) {
         throw new Error('internal error');
