@@ -20,6 +20,10 @@ a:hover {
   color: #fff;
 }
 
+h2 {
+  font-size: 1.3em;
+}
+
     </style>
   </head>
   <body>
@@ -31,10 +35,18 @@ a:hover {
       <li>Drag blocks from the block palette on the left into the rack area on the right. <em>(currently, blocks can't be rearranged after being placed)</em>
       <li>Press the Flip button (or space bar) to show the back view of the rack.
       <li>In the back view, click or drag block ports to connect wires between them.
-      <li>To remove wires, toggle Delete Wires mode and click on them.
-      <li>Click on any block in the palette for help.
+      <li>To remove wires, toggle Delete Wires mode (via button or D key) and click on them.
+      <li>Click on any block in the palette to learn about that block.
       <li>To hear something, connect an audio generating block (such as Waverly) to the Rack Outputs block audio port.
       <li>Unwanted blocks can be deleted with the small X button in the back view.
-    </p>
+      <li>Use the buttons in the top right to share your creation via a link (as long as it doesn't contain any audio samples) or save it to a file.
+    </ul>
+    <h2>Signals, Wires, Ports</h2>
+    <p>Each block has <em>ports</em> that let them connect to other blocks. Switch to the back view of the rack (using the Flip button or space bar) and you can see the ports of each block. There are two types of ports: input and output. Input ports are on the left side, and output ports are on the right.</p>
+    <p>There are two ways to wire a connection between two ports. You can either click on the first port, then click on the second port, or you can click on the first port, drag to the second port, and release. To delete a wire, first toggle Delete Wires mode via the  button or the D key. In Delete Wires mode, any wire that you click on will be deleted.</p>
+    <p>There are currently two different types of signals that wires can carry: <em>audio</em> and <em>gate</em>. Each block port is of a specific type, and only ports of the same type can be connected together. Audio signals can carry either "listenable" audio or audio-rate control signals (ala <a href="https://en.wikipedia.org/wiki/CV/gate">control voltages</a>). Gate signals are either "on" or "off" at any given moment in time, and are typically used as the output of clocks and the input of sequencers or envelope generators. <em>Note: Audio signals should be able to carry gate-type signals, but there are currently technical issues that make this inconvenient. When browsers support the upcoming Audio Worklets specification, we can get rid of gate signals and only have audio signals.</em></p>
+    <p>A single output port can be connected to multiple inputs, in which case the same output signal is broadcast to all the inputs. Multiple output ports can also be connected to a single input. If the ports are audio-type, the signals will be summed together at the input. <em>(If the ports are gate-type, the results are currently undefined.)</em>
+    <p>Connecting blocks in a "feedback loop" will work only in certain circumstances. For audio signals, a short delay is required somewhere in the signal path, otherwise the looping connections will be ignored. With gate signals, it is possible to cause the system to freeze in an "infinite loop", so be careful.</p>
+    <p>The rack has a special block called <em>Rack Outputs</em> that is used to output a final audio signal for listening. This block cannot be deleted.</p>
   </body>
 </html>
