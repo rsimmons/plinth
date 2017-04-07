@@ -19,7 +19,6 @@ export default class Egen {
     constantNode.connect(gainNode);
 
     const fast = new Fastidious(audioContext, gainNode.gain);
-    fast.attackShape = fast.LINEAR;
 
     // Load settings or defaults
     if (!settings) {
@@ -33,11 +32,9 @@ export default class Egen {
 
     // Enact settings
     fast.mode = settings.m;
-    fast.attackRate = 1.0/settings.rt;
-    fast.decayShape = settings.fs;
-    fast.decayRate = 1.0/settings.ft;
-    fast.releaseShape = settings.fs;
-    fast.releaseRate = 1.0/settings.ft;
+    fast.attackTime = settings.rt;
+    fast.decayTime = settings.ft;
+    fast.releaseTime = settings.ft;
 
     const gateNotify = (time, value) => {
       fast.gate(value, time);
@@ -68,31 +65,23 @@ export default class Egen {
     const controlValueToTime = (v) => (Math.exp(LOG_MIN_TIME + v*(LOG_MAX_TIME-LOG_MIN_TIME)));
 
     const riseTimeInputElem = this.panelView.querySelector('.rise-time-input');
-    riseTimeInputElem.value = timeToControlValue(1.0/fast.attackRate);
+    riseTimeInputElem.value = timeToControlValue(fast.attackTime);
     riseTimeInputElem.addEventListener('input', () => {
-      fast.attackRate = 1.0/controlValueToTime(riseTimeInputElem.value)
+      fast.attackTime = controlValueToTime(riseTimeInputElem.value)
     });
 
     const fallTimeInputElem = this.panelView.querySelector('.fall-time-input');
-    fallTimeInputElem.value = timeToControlValue(1.0/fast.decayRate);
+    fallTimeInputElem.value = timeToControlValue(fast.decayTime);
     fallTimeInputElem.addEventListener('input', () => {
-      fast.decayRate = 1.0/controlValueToTime(fallTimeInputElem.value)
-      fast.releaseRate = 1.0/controlValueToTime(fallTimeInputElem.value)
-    });
-
-    const fallShapeSelectElem = this.panelView.querySelector('.fall-shape-select');
-    fallShapeSelectElem.value = fast.decayShape;
-    fallShapeSelectElem.addEventListener('input', () => {
-      fast.decayShape = fallShapeSelectElem.value;
-      fast.releaseShape = fallShapeSelectElem.value;
+      fast.decayTime = controlValueToTime(fallTimeInputElem.value)
+      fast.releaseTime = controlValueToTime(fallTimeInputElem.value)
     });
 
     this.save = () => {
       return {
         m: fast.mode,
-        rt: 1.0/fast.attackRate,
-        ft: 1.0/fast.decayRate,
-        fs: 1.0/fast.decayShape,
+        rt: fast.attackTime,
+        ft: fast.decayTime,
       };
     };
   }
@@ -112,8 +101,8 @@ In attack-sustain-release mode, the output value starts moving towards 1 when th
 
 For all envelope types, if the gate goes high during the falling phase (decay or release), a new attack will begin from the current output value. In other words, the envelope will restart WITHOUT dropping to 0 and the output will not have any sudden jumps.
 
-The Rise control sets the speed of the attack phase, i.e. how quickly the envelope transitions towards 1. The attack shape is always linear.
+The Rise control sets the speed of the attack phase, i.e. how quickly the envelope transitions towards 1. The attack shape is almost-linear.
 
-The Fall control sets the speed of the decay and release phases, i.e. how quickly the envelope transitions towards 0. The Fall Shape control can be set to LIN (fall linearly to 0) or EXP (decay exponentially to 0). Exponential decay tends to sound more like natural sounds.
+The Fall control sets the speed of the decay and release phases, i.e. how quickly the envelope transitions towards 0. The fall shape is an exponential decay, which tends to sound like natural sounds.
 
 Tip: Very fast envelopes that rise and fall in less than the time of a single audio wave cycle can be used to make "click" sounds.`;
