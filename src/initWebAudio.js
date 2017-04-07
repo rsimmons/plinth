@@ -19,11 +19,11 @@ export default (window) => {
     }
 
     const messageElem = document.createElement('div');
-    messageElem.style.cssText = 'position:absolute;bottom:0;left:0;top:0;right:0;width:5em;height:1.2em;margin:auto;padding:0.5em;background:#91d780;font-size:48px;text-align:center;border-radius:0.5em;border:4px solid white;font-weight:bold';
-    messageElem.textContent = 'Launch';
+    messageElem.style.cssText = 'position:absolute;bottom:0;left:0;top:0;right:0;width:8em;height:1.2em;margin:auto;padding:0.5em;background:transparent;font-size:48px;text-align:center;border:2px solid white;font-weight:bold';
+    messageElem.textContent = 'Launch Plinth';
 
     const overlayElem = document.createElement('div');
-    overlayElem.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:1000;background:rgba(0,0,0,0.9)';
+    overlayElem.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:1000;background:#0a0a0a;color:#ccc';
     overlayElem.appendChild(messageElem);
 
     overlayElem.addEventListener('mousedown', handleInteraction);
