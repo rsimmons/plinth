@@ -1,24 +1,26 @@
 # Plinth
 
-**Plinth** is a specification for browser-based audio processing components based on the [Web Audio API](https://webaudio.github.io/web-audio-api/). It draws inspiration mainly from [modular synthesizers](https://en.wikipedia.org/wiki/Modular_synthesizer), popular desktop audio plugin standards (VST, AU, etc.), and [Native Instruments Reaktor Blocks](https://www.native-instruments.com/en/products/komplete/synths/reaktor-6/blocks/).
+### [Check out the demo](https://rsimmons.github.io/plinth/rack.html)
 
-This repository contains a draft spec (see below) and a proof of concept implementation, both of which are currently works in progress.
+**Plinth** combines the ideas of [modular synthesis](https://en.wikipedia.org/wiki/Modular_synthesizer) (ala [Eurorack](https://en.wikipedia.org/wiki/Doepfer_A-100)) and audio plugin standards (VST, AU, etc.) and puts it in your web browser.
 
-Some crude demos:
-* [Composing blocks dynamically](https://rsimmons.github.io/plinth/rack.html) inside a "rack" block
-* [Composing blocks programmatically](https://rsimmons.github.io/plinth/programmatic.html) in Javascript
+This repository contains:
+- A demo/proof-of-concept [modular patching environment](https://rsimmons.github.io/plinth/rack.html)
+- *(coming soon)* A draft API spec for authoring and hosting components (aka blocks)
 
-# Draft Spec
+The Web Audio API has brought powerful audio processing capabilities to the web, but there isn’t yet a popular format for authoring **reusable audio components**. My hope is that Plinth will help spur work towards defining a such community standard (as VST/AU/etc and Eurorack have in the software and hardware worlds, respectively).
+
+# Plinth Block API *(work in progress)*
 
 ## Background
 
 The Web Audio API provides the means to do sophisticated audio processing in the browser with fairly high performance and low latency. And with the upcoming addition of [AudioWorklets](https://webaudio.github.io/web-audio-api/#AudioWorklet) it will soon be possible to define arbitrary signal processing functions in Javascript while still enjoying the performance benefits the API provides.
 
-Web Audio provides the low-level mechanisms for processing audio in the browser, but there is not yet a widely adopted standard for defining *composable audio components*. Standardized interfaces for audio components in desktop software (e.g. [VST](https://en.wikipedia.org/wiki/Virtual_Studio_Technology)) and hardware (e.g. [Eurorack](https://en.wikipedia.org/wiki/Doepfer_A-100)) have lead to flourishing ecosystems of component creators and consumers, and it seems natural to try to emulate these successes within the web browser platform. Furthermore, the browser platform offers unique opportunities for fluent and unobstructed sharing of components thanks to its widespread adoption and ability to safely execute untrusted 3rd party code.
+Web Audio provides the low-level mechanisms for processing audio in the browser, but there is not yet a widely adopted format for defining *composable audio components*. Standardized interfaces for audio components in desktop software (e.g. [VST](https://en.wikipedia.org/wiki/Virtual_Studio_Technology), etc) and hardware (e.g. [Eurorack](https://en.wikipedia.org/wiki/Doepfer_A-100)) have lead to flourishing ecosystems of component creators and consumers, and it seems natural to try to emulate these successes within the web browser platform. Furthermore, the browser platform offers unique opportunities for fluent and unobstructed sharing of components thanks to its widespread adoption and ability to safely execute untrusted 3rd party code.
 
 ## Overview
 
-A Plinth component (aka *block*) is implement as a Javascript "class", i.e. constructor function to be used with the new operator to create a block instance. We'll informally refer to both block classes and block instances as just "blocks" when it's clear which one we're talking about. We'll use the term *host* to refer to any code that instantiates and connects together blocks. We'll refer to a set of connected blocks as a *graph* or *patch*.
+A Plinth component (aka *block*) is implemented as a Javascript "class", i.e. constructor function to be used with the new operator to create a block instance. We'll informally refer to both block classes and block instances as just "blocks" when it's clear which one we're talking about. We'll use the term *host* to refer to any code that instantiates and connects together blocks. We'll refer to a set of connected blocks as a *graph* or *patch*.
 
 Blocks expose input and output *ports*, each of which accepts or emits a certain signal *type* (the most important type being **audio**). Hosts can enumerate the names and types of a block's ports.
 
@@ -26,7 +28,7 @@ Blocks typically render a user interface via HTML-based *views*. A block can pre
 
 Block views typically display controls that affect how a block generates or processes sound. In the spirit of modular synthesizers, blocks can also accept audio-rate "control" input signals. For example, an oscillator block might have a panel knob to set its fundamental frequency, and also a control signal input port that influences that same frequency. Note that for the sake of simplicity this spec *does not* define any special relationship between view controls and input ports. This means that view controls are not always "automatable", and control inputs may not have associated view controls.
 
-Blocks can support saving and loading their settings (via opaque strings), so that hosts can save and load patches.
+Blocks can support saving and loading their settings, so that hosts can save and load patches.
 
 ## Design Considerations
 
@@ -35,7 +37,6 @@ In order to achieve the widest possible adoption, the spec aims to balance power
 [TODO: define some terminology]
 * Target non-programmer musicians as end users of blocks.
 * Prioritize ease of block authoring over ease of host authoring.
-* Prioritize hosting blocks in dynamic patching interfaces, but also make it reasonably easy to instantiate and use them programmatically with Javascript.
+* Prioritize hosting blocks in dynamic patching interfaces, but also make it reasonably easy to instantiate and use them programmatically with Javascript (example [here](https://rsimmons.github.io/plinth/programmatic.html)).
 * Support complex signal graphs as typically found in [modular synthesizers](https://en.wikipedia.org/wiki/Modular_synthesizer) rather than biasing towards linear signal processing chains as in common in most [DAWs](https://en.wikipedia.org/wiki/Digital_audio_workstation).
 * Allow for hierarchical "nesting" scenarios where blocks can act as hosts to other blocks.
-* Don't specify any special relationship between block ports and controls in block views.
