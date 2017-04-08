@@ -1,5 +1,5 @@
 export default class Orinami {
-  constructor(document, audioContext, settings) {
+  constructor(audioContext, viewContainer, settings) {
     const MIN_STAGES = 0;
     const INIT_STAGES = 4;
 
@@ -37,11 +37,9 @@ export default class Orinami {
       'audio': {type: 'audio', node: shaperNode},
     };
 
-    const tmpElem = document.createElement('div');
-    tmpElem.innerHTML = '<div style="box-sizing: border-box; width: 126px; height: 256px; padding: 5px; background-color: white;"><div>Orinami</div><div><label>Stages <input type="number" value="' + this.stages + '" min="' + MIN_STAGES + '" step="1" style="width: 50px" /></label></div></div>';
-    this.panelView = tmpElem.childNodes[0];
+    viewContainer.innerHTML = '<div style="box-sizing: border-box; width: 126px; height: 256px; padding: 5px; background-color: white;"><div>Orinami</div><div><label>Stages <input type="number" value="' + this.stages + '" min="' + MIN_STAGES + '" step="1" style="width: 50px" /></label></div></div>';
 
-    this.panelView.querySelector('input').addEventListener('input', (e) => {
+    viewContainer.querySelector('input').addEventListener('input', (e) => {
       const st = parseInt(e.target.value, 10);
       if (!isNaN(st)) {
         const fst = Math.floor(st);

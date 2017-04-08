@@ -8,16 +8,17 @@ applyPolyfills();
 
 const audioContext = initWebAudio(window);
 
-// Instantiate some blocks
-const bigBen = new BigBen(document, audioContext);
-const thumper = new Thumper(document, audioContext);
-const scope = new Scope(document, audioContext);
-
-// Place the block panel elements in the DOM.
-const container = document.querySelector('#block-container');
-for (const panel of [bigBen.panelView, thumper.panelView, scope.panelView]) {
-  container.appendChild(panel);
+const topContainer = document.querySelector('#block-container');
+function makeContainer() {
+  const elem = document.createElement('div');
+  topContainer.appendChild(elem);
+  return elem;
 }
+
+// Instantiate some blocks, mounting in container
+const bigBen = new BigBen(audioContext, makeContainer());
+const thumper = new Thumper(audioContext, makeContainer());
+const scope = new Scope(audioContext, makeContainer());
 
 // Connect up the blocks to each other.
 bigBen.outputs.gate4.subscribe(thumper.inputs.gate.notify); // returns a “disconnect” closure that we discard here

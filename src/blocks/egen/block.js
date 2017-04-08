@@ -2,7 +2,7 @@ const template = require('./template.html');
 const Fastidious = require('fastidious-envelope-generator');
 
 export default class Egen {
-  constructor(document, audioContext, settings) {
+  constructor(audioContext, viewContainer, settings) {
     // Create a value that outputs a constant 1, which we modulate by the gain to provide final output
     const constantBuffer = audioContext.createBuffer(1, 2, audioContext.sampleRate);
     const constantData = constantBuffer.getChannelData(0);
@@ -47,11 +47,9 @@ export default class Egen {
       'audio': {type: 'audio', node: gainNode},
     };
 
-    const tmpElem = document.createElement('div');
-    tmpElem.innerHTML = template;
-    this.panelView = tmpElem.childNodes[0];
+    viewContainer.innerHTML = template;
 
-    const modeSelectElem = this.panelView.querySelector('.mode-select');
+    const modeSelectElem = viewContainer.querySelector('.mode-select');
     modeSelectElem.value = fast.mode;
     modeSelectElem.addEventListener('input', () => {
       fast.mode = modeSelectElem.value;
@@ -64,13 +62,13 @@ export default class Egen {
     const timeToControlValue = (t) => ((Math.log(t) - LOG_MIN_TIME)/(LOG_MAX_TIME - LOG_MIN_TIME));
     const controlValueToTime = (v) => (Math.exp(LOG_MIN_TIME + v*(LOG_MAX_TIME-LOG_MIN_TIME)));
 
-    const riseTimeInputElem = this.panelView.querySelector('.rise-time-input');
+    const riseTimeInputElem = viewContainer.querySelector('.rise-time-input');
     riseTimeInputElem.value = timeToControlValue(fast.attackTime);
     riseTimeInputElem.addEventListener('input', () => {
       fast.attackTime = controlValueToTime(riseTimeInputElem.value)
     });
 
-    const fallTimeInputElem = this.panelView.querySelector('.fall-time-input');
+    const fallTimeInputElem = viewContainer.querySelector('.fall-time-input');
     fallTimeInputElem.value = timeToControlValue(fast.decayTime);
     fallTimeInputElem.addEventListener('input', () => {
       fast.decayTime = controlValueToTime(fallTimeInputElem.value)

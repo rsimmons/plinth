@@ -1,7 +1,7 @@
 const template = require('./template.html');
 
 export default class Scope {
-  constructor(document, audioContext) {
+  constructor(audioContext, viewContainer) {
     const CANVAS_WIDTH = 510;
     const CANVAS_HEIGHT = 256;
     const WINDOW_SIZE = 1024;
@@ -26,11 +26,9 @@ export default class Scope {
       'audio': {type: 'audio', node: analyserNode}, // pass through input
     };
 
-    const tmpElem = document.createElement('div');
-    tmpElem.innerHTML = template;
-    this.panelView = tmpElem.childNodes[0];
+    viewContainer.innerHTML = template;
 
-    const canvasElem = this.panelView.querySelector('canvas');
+    const canvasElem = viewContainer.querySelector('canvas');
     const canvasCtx = canvasElem.getContext('2d');
 
     const draw = () => {

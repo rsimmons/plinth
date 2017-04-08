@@ -22,7 +22,7 @@ function createEventOutput() {
 }
 
 export default class BigBen {
-  constructor(document, audioContext, settings) {
+  constructor(audioContext, viewContainer, settings) {
     const TICKS_PER_BEAT = 4;
     const divs = [
       {outName: 'gate16', divisor: 1},
@@ -46,11 +46,9 @@ export default class BigBen {
       this.tempo = settings.t;
     }
 
-    const tmpElem = document.createElement('div');
-    tmpElem.innerHTML = '<div style="box-sizing: border-box; width: 62px; height: 256px; padding: 5px; background-color: #a72a2a;font-size:14px"><div style="text-align:center;margin:40px 0 20px"><img width="48" height="48" src="' + CLOCK_SVG_URL + '"></div><div><label>Tempo<br><input type="number" value="' + this.tempo + '" min="' + MIN_TEMPO + '" style="width: 50px" />bpm</label></div></div>';
-    this.panelView = tmpElem.childNodes[0];
+    viewContainer.innerHTML = '<div style="box-sizing: border-box; width: 62px; height: 256px; padding: 5px; background-color: #a72a2a;font-size:14px"><div style="text-align:center;margin:40px 0 20px"><img width="48" height="48" src="' + CLOCK_SVG_URL + '"></div><div><label>Tempo<br><input type="number" value="' + this.tempo + '" min="' + MIN_TEMPO + '" style="width: 50px" />bpm</label></div></div>';
 
-    this.panelView.querySelector('input').addEventListener('input', (e) => {
+    viewContainer.querySelector('input').addEventListener('input', (e) => {
       const t = parseInt(e.target.value, 10);
       if (!isNaN(t) && (t >= MIN_TEMPO)) {
         this.tempo = t;

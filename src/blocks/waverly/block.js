@@ -1,7 +1,7 @@
 const template = require('./template.html');
 
 export default class Waverly {
-  constructor(document, audioContext, settings) {
+  constructor(audioContext, viewContainer, settings) {
     const INIT_WAVEFORM = 'sine';
     const INIT_FREQUENCY = 440;
     const INIT_FM_SCALE = 100.0;
@@ -28,17 +28,15 @@ export default class Waverly {
     this.outputs = {
       'audio': {type: 'audio', node: oscNode},
     };
-    const tmpElem = document.createElement('div');
-    tmpElem.innerHTML = template;
-    this.panelView = tmpElem.childNodes[0];
+    viewContainer.innerHTML = template;
 
-    const waveformSelectElem = this.panelView.querySelector('.waveform-select');
+    const waveformSelectElem = viewContainer.querySelector('.waveform-select');
     waveformSelectElem.value = oscNode.type;
     waveformSelectElem.addEventListener('input', () => {
       oscNode.type = waveformSelectElem.value;
     });
 
-    const frequencyInputElem = this.panelView.querySelector('.frequency-input');
+    const frequencyInputElem = viewContainer.querySelector('.frequency-input');
     frequencyInputElem.value = oscNode.frequency.value;
     frequencyInputElem.addEventListener('input', () => {
       const v = parseFloat(frequencyInputElem.value);
@@ -47,7 +45,7 @@ export default class Waverly {
       }
     });
 
-    const fmScaleInputElem = this.panelView.querySelector('.fm-scale-input');
+    const fmScaleInputElem = viewContainer.querySelector('.fm-scale-input');
     fmScaleInputElem.value = fmScalerNode.gain.value;
     fmScaleInputElem.addEventListener('input', () => {
       const v = parseFloat(fmScaleInputElem.value);

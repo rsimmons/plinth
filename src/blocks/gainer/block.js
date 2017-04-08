@@ -1,7 +1,7 @@
 const template = require('./template.html');
 
 export default class Gainer {
-  constructor(document, audioContext, settings) {
+  constructor(audioContext, viewContainer, settings) {
     const gainNode = audioContext.createGain();
 
     this.inputs = {
@@ -11,9 +11,7 @@ export default class Gainer {
     this.outputs = {
       'audio': {type: 'audio', node: gainNode},
     };
-    const tmpElem = document.createElement('div');
-    tmpElem.innerHTML = template;
-    this.panelView = tmpElem.childNodes[0];
+    viewContainer.innerHTML = template;
 
     let baseGain;
 
@@ -22,7 +20,7 @@ export default class Gainer {
       gainNode.gain.value = v;
     }
 
-    const baseGainInputElem = this.panelView.querySelector('.base-gain-input');
+    const baseGainInputElem = viewContainer.querySelector('.base-gain-input');
     baseGainInputElem.addEventListener('input', () => {
       const v = parseFloat(baseGainInputElem.value);
       if (!Number.isNaN(v)) {

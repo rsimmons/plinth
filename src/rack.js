@@ -36,6 +36,7 @@ const audioContext = initWebAudio(window);
 
 let rootBlockClassId;
 let rootBlockInst;
+const rootContainerElem = document.querySelector('#root-container');
 
 function loadRootBlock(blockClassId, settings) {
   // Unload any current root block
@@ -51,11 +52,7 @@ function loadRootBlock(blockClassId, settings) {
 
   // Instantiate the root block, which will let the user dynamically instantiate
   //  and connect up other blocks.
-  rootBlockInst = new (availableBlockClassesIncludingRacks[blockClassId])(document, audioContext, settings);
-
-  // Mount the root block's window view
-  // TODO: Handle case where windowView is undefined
-  document.querySelector('#root-container').appendChild(rootBlockInst.windowView);
+  rootBlockInst = new (availableBlockClassesIncludingRacks[blockClassId])(audioContext, rootContainerElem, settings);
 
   // Connect root audio output to context final output
   rootBlockInst.outputs.audio.node.connect(audioContext.destination);

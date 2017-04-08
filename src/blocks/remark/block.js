@@ -1,16 +1,14 @@
 const template = require('./template.html');
 
 export default class Remark {
-  constructor(document, audioContext, settings) {
+  constructor(audioContext, viewContainer, settings) {
     this.inputs = {
     };
     this.outputs = {
     };
 
-    const tmpElem = document.createElement('div');
-    tmpElem.innerHTML = template;
-    this.panelView = tmpElem.childNodes[0];
-    const textareaElem = this.panelView.querySelector('textarea');
+    viewContainer.innerHTML = template;
+    const textareaElem = viewContainer.querySelector('textarea');
 
     textareaElem.addEventListener('dblclick', (e) => {
       textareaElem.readOnly = !textareaElem.readOnly;

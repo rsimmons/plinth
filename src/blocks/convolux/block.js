@@ -1,7 +1,7 @@
 const template = require('./template.html');
 
 export default class Convolux {
-  constructor(document, audioContext, settings) {
+  constructor(audioContext, viewContainer, settings) {
     // Create and connect up nodes
     const splitterNode = audioContext.createGain();
     splitterNode.gain.value = 1;
@@ -114,11 +114,9 @@ export default class Convolux {
       'audio': {type: 'audio', node: mergerNode},
     };
 
-    const tmpElem = document.createElement('div');
-    tmpElem.innerHTML = template;
-    this.panelView = tmpElem.childNodes[0];
+    viewContainer.innerHTML = template;
 
-    const responseSelectElem = this.panelView.querySelector('.response-select');
+    const responseSelectElem = viewContainer.querySelector('.response-select');
     const updateResponseSelector = () => {
       responseSelectElem.innerHTML = '';
       for (let i = 0; i < responses.length; i++) {
@@ -137,14 +135,14 @@ export default class Convolux {
       setActiveResponse(+responseSelectElem.value);
     });
 
-    const dryWetElem = this.panelView.querySelector('.dry-wet');
+    const dryWetElem = viewContainer.querySelector('.dry-wet');
     dryWetElem.addEventListener('input', () => {
       setWetness(+dryWetElem.value);
     });
 
-    const activeResponseNameElem = this.panelView.querySelector('.active-response-name');
-    const activeResponseDurationElem = this.panelView.querySelector('.active-response-duration');
-    const activeResponseDeleteElem = this.panelView.querySelector('.active-response-delete');
+    const activeResponseNameElem = viewContainer.querySelector('.active-response-name');
+    const activeResponseDurationElem = viewContainer.querySelector('.active-response-duration');
+    const activeResponseDeleteElem = viewContainer.querySelector('.active-response-delete');
     const updateResponseInfo = () => {
       if (activeResponseIdx === null) {
         activeResponseNameElem.textContent = '';
@@ -162,7 +160,7 @@ export default class Convolux {
     });
 
     // Handle drag and drop of IRs
-    const dropElem = this.panelView;
+    const dropElem = viewContainer;
 
     const isFilesTransfer = (dt) => {
       for (const t of dt.types) {

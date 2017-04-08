@@ -41,7 +41,7 @@ function applyDecay(arr, decayConstant) {
 }
 
 export default class Verb {
-  constructor(document, audioContext, settings) {
+  constructor(audioContext, viewContainer, settings) {
 
     // Create nodes
     const splitterNode = audioContext.createGain();
@@ -101,12 +101,10 @@ export default class Verb {
       'audio': {type: 'audio', node: mergerNode},
     };
 
-    const tmpElem = document.createElement('div');
-    tmpElem.innerHTML = template;
-    this.panelView = tmpElem.childNodes[0];
-    const textareaElem = this.panelView.querySelector('textarea');
+    viewContainer.innerHTML = template;
+    const textareaElem = viewContainer.querySelector('textarea');
 
-    const noiseColorElem = this.panelView.querySelector('.noise-color-select');
+    const noiseColorElem = viewContainer.querySelector('.noise-color-select');
     noiseColorElem.addEventListener('input', () => {
       noiseColor = noiseColorElem.value;
       computeIR();
@@ -116,21 +114,21 @@ export default class Verb {
       decayTimeDisplayElem.textContent = decayTime.toFixed(2) + 's';
     }
 
-    const decayTimeInputElem = this.panelView.querySelector('.decay-time-input');
-    const decayTimeDisplayElem = this.panelView.querySelector('.decay-time-display');
+    const decayTimeInputElem = viewContainer.querySelector('.decay-time-input');
+    const decayTimeDisplayElem = viewContainer.querySelector('.decay-time-display');
     decayTimeInputElem.addEventListener('input', () => {
       decayTime = +decayTimeInputElem.value;
       updateDecayTimeDisplay();
       computeIR();
     });
 
-    const dryWetElem = this.panelView.querySelector('.dry-wet');
+    const dryWetElem = viewContainer.querySelector('.dry-wet');
     dryWetElem.addEventListener('input', () => {
       wetness = +dryWetElem.value;
       updateGains();
     });
 
-    const widthElem = this.panelView.querySelector('.width-select');
+    const widthElem = viewContainer.querySelector('.width-select');
     widthElem.addEventListener('input', () => {
       width = widthElem.value;
       computeIR();

@@ -24,14 +24,12 @@ class Sequence {
 
 const makeRackPseudoBlockClass = (rackInst, isInput) => {
   const cls = class {
-    constructor(document, audioContext, settings) {
+    constructor(audioContext, viewContainer, settings) {
       this.inputs = {};
       this.outputs = {};
 
       // Enter/Exit icons CC BY 3.0 by Rockicon, https://thenounproject.com/rockicon/collection/famous-icons-bold/
-      const tmpElem = document.createElement('div');
-      tmpElem.innerHTML = '<div style="box-sizing:border-box;width:62px;height:256px;text-align:center;font-size:14px;background:#ccc;color:black;padding:95px 5px"><img width="52" height="52" src=' + (isInput ? ENTER_SVG_URL : EXIT_SVG_URL) + '><br>' + (isInput ? 'IN' : 'OUT') + '</div>';
-      this.panelView = tmpElem.firstChild;
+      viewContainer.innerHTML = '<div style="box-sizing:border-box;width:62px;height:256px;text-align:center;font-size:14px;background:#ccc;color:black;padding:95px 5px"><img width="52" height="52" src=' + (isInput ? ENTER_SVG_URL : EXIT_SVG_URL) + '><br>' + (isInput ? 'IN' : 'OUT') + '</div>';
 
       const rackPortGroup = isInput ? rackInst.inputs : rackInst.outputs;
       const thisPortGroup = isInput ? this.outputs : this.inputs;
@@ -93,7 +91,7 @@ Unlike normal blocks, there can be only one Rack Outputs block in a rack, and it
 export default (availableBlockClasses) => {
 // Don't indent to keep things nicer-looking
 class Racket {
-  constructor(document, audioContext, settings) {
+  constructor(audioContext, viewContainer, settings) {
     const RACK_INPUTS_PSEUDO_CLASS_ID = '__ri';
     const RACK_OUTPUTS_PSEUDO_CLASS_ID = '__ro';
     const RACK_INPUTS_PSEUDO_BLOCK_ID = 'ri';
@@ -105,30 +103,30 @@ class Racket {
     this.inputs = {};
     this.outputs = {};
 
-    const tmpElem = document.createElement('div');
-    tmpElem.innerHTML = template;
-    this.windowView = tmpElem.childNodes[0];
+    const document = viewContainer.ownerDocument;
+
+    viewContainer.innerHTML = template;
     let addingWireAttachedJack = null; // jack element of anchored end of wire we are currently adding, if any
     let addingWireLooseCoord = null;
     let currentEnteredJack = null;
     let mousePos = null;
     let deletingWiresMode = false; // Are we in delete-wires mode?
 
-    const blockPaletteElem = this.windowView.querySelector('.block-palette');
-    const deleteWiresButtonElem = this.windowView.querySelector('.delete-wires-button');
-    const blockContainerElem = this.windowView.querySelector('.block-container');
-    const patchInputSelectElem = this.windowView.querySelector('.patch-input-select');
-    const patchOutputSelectElem = this.windowView.querySelector('.patch-output-select');
-    const patchConnectButtonElem = this.windowView.querySelector('.patch-connect-button');
-    const patchConnectionListElem = this.windowView.querySelector('.patch-connection-list');
+    const blockPaletteElem = viewContainer.querySelector('.block-palette');
+    const deleteWiresButtonElem = viewContainer.querySelector('.delete-wires-button');
+    const blockContainerElem = viewContainer.querySelector('.block-container');
+    const patchInputSelectElem = viewContainer.querySelector('.patch-input-select');
+    const patchOutputSelectElem = viewContainer.querySelector('.patch-output-select');
+    const patchConnectButtonElem = viewContainer.querySelector('.patch-connect-button');
+    const patchConnectionListElem = viewContainer.querySelector('.patch-connection-list');
 
     const wiresCanvasElem = document.createElement('canvas');
     wiresCanvasElem.style.cssText = 'position:absolute;pointer-events:none';
-    this.windowView.appendChild(wiresCanvasElem);
+    viewContainer.appendChild(wiresCanvasElem);
 
     const addingWireCanvasElem = document.createElement('canvas');
     addingWireCanvasElem.style.cssText = 'position:absolute;pointer-events:none';
-    this.windowView.appendChild(addingWireCanvasElem);
+    viewContainer.appendChild(addingWireCanvasElem);
 
     // Fill block palette
     const BLOCK_CLASS_ID_MIME_TYPE = 'application/prs.plinth-block-class-id';
@@ -163,9 +161,9 @@ class Racket {
 
     let showFront = true;
 
-    const blockHelpPanelElem = this.windowView.querySelector('.block-help-panel');
-    const blockHelpTitleElem = this.windowView.querySelector('.block-help-title');
-    const blockHelpBodyElem = this.windowView.querySelector('.block-help-body');
+    const blockHelpPanelElem = viewContainer.querySelector('.block-help-panel');
+    const blockHelpTitleElem = viewContainer.querySelector('.block-help-title');
+    const blockHelpBodyElem = viewContainer.querySelector('.block-help-body');
     const newlinesToPs = (s) => {
       const result = document.createElement('div');
       for (const v of s.split('\n')) {
@@ -642,8 +640,10 @@ class Racket {
     };
 
     const addBlock = (blockClassId, settings, blockId, displayName) => {
+      const viewContainerElem = document.createElement('div');
+
       const blockClass = availableBlockClassesPlusPseudo[blockClassId];
-      const blockInst = new blockClass(document, audioContext, settings);
+      const blockInst = new blockClass(audioContext, viewContainerElem, settings);
 
       const bid = blockId || 'b' + blockIdSeq.next();
 
@@ -657,21 +657,16 @@ class Racket {
       };
       uniquifyDisplayName(bid);
 
-      let effectivePanelViewElem;
-      if (blockInst.panelView) {
-        effectivePanelViewElem = blockInst.panelView;
-      } else {
+      if (!viewContainerElem.hasChildNodes()) {
         const PLACEHOLDER_WIDTH = 62;
         const PLACEHOLDER_HEIGHT = 256;
-        const tmpElem = document.createElement('div');
-        tmpElem.innerHTML = '<div style="box-sizing:border-box;width:' + PLACEHOLDER_WIDTH + 'px;height:' + PLACEHOLDER_HEIGHT + 'px;text-align:center;font-size:14px;background:white;font-style:italic;color:gray;padding:100px 5px">No panel view</div>';
-        effectivePanelViewElem = tmpElem.firstChild;
+        viewContainerElem.innerHTML = '<div style="box-sizing:border-box;width:' + PLACEHOLDER_WIDTH + 'px;height:' + PLACEHOLDER_HEIGHT + 'px;text-align:center;font-size:14px;background:white;font-style:italic;color:gray;padding:100px 5px">No view</div>';
       }
 
       const wrapperElem = document.createElement('div');
       wrapperElem.style.cssText = 'margin: 1px';
       wrapperElem.setAttribute('data-blockid', bid);
-      wrapperElem.appendChild(effectivePanelViewElem);
+      wrapperElem.appendChild(viewContainerElem);
 
       blockContainerElem.appendChild(wrapperElem);
       blockInfo[bid].wrapperElem = wrapperElem;
@@ -739,14 +734,14 @@ class Racket {
         removeConnection(cid);
       }
 
-      // Unmount its UI and wrapper
-      blockContainerElem.removeChild(blockInfo[bid].wrapperElem);
-
       // Deactivate if it has a deactivation method
       const binst = blockInfo[bid].instance;
       if (binst.deactivate) {
         binst.deactivate();
       }
+
+      // Unmount its UI and wrapper
+      blockContainerElem.removeChild(blockInfo[bid].wrapperElem);
 
       delete blockInfo[bid];
 
@@ -897,7 +892,7 @@ class Racket {
     };
     document.addEventListener('keydown', onKeydownFunc);
 
-    this.windowView.querySelector('.toggle-front-back-button').addEventListener('click', () => {
+    viewContainer.querySelector('.toggle-front-back-button').addEventListener('click', () => {
       toggleFrontBackDisplay();
     });
 
