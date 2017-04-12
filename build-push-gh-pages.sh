@@ -16,10 +16,7 @@ SRC_SHA="$(cd $BUILDTMP/src && git rev-parse HEAD)"
 echo "Building ..."
 (
 cd $BUILDTMP/src
-for d in src/blocks/*/ ; do
-    echo "Installing any deps in $d"
-    (cd "$d" ; yarn)
-done
+src/blocks/install-all-yarn.sh
 yarn && yarn run build
 )
 
