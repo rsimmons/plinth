@@ -10,6 +10,28 @@ This repository contains:
 
 The Web Audio API has brought powerful audio processing capabilities to the web, but there isn’t yet a popular format for authoring **reusable audio components**. My hope is that Plinth will help spur work towards defining a such community standard (as VST/AU/etc and Eurorack have in the software and hardware worlds, respectively).
 
+# Development
+
+## Install and Build
+
+To build the Plinth demo from source, first install dependencies. Several blocks are bundled in this same repository, and some of them have their own dependencies, so run:
+
+```
+$ src/blocks/install-all.sh
+$ npm install
+```
+
+or for those fashionable folk:
+
+```
+$ src/blocks/install-all-yarn.sh
+$ yarn
+```
+
+Then build with `npm run build`, run a local server with `npm run start`, and open http://localhost:5000/rack.html.
+
+To automatically rebuild when you make changes to the source, run `npm run watch` in another session. Note that the files in `public/` are not automatically copied `build/` when running `watch` so if you edit any of those you'll need to run `npm run build` again. 
+
 # Plinth Block API *(work in progress)*
 
 ## Background
