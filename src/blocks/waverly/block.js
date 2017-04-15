@@ -1,63 +1,106 @@
-const template = require('./template.html');
+// const template = require('./template.html');
+import React from 'react'
+import ReactDOM from 'react-dom';
+import BlockRoot from '../../components/BlockRoot';
+import Select from '../../components/Select';
+import NumericTextInput from '../../components/NumericTextInput';
+
+class View extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    const {waveform, setWaveform, frequency, setFrequency, fmScale, setFmScale} = this.props;
+    const waveformOptions = [
+      {value: 'sine', label: 'SIN'},
+      {value: 'triangle', label: 'TRI'},
+      {value: 'square', label: 'SQR'},
+      {value: 'sawtooth', label: 'SAW'},
+    ];
+
+    return (
+      <BlockRoot widthUnits={2} extraStyles={{padding: '10px', background: '#dfe3eb'}}>
+        <div style={{textAlign: 'center', fontFamily: 'monospace', color: '#415274'}}>\/\/averly</div>
+        <div style={{fontSize: '14px', marginTop: '20px'}}>
+          <Select label="Form" value={waveform} options={waveformOptions} onChange={setWaveform} />
+          <div style={{marginTop: '10px'}}><NumericTextInput label="Frequency" value={frequency} onChange={setFrequency} min={0} unit="hz" /></div>
+          <div style={{marginTop: '10px'}}><NumericTextInput label="FM Scale" value={fmScale} onChange={setFmScale} /></div>
+        </div>
+      </BlockRoot>
+    );
+  }
+}
 
 export default class Waverly {
   constructor(audioContext, viewContainer, settings) {
-    const INIT_WAVEFORM = 'sine';
-    const INIT_FREQUENCY = 440;
-    const INIT_FM_SCALE = 100.0;
-
     const oscNode = audioContext.createOscillator();
-    oscNode.type = INIT_WAVEFORM;
-    oscNode.frequency.value = INIT_FREQUENCY;
-    oscNode.start();
-
     const fmScalerNode = audioContext.createGain();
-    fmScalerNode.gain.value = INIT_FM_SCALE;
     fmScalerNode.connect(oscNode.frequency);
 
-    if (settings) {
-      oscNode.type = settings.w;
-      oscNode.frequency.value = settings.f;
-      fmScalerNode.gain.value = settings.fm;
-    }
-
     this.inputs = {
-      // 'pitch': {type: 'audio', node: undefined}, // TODO: need a way to convert linear to exponential to make this work
+      // 'pitch': {type: 'audio', node: undefined}, 1/oct
       'fm': {type: 'audio', node: fmScalerNode},
     };
     this.outputs = {
       'audio': {type: 'audio', node: oscNode},
     };
-    viewContainer.innerHTML = template;
 
-    const waveformSelectElem = viewContainer.querySelector('.waveform-select');
-    waveformSelectElem.value = oscNode.type;
-    waveformSelectElem.addEventListener('input', () => {
-      oscNode.type = waveformSelectElem.value;
-    });
+    let waveform;
+    let frequency;
+    let fmScale;
+    let renderReady = false;
 
-    const frequencyInputElem = viewContainer.querySelector('.frequency-input');
-    frequencyInputElem.value = oscNode.frequency.value;
-    frequencyInputElem.addEventListener('input', () => {
-      const v = parseFloat(frequencyInputElem.value);
-      if (v > 0) {
-        oscNode.frequency.value = v;
+    const setWaveform = (v) => {
+      waveform = v;
+      oscNode.type = waveform;
+      render();
+    };
+
+    const setFrequency = (v) => {
+      frequency = v;
+      oscNode.frequency.value = frequency;
+      render();
+    };
+
+    const setFmScale = (v) => {
+      fmScale = v;
+      fmScalerNode.gain.value = fmScale;
+      render();
+    };
+
+    const render = () => {
+      if (renderReady) {
+        ReactDOM.render(<View waveform={waveform} setWaveform={setWaveform} frequency={frequency} setFrequency={setFrequency} fmScale={fmScale} setFmScale={setFmScale} />, viewContainer);
       }
-    });
+    }
 
-    const fmScaleInputElem = viewContainer.querySelector('.fm-scale-input');
-    fmScaleInputElem.value = fmScalerNode.gain.value;
-    fmScaleInputElem.addEventListener('input', () => {
-      const v = parseFloat(fmScaleInputElem.value);
-      fmScalerNode.gain.value = v;
-    });
+    if (!settings) {
+      settings = {
+        w: 'sine',
+        f: 440,
+        fm: 100,
+      }
+    }
+
+    setWaveform(settings.w);
+    setFrequency(settings.f);
+    setFmScale(settings.fm);
+
+    oscNode.start();
+    renderReady = true;
+    render();
 
     this.save = () => {
       return {
-        w: oscNode.type,
-        f: oscNode.frequency.value,
-        fm: fmScalerNode.gain.value,
+        w: waveform,
+        f: frequency,
+        fm: fmScale,
       };
+    };
+
+    this.destroy = () => {
+      ReactDOM.unmountComponentAtNode(viewContainer);
     };
   }
 }
