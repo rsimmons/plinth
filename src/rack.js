@@ -16,6 +16,7 @@ const availableBlockClasses = {}; // maps block class id to block class
   'bigben',
   'convolux',
   'egen',
+  'gain',
   'gainer',
   'orinami',
   'remark',
