@@ -1,5 +1,32 @@
-const template = require('./template.html');
+import React from 'react'
+import ReactDOM from 'react-dom';
+import BlockRoot from '../../components/BlockRoot';
+import Select from '../../components/Select';
+import TimeKnob from '../../components/TimeKnob';
+
 const Fastidious = require('fastidious-envelope-generator');
+
+class View extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    const {mode, setMode, riseTime, setRiseTime, fallTime, setFallTime} = this.props;
+    const modeOptions = [
+      {value: 'AD', label: '/\\'},
+      {value: 'ASR', label: '/‾\\'},
+    ];
+
+    return (
+      <BlockRoot widthUnits={2} extraStyles={{position: 'relative', padding: '10px', background: '#ddd', fontSize: '14px', textAlign: 'center'}}>
+        <Select label="Mode" value={mode} options={modeOptions} onChange={setMode} />
+        <div style={{position: 'absolute', top: 104, left: 63}}><TimeKnob label="Rise Time" width={58} value={riseTime} onChange={setRiseTime} min={0.001} max={30} /></div>
+        <div style={{position: 'absolute', top: 200, left: 63}}><TimeKnob label="Fall Time" width={58} value={fallTime} onChange={setFallTime} min={0.001} max={30} /></div>
+      </BlockRoot>
+    );
+  }
+}
 
 export default class Egen {
   constructor(audioContext, viewContainer, settings) {
@@ -20,22 +47,6 @@ export default class Egen {
 
     const fast = new Fastidious(audioContext, gainNode.gain);
 
-    // Load settings or defaults
-    if (!settings) {
-      settings = {
-        m: 'AD',
-        rt: 0.01,
-        ft: 0.1,
-        fs: Fastidious.EXPONENTIAL,
-      };
-    }
-
-    // Enact settings
-    fast.mode = settings.m;
-    fast.attackTime = settings.rt;
-    fast.decayTime = settings.ft;
-    fast.releaseTime = settings.ft;
-
     const gateNotify = (time, value) => {
       fast.gate(value, time);
     };
@@ -47,33 +58,47 @@ export default class Egen {
       'audio': {type: 'audio', node: gainNode},
     };
 
-    viewContainer.innerHTML = template;
+    let renderReady = false;
 
-    const modeSelectElem = viewContainer.querySelector('.mode-select');
-    modeSelectElem.value = fast.mode;
-    modeSelectElem.addEventListener('input', () => {
-      fast.mode = modeSelectElem.value;
-    });
+    const setMode = (v) => {
+      fast.mode = v;
+      render();
+    };
 
-    const MIN_TIME = 0.001;
-    const MAX_TIME = 30;
-    const LOG_MIN_TIME = Math.log(MIN_TIME);
-    const LOG_MAX_TIME = Math.log(MAX_TIME);
-    const timeToControlValue = (t) => ((Math.log(t) - LOG_MIN_TIME)/(LOG_MAX_TIME - LOG_MIN_TIME));
-    const controlValueToTime = (v) => (Math.exp(LOG_MIN_TIME + v*(LOG_MAX_TIME-LOG_MIN_TIME)));
+    const setRiseTime = (v) => {
+      fast.attackTime = v;
+      render();
+    };
 
-    const riseTimeInputElem = viewContainer.querySelector('.rise-time-input');
-    riseTimeInputElem.value = timeToControlValue(fast.attackTime);
-    riseTimeInputElem.addEventListener('input', () => {
-      fast.attackTime = controlValueToTime(riseTimeInputElem.value)
-    });
+    const setFallTime = (v) => {
+      fast.decayTime = v;
+      fast.releaseTime = v;
+      render();
+    };
 
-    const fallTimeInputElem = viewContainer.querySelector('.fall-time-input');
-    fallTimeInputElem.value = timeToControlValue(fast.decayTime);
-    fallTimeInputElem.addEventListener('input', () => {
-      fast.decayTime = controlValueToTime(fallTimeInputElem.value)
-      fast.releaseTime = controlValueToTime(fallTimeInputElem.value)
-    });
+    const render = () => {
+      if (renderReady) {
+        ReactDOM.render(<View mode={fast.mode} setMode={setMode} riseTime={fast.attackTime} setRiseTime={setRiseTime} fallTime={fast.decayTime} setFallTime={setFallTime} />, viewContainer);
+      }
+    }
+
+    // Load settings or defaults
+    if (!settings) {
+      settings = {
+        m: 'AD',
+        rt: 0.01,
+        ft: 0.1,
+        fs: Fastidious.EXPONENTIAL,
+      };
+    }
+
+    // Enact settings
+    setMode(settings.m);
+    setRiseTime(settings.rt);
+    setFallTime(settings.ft);
+
+    renderReady = true;
+    render();
 
     this.save = () => {
       return {
@@ -81,6 +106,10 @@ export default class Egen {
         rt: fast.attackTime,
         ft: fast.decayTime,
       };
+    };
+
+    this.destroy = () => {
+      ReactDOM.unmountComponentAtNode(viewContainer);
     };
   }
 }
