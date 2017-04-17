@@ -1,54 +1,76 @@
-const template = require('./template.html');
+import React from 'react'
+import ReactDOM from 'react-dom';
+import BlockRoot from '../../components/BlockRoot';
+import Knob from '../../components/Knob';
 
-export default class Gainer {
+class View extends React.Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    const {offset, setOffset} = this.props;
+    return (
+      <BlockRoot widthUnits={1} extraStyles={{position: 'relative', background: '#333', color: '#bbb', fontSize: '14px'}}>
+        <div style={{position: 'absolute', top: 128, left: 31}}><Knob label="Offset" width={58} value={offset} onChange={setOffset} min={-2} max={2} /></div>
+      </BlockRoot>
+    );
+  }
+}
+
+export default class Modulator {
   constructor(audioContext, viewContainer, settings) {
     const gainNode = audioContext.createGain();
 
     this.inputs = {
       'audio': {type: 'audio', node: gainNode},
-      'gain': {type: 'audio', node: gainNode.gain},
+      'mod': {type: 'audio', node: gainNode.gain},
     };
     this.outputs = {
       'audio': {type: 'audio', node: gainNode},
     };
-    viewContainer.innerHTML = template;
 
-    let baseGain;
+    let offset;
+    let renderReady = false;
 
-    const setBaseGain = (v) => {
-      baseGain = v;
+    const setOffset = (v) => {
+      offset = v;
       gainNode.gain.value = v;
+      render();
     }
 
-    const baseGainInputElem = viewContainer.querySelector('.base-gain-input');
-    baseGainInputElem.addEventListener('input', () => {
-      const v = parseFloat(baseGainInputElem.value);
-      if (!Number.isNaN(v)) {
-        baseGain = v;
-        gainNode.gain.value = baseGain;
+    const render = () => {
+      if (renderReady) {
+        ReactDOM.render(<View offset={offset} setOffset={setOffset} />, viewContainer);
       }
-    });
-
-    if (settings) {
-      baseGain = settings.g;
-    } else {
-      baseGain = 0;
     }
-    gainNode.gain.value = baseGain;
-    baseGainInputElem.value = baseGain;
+
+    if (!settings) {
+      settings = {
+        o: 0,
+      }
+    }
+    setOffset(settings.o);
+
+    renderReady = true;
+    render();
 
     this.save = () => {
       return {
-        g: baseGain,
+        o: offset,
       };
+    };
+
+    this.destroy = () => {
+      ReactDOM.unmountComponentAtNode(viewContainer);
     };
   }
 }
 
-Gainer.blockName = 'Gainer';
-Gainer.helpText =
-`Gainer is what's typically called a VCA (voltage controlled amplifier). It allows one audio-type signal to adjust the amplitude of another.
+Modulator.blockName = 'Modulator';
+Modulator.helpText =
+`Modulator is what's typically called a VCA (voltage controlled amplifier), VC Polarizer, Ring Modulator, or Multiplier. It allows one audio-type signal to modulate the amplitude of another.
 
-Gainer has two audio inputs, and one audio output. The output value at any instant is simply the two input values multiplied together. One input is named "audio" and one is named "gain" because typically one input is fed a listenable audio signal, while the other "gain" input is fed the output of an slower-varying envelope generator or LFO. If both inputs are connected to audio-rate signals, Gainer will act as a ring modulator.
+Modulator has two audio inputs, and one audio output. The output value at any instant is simply the two input values multiplied together. One input is named "audio" and one is named "mod" (for for modulation) because typically one input is fed a listenable audio signal, while the other "mod" input is fed the output of an slower-varying envelope generator or LFO. If both inputs are connected to audio-rate signals, Modulator will act as a ring modulator.
 
-Gainer has one panel control: Base Gain. This value is summed with the signal (if any) connected to the "gain" input. If nothing is connected to the "gain" input, then Base Gain lets you manually set the gain applied to the "audio" input. Keep in mind that gain can be negative, so this lets you invert signals as well.`;
+Modulator has one panel control: Mod Offset. This value is summed with the signal (if any) connected to the "mod" input. If nothing is connected to the "mod" input, then Mod Offset lets you manually set the multiplication applied to the "audio" input. Keep in mind that mod can be negative, so this lets you invert signals as well.`;
