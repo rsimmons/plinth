@@ -1,4 +1,3 @@
-// const template = require('./template.html');
 import React from 'react'
 import ReactDOM from 'react-dom';
 import BlockRoot from '../../components/BlockRoot';
