@@ -34,7 +34,6 @@ export default class Gain {
     let renderReady = false;
 
     const setGain = (v) => {
-      console.log(v);
       gain = v;
       gainNode.gain.value = decibelsToAmplitudeRatio(gain);
       render();
