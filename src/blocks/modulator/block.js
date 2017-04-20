@@ -12,6 +12,7 @@ class View extends React.Component {
     const {offset, setOffset} = this.props;
     return (
       <BlockRoot widthUnits={1} extraStyles={{position: 'relative', background: '#333', color: '#bbb', fontSize: '14px'}}>
+        <div style={{fontSize: 48, textAlign: 'center'}}>X</div>
         <div style={{position: 'absolute', top: 128, left: 31}}><Knob label="Offset" width={58} value={offset} onChange={setOffset} min={-2} max={2} /></div>
       </BlockRoot>
     );
