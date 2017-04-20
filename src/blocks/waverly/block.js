@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom';
 import BlockRoot from '../../components/BlockRoot';
-import Select from '../../components/Select';
+import GridSelector from '../../components/GridSelector';
 import NumericTextInput from '../../components/NumericTextInput';
 
 class View extends React.Component {
@@ -19,13 +19,12 @@ class View extends React.Component {
     ];
 
     return (
-      <BlockRoot widthUnits={2} extraStyles={{padding: '10px', background: '#dfe3eb'}}>
-        <div style={{textAlign: 'center', fontFamily: 'monospace', color: '#415274'}}>\/\/averly</div>
-        <div style={{fontSize: '14px', marginTop: '20px'}}>
-          <Select label="Form" value={waveform} options={waveformOptions} onChange={setWaveform} />
-          <div style={{marginTop: '10px'}}><NumericTextInput label="Frequency" value={frequency} onChange={setFrequency} min={0} unit="hz" /></div>
-          <div style={{marginTop: '10px'}}><NumericTextInput label="FM Scale" value={fmScale} onChange={setFmScale} /></div>
+      <BlockRoot widthUnits={2} extraStyles={{padding: '10px', background: '#dfe3eb', fontSize: 14}}>
+        <div>
+          <GridSelector label="Waveform" value={waveform} options={waveformOptions} onChange={setWaveform} color='#333' bgColor='#dfe3eb' cellWidth={40} cellHeight={25} />
         </div>
+        <div style={{marginTop: '10px'}}><NumericTextInput label="Frequency" value={frequency} onChange={setFrequency} min={0} unit="hz" /></div>
+        <div style={{marginTop: '10px'}}><NumericTextInput label="FM Scale" value={fmScale} onChange={setFmScale} /></div>
       </BlockRoot>
     );
   }

@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom';
 import BlockRoot from '../../components/BlockRoot';
-import Select from '../../components/Select';
+import GridSelector from '../../components/GridSelector';
 import TimeKnob from '../../components/TimeKnob';
 
 const Fastidious = require('fastidious-envelope-generator');
@@ -15,14 +15,14 @@ class View extends React.Component {
     const {mode, setMode, riseTime, setRiseTime, fallTime, setFallTime} = this.props;
     const modeOptions = [
       {value: 'AD', label: '/\\'},
-      {value: 'ASR', label: '/‾\\'},
+      {value: 'ASR', label: '/‾‾\\'},
     ];
 
     return (
       <BlockRoot widthUnits={2} extraStyles={{position: 'relative', padding: '10px', background: '#ddd', fontSize: '14px', textAlign: 'center'}}>
-        <Select label="Mode" value={mode} options={modeOptions} onChange={setMode} />
-        <div style={{position: 'absolute', top: 104, left: 63}}><TimeKnob label="Rise Time" width={58} value={riseTime} onChange={setRiseTime} min={0.001} max={30} /></div>
-        <div style={{position: 'absolute', top: 200, left: 63}}><TimeKnob label="Fall Time" width={58} value={fallTime} onChange={setFallTime} min={0.001} max={30} /></div>
+        <GridSelector label="Mode" value={mode} options={modeOptions} onChange={setMode} color='#333' bgColor='#ddd' cellWidth={40} cellHeight={25} />
+        <div style={{position: 'absolute', top: 108, left: 63}}><TimeKnob label="Rise Time" width={58} value={riseTime} onChange={setRiseTime} min={0.001} max={30} /></div>
+        <div style={{position: 'absolute', top: 204, left: 63}}><TimeKnob label="Fall Time" width={58} value={fallTime} onChange={setFallTime} min={0.001} max={30} /></div>
       </BlockRoot>
     );
   }
@@ -120,7 +120,7 @@ Egen.helpText =
 
 Egen has a single gate-type input and a single audio-type output. Generally speaking, as the input gate signal turns on and off, the output value makes gradual transitions back and forth between 0 and 1.
 
-Egen has two modes: attack-decay (/\\ shape) and attack-sustain-release (/‾\\ shape).
+Egen has two modes: attack-decay (/\\ shape) and attack-sustain-release (/‾‾\\ shape).
 
 In attack-decay mode, as soon as the output value reaches 1 (end of attack phase), it immediately starts transitioning back to 0 (decay phase). Even if the gate goes off during the attack phase, the attack phase will continue uninterrupted. This means that it only matters when the input gate goes on, not when it goes off. Attack-decay mode is sometimes referred to as "trigger" mode, and is useful for generating percussive sounds that always have the same envelope shape regardless of how long the gate is held high.
 
