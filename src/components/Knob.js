@@ -222,7 +222,7 @@ export default class Knob extends React.Component {
 
     return (
       <div style={{position: 'relative'}}>
-        <label style={{display: 'block', position: 'absolute', fontSize: '14px', top: -(0.5*canvasHeight + 15), width: WIDE_WIDTH, left: -0.5*WIDE_WIDTH, textAlign: 'center', whiteSpace: 'nowrap'}}>{label}</label>
+        <label style={{display: 'block', position: 'absolute', top: -(0.5*canvasHeight + 15), width: WIDE_WIDTH, left: -0.5*WIDE_WIDTH, textAlign: 'center', whiteSpace: 'nowrap'}}>{label}</label>
         <canvas ref={canvas => { this.canvas = canvas; }} width={canvasWidth} height={canvasHeight} onMouseDown={this.handleMouseDown} style={{position: 'absolute', width: canvasWidth, height: canvasHeight, left: -0.5*canvasWidth, top: -0.5*canvasHeight}} />
         <div style={{position: 'absolute', top: 0.5*canvasHeight - 5, width: WIDE_WIDTH, left: -0.5*WIDE_WIDTH, textAlign: 'center'}}>{this.formatInternalValue(value)}</div>
       </div>
