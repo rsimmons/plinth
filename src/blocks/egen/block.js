@@ -88,7 +88,6 @@ export default class Egen {
         m: 'AD',
         rt: 0.01,
         ft: 0.1,
-        fs: Fastidious.EXPONENTIAL,
       };
     }
 
