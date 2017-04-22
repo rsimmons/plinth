@@ -7,6 +7,8 @@ const clampUnit = (v) => {
     return 0;
   } else if (v > 1) {
     return 1;
+  } else if (isNaN(v)) {
+    return 0;
   } else {
     return v;
   }
@@ -63,24 +65,16 @@ export default class Knob extends React.Component {
       throw new Error('Unrecognized value for curve', curve);
     }
 
-    if ((nv < 0) || (nv > 1)) {
-      console.warn('defaultInternalValueToNormalized: result out of range');
-    }
-
     return nv;
   }
 
-  // This should never result in a normalized value outside [0,1]
+  // This _may_ result in a value outside [0,1], or even NaN
   internalValueToNormalized(v) {
     const impl = this.props.internalValueToNormalized || this.defaultInternalValueToNormalized;
     return impl(v);
   }
 
   defaultNormalizedValueToInternal(nv) {
-    if ((nv < 0) || (nv > 1)) {
-      console.warn('defaultNormalizedValueToInternal: input out of range');
-    }
-
     const curve = this.props.curve || 'linear';
     const min = this.props.min || 0;
     const max = this.props.max || 1;
@@ -98,9 +92,14 @@ export default class Knob extends React.Component {
     return v;
   }
 
-  normalizedValueToInternal(v) {
+  // This expects a value within [0,1]
+  normalizedValueToInternal(nv) {
+    if ((nv < 0) || (nv > 1)) {
+      console.warn('normalizedValueToInternal: input out of range');
+    }
+
     const impl = this.props.normalizedValueToInternal || this.defaultNormalizedValueToInternal;
-    return impl(v);
+    return impl(nv);
   }
 
   componentDidMount() {
@@ -167,7 +166,15 @@ export default class Knob extends React.Component {
     const bottomHalfAngle = Math.PI/6;
     const beginAngle = 0.5*Math.PI+bottomHalfAngle;
     const endAngle = 2.5*Math.PI-bottomHalfAngle;
-    const currentAngle = beginAngle + this.internalValueToNormalized(this.props.value)*(endAngle - beginAngle);
+    const nv = this.internalValueToNormalized(this.props.value);
+    let currentAngle;
+    let validAngle;
+    if ((nv < 0) || (nv > 1) || isNaN(nv)) {
+      validAngle = false;
+    } else {
+      currentAngle = beginAngle + this.internalValueToNormalized(this.props.value)*(endAngle - beginAngle);
+      validAngle = true;
+    }
 
     const activeArcStyle = 'rgb(102, 153, 255)';
     const inactiveArcStyle = 'rgb(150, 150, 150)';
@@ -175,14 +182,21 @@ export default class Knob extends React.Component {
     const notchStyle = 'rgb(64, 64, 64)';
 
     ctx.lineWidth = 2;
-    ctx.strokeStyle = activeArcStyle;
-    ctx.beginPath();
-    ctx.arc(knobCenterX, knobCenterY, arcRadius, beginAngle, currentAngle);
-    ctx.stroke();
-    ctx.strokeStyle = inactiveArcStyle;
-    ctx.beginPath();
-    ctx.arc(knobCenterX, knobCenterY, arcRadius, currentAngle, endAngle);
-    ctx.stroke();
+    if (validAngle) {
+      ctx.strokeStyle = activeArcStyle;
+      ctx.beginPath();
+      ctx.arc(knobCenterX, knobCenterY, arcRadius, beginAngle, currentAngle);
+      ctx.stroke();
+      ctx.strokeStyle = inactiveArcStyle;
+      ctx.beginPath();
+      ctx.arc(knobCenterX, knobCenterY, arcRadius, currentAngle, endAngle);
+      ctx.stroke();
+    } else {
+      ctx.strokeStyle = inactiveArcStyle;
+      ctx.beginPath();
+      ctx.arc(knobCenterX, knobCenterY, arcRadius, beginAngle, endAngle);
+      ctx.stroke();
+    }
 
     ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = 2;
@@ -198,19 +212,21 @@ export default class Knob extends React.Component {
     ctx.fill();
     ctx.shadowColor = 'rgba(0, 0, 0, 0)';
 
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = notchStyle;
+    if (validAngle) {
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = notchStyle;
 
-    ctx.translate(knobCenterX, knobCenterY);
-    ctx.rotate(currentAngle);
-    ctx.translate(-knobCenterX, -knobCenterY);
+      ctx.translate(knobCenterX, knobCenterY);
+      ctx.rotate(currentAngle);
+      ctx.translate(-knobCenterX, -knobCenterY);
 
-    ctx.beginPath();
-    ctx.moveTo(knobCenterX+knobRadius, knobCenterY);
-    ctx.lineTo(knobCenterX+0.25*knobRadius, knobCenterY);
-    ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(knobCenterX+knobRadius, knobCenterY);
+      ctx.lineTo(knobCenterX+0.25*knobRadius, knobCenterY);
+      ctx.stroke();
 
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+    }
   }
 
   render() {
