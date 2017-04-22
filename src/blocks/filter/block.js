@@ -149,5 +149,9 @@ export default class Filter {
 
 Filter.blockName = 'Filter';
 Filter.helpText =
-`Filter is a multimode second-order (biquad) filter.
+`Filter is a multimode second-order biquad filter, that includes EQ-style modes as well.
+
+The selectable modes are Lowpass (LP), Highpass (HP), Bandpass (BP), Notch (NT), Lowshelf (LS), Highshelf (HS), Peaking (PK), Allpass (AP).
+
+There are three parameters that control the behavior of filters: Frequency, Resonance, and Gain. Resonance does not have any effect in Lowshelf or Highshelf modes. Gain only has an effect in Lowshelf, Highshelf, and Peaking modes. Each of the three parameters has a main panel control to set its value (bigger knobs). Each parameter also has a corresponding input port. The smaller knobs labeled Mod modulate how much of the incoming signal at the input port is added to the parameter value. In other words, the incoming port signal (if any) is multiplied by the Mod value, and then added to the corresponding parameter. The frequency input port is exponentially scaled, in units of octaves. So an incoming signal of -2 would drop the frequency by two octaves.
 `;
