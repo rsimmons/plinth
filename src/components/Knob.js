@@ -19,8 +19,9 @@ export default class Knob extends React.Component {
     super(props);
 
     this.state = {
-      editing: false,
-      midEditText: null,
+      inputFocused: false,
+      editingText: null,
+      canvasFocused: false,
     };
 
     this.mouseCaptured = false;
@@ -35,6 +36,9 @@ export default class Knob extends React.Component {
     this.handleMouseDown = this.handleMouseDown.bind(this);
     this.handleMouseMove = this.handleMouseMove.bind(this);
     this.handleMouseUp = this.handleMouseUp.bind(this);
+    this.handleCanvasFocus = this.handleCanvasFocus.bind(this);
+    this.handleCanvasBlur = this.handleCanvasBlur.bind(this);
+    this.handleCanvasKeyDown = this.handleCanvasKeyDown.bind(this);
     this.captureMouse = this.captureMouse.bind(this);
     this.releaseMouse = this.releaseMouse.bind(this);
   }
@@ -143,8 +147,8 @@ export default class Knob extends React.Component {
 
   handleInputFocus() {
     this.setState({
-      editing: true,
-      midEditText: '',
+      inputFocused: true,
+      editingText: '',
     });
   }
 
@@ -160,15 +164,15 @@ export default class Knob extends React.Component {
   handleInputBlur() {
     this.commitEditText();
     this.setState({
-      editing: false,
-      midEditText: null,
+      inputFocused: false,
+      editingText: null,
     });
   }
 
   handleInputChange(e) {
-    if (this.state.editing) {
+    if (this.state.inputFocused) {
       this.setState({
-        midEditText: e.target.value,
+        editingText: e.target.value,
       });
     } else {
       // NOTE: I'm not sure if this code can be reached, but if it can, I think this is the right behavior
@@ -204,7 +208,15 @@ export default class Knob extends React.Component {
   handleMouseDown(e) {
     this.captureMouse();
     this.lastMousePosition = {x: e.nativeEvent.pageX, y: e.nativeEvent.pageY};
+    this.canvasElem.focus(); // Since we preventDefault, need to do this manually
     e.preventDefault();
+  }
+
+  adjustValueByPixels(deltaPixels) {
+    const deltaNormalizedValue = deltaPixels*DRAG_PIXELS_TO_NORMALIZED_VALUE;
+
+    const newValue = this.normalizedValueToInternal(clampUnit(this.internalValueToNormalized(this.props.value)+deltaNormalizedValue));
+    this.props.onChange(newValue);
   }
 
   handleMouseMove(e) {
@@ -212,11 +224,7 @@ export default class Knob extends React.Component {
     const dy = e.pageY - this.lastMousePosition.y;
     this.lastMousePosition = {x: e.pageX, y: e.pageY};
 
-    const deltaPixels = -dy;
-    const deltaNormalizedValue = deltaPixels*DRAG_PIXELS_TO_NORMALIZED_VALUE;
-
-    const newValue = this.normalizedValueToInternal(clampUnit(this.internalValueToNormalized(this.props.value)+deltaNormalizedValue));
-    this.props.onChange(newValue);
+    this.adjustValueByPixels(-dy);
   }
 
   handleMouseUp(e) {
@@ -224,11 +232,35 @@ export default class Knob extends React.Component {
     this.lastMousePosition = undefined;
   }
 
-  updateCanvas() {
-    const canvasWidth = this.canvas.width;
-    const canvasHeight = this.canvas.height;
+  handleCanvasFocus() {
+    this.setState({
+      canvasFocused: true,
+    });
+  }
 
-    const ctx = this.canvas.getContext('2d');
+  handleCanvasBlur() {
+    this.setState({
+      canvasFocused: false,
+    });
+  }
+
+  handleCanvasKeyDown(e) {
+    switch (e.key) {
+      case 'ArrowUp':
+        this.adjustValueByPixels(1);
+        break;
+
+      case 'ArrowDown':
+        this.adjustValueByPixels(-1);
+        break;
+    }
+  }
+
+  updateCanvas() {
+    const canvasWidth = this.canvasElem.width;
+    const canvasHeight = this.canvasElem.height;
+
+    const ctx = this.canvasElem.getContext('2d');
 
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
@@ -300,6 +332,15 @@ export default class Knob extends React.Component {
 
       ctx.setTransform(1, 0, 0, 1, 0, 0);
     }
+
+    if (this.state.canvasFocused) {
+      const FOCUS_CIRCLE_RADIUS = 2;
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = inactiveArcStyle;
+      ctx.beginPath();
+      ctx.arc(knobCenterX, knobCenterY, 0.65*canvasWidth, 0, 2*Math.PI);
+      ctx.stroke();
+    }
   }
 
   render() {
@@ -309,13 +350,13 @@ export default class Knob extends React.Component {
     const canvasHeight = width;
     const WIDE_WIDTH = 200; // For centering text in absolutely positioned elements
 
-    const inputText = this.state.editing ? this.state.midEditText : this.formatInternalValue(value);
-    const inputExtraAttrs = this.state.editing ? { onKeyDown: this.handleInputKeyDown } : {};
+    const inputText = this.state.inputFocused ? this.state.editingText : this.formatInternalValue(value);
+    const inputExtraAttrs = this.state.inputFocused ? { onKeyDown: this.handleInputKeyDown } : {};
 
     return (
       <div style={{position: 'relative'}}>
         <label style={{display: 'block', position: 'absolute', top: -(0.5*canvasHeight + 15), width: WIDE_WIDTH, left: -0.5*WIDE_WIDTH, textAlign: 'center', whiteSpace: 'nowrap'}}>{label}</label>
-        <canvas ref={canvas => { this.canvas = canvas; }} width={canvasWidth} height={canvasHeight} onMouseDown={this.handleMouseDown} style={{position: 'absolute', width: canvasWidth, height: canvasHeight, left: -0.5*canvasWidth, top: -0.5*canvasHeight}} />
+        <canvas ref={canvas => { this.canvasElem = canvas; }} width={canvasWidth} height={canvasHeight} onMouseDown={this.handleMouseDown} onFocus={this.handleCanvasFocus} onBlur={this.handleCanvasBlur} onKeyDown={this.handleCanvasKeyDown} style={{position: 'absolute', width: canvasWidth, height: canvasHeight, left: -0.5*canvasWidth, top: -0.5*canvasHeight, outline: 'none'}} tabIndex="0" />
         <input ref={(elem) => { this.inputElem = elem; }} type="text" style={{position: 'absolute', top: 0.5*canvasHeight - 5, width: 1.2*width, left: -0.6*width, textAlign: 'center', background: 'none', border: 0, fontSize: 'inherit', fontFamily: 'inherit'}} value={inputText} onFocus={this.handleInputFocus} onBlur={this.handleInputBlur} onChange={this.handleInputChange} {...inputExtraAttrs} />
       </div>
     );
