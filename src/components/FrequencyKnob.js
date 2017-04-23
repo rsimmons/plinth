@@ -12,6 +12,6 @@ function formatInternalValue(v) {
 
 export default function FrequencyKnob(props) {
   return (
-    <Knob value={props.value} label={props.label} width={props.width} min={props.min} max={props.max} onChange={props.onChange} curve="log" formatInternalValue={formatInternalValue} />
+    <Knob curve="log" formatInternalValue={formatInternalValue} {...props} />
   );
 }

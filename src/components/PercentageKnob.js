@@ -8,6 +8,6 @@ function formatInternalValue(v) {
 
 export default function PercentageKnob(props) {
   return (
-    <Knob value={props.value} label={props.label} width={props.width} min={props.min} max={props.max} onChange={props.onChange} formatInternalValue={formatInternalValue} />
+    <Knob formatInternalValue={formatInternalValue} {...props} />
   );
 }
