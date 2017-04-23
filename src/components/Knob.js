@@ -18,9 +18,18 @@ export default class Knob extends React.Component {
   constructor(props) {
     super(props);
 
+    this.state = {
+      editing: false,
+      midEditText: null,
+    };
+
     this.mouseCaptured = false;
     this.lastMousePosition;
 
+    this.handleInputFocus = this.handleInputFocus.bind(this);
+    this.handleInputBlur = this.handleInputBlur.bind(this);
+    this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleInputKeyDown = this.handleInputKeyDown.bind(this);
     this.defaultInternalValueToNormalized = this.defaultInternalValueToNormalized.bind(this);
     this.defaultNormalizedValueToInternal = this.defaultNormalizedValueToInternal.bind(this);
     this.handleMouseDown = this.handleMouseDown.bind(this);
@@ -50,10 +59,22 @@ export default class Knob extends React.Component {
     return impl(v);
   }
 
+  getEffectiveCurve() {
+    return this.props.curve || 'linear';
+  }
+
+  getEffectiveMin() {
+    return (this.props.min !== undefined) ? this.props.min : 0;
+  }
+
+  getEffectiveMax() {
+    return (this.props.max !== undefined) ? this.props.max : 0;
+  }
+
   defaultInternalValueToNormalized(v) {
-    const curve = this.props.curve || 'linear';
-    const min = this.props.min || 0;
-    const max = this.props.max || 1;
+    const curve = this.getEffectiveCurve();
+    const min = this.getEffectiveMin();
+    const max = this.getEffectiveMax();
 
     let nv;
 
@@ -75,9 +96,9 @@ export default class Knob extends React.Component {
   }
 
   defaultNormalizedValueToInternal(nv) {
-    const curve = this.props.curve || 'linear';
-    const min = this.props.min || 0;
-    const max = this.props.max || 1;
+    const curve = this.getEffectiveCurve();
+    const min = this.getEffectiveMin();
+    const max = this.getEffectiveMax();
 
     let v;
 
@@ -102,6 +123,10 @@ export default class Knob extends React.Component {
     return impl(nv);
   }
 
+  parseToInternalValue(s) {
+    return parseFloat(s);
+  }
+
   componentDidMount() {
     this.updateCanvas();
   }
@@ -113,6 +138,54 @@ export default class Knob extends React.Component {
   componentWillUnmount() {
     if (this.mouseCaptured) {
       this.releaseMouse();
+    }
+  }
+
+  handleInputFocus() {
+    this.setState({
+      editing: true,
+      midEditText: '',
+    });
+  }
+
+  commitEditText() {
+    const v = this.parseToInternalValue(this.inputElem.value);
+    if (isNaN(v)) {
+      // Ignore the edit
+    } else {
+      this.props.onChange(v);
+    }
+  }
+
+  handleInputBlur() {
+    this.commitEditText();
+    this.setState({
+      editing: false,
+      midEditText: null,
+    });
+  }
+
+  handleInputChange(e) {
+    if (this.state.editing) {
+      this.setState({
+        midEditText: e.target.value,
+      });
+    } else {
+      // NOTE: I'm not sure if this code can be reached, but if it can, I think this is the right behavior
+      this.commitEditText();
+    }
+  }
+
+  handleInputKeyDown(e) {
+    switch (e.key) {
+      case 'Enter':
+        this.inputElem.blur();
+        break;
+
+      case 'Escape':
+        this.inputElem.value = ''; // NOTE: This is a hacky way to cause the edit to be cancelled, but seems to work
+        this.inputElem.blur();
+        break;
     }
   }
 
@@ -236,11 +309,14 @@ export default class Knob extends React.Component {
     const canvasHeight = width;
     const WIDE_WIDTH = 200; // For centering text in absolutely positioned elements
 
+    const inputText = this.state.editing ? this.state.midEditText : this.formatInternalValue(value);
+    const inputExtraAttrs = this.state.editing ? { onKeyDown: this.handleInputKeyDown } : {};
+
     return (
       <div style={{position: 'relative'}}>
         <label style={{display: 'block', position: 'absolute', top: -(0.5*canvasHeight + 15), width: WIDE_WIDTH, left: -0.5*WIDE_WIDTH, textAlign: 'center', whiteSpace: 'nowrap'}}>{label}</label>
         <canvas ref={canvas => { this.canvas = canvas; }} width={canvasWidth} height={canvasHeight} onMouseDown={this.handleMouseDown} style={{position: 'absolute', width: canvasWidth, height: canvasHeight, left: -0.5*canvasWidth, top: -0.5*canvasHeight}} />
-        <div style={{position: 'absolute', top: 0.5*canvasHeight - 5, width: WIDE_WIDTH, left: -0.5*WIDE_WIDTH, textAlign: 'center'}}>{this.formatInternalValue(value)}</div>
+        <input ref={(elem) => { this.inputElem = elem; }} type="text" style={{position: 'absolute', top: 0.5*canvasHeight - 5, width: 1.2*width, left: -0.6*width, textAlign: 'center', background: 'none', border: 0, fontSize: 'inherit', fontFamily: 'inherit'}} value={inputText} onFocus={this.handleInputFocus} onBlur={this.handleInputBlur} onChange={this.handleInputChange} {...inputExtraAttrs} />
       </div>
     );
   }
