@@ -4,11 +4,12 @@ export default class GridSelector extends React.Component {
   constructor(props) {
     super(props);
 
-    this.handleClick = this.handleClick.bind(this);
+    this.handleClickOrTouchStart = this.handleClickOrTouchStart.bind(this);
   }
 
-  handleClick(event) {
-    this.props.onChange(event.target.dataset.value);
+  handleClickOrTouchStart(e) {
+    e.preventDefault();
+    this.props.onChange(e.target.dataset.value);
   }
 
   render() {
@@ -21,7 +22,7 @@ export default class GridSelector extends React.Component {
           {options.map(o => {
             const active = o.value === value;
             return (
-              <button key={o.value} style={{background: active ? color : bgColor, color: active ? bgColor : color, border: '1px solid ' + color, marginTop: -1, marginRight: -1, width: cellWidth, height: cellHeight, outline: 'none', padding: 0}} data-value={o.value} onClick={this.handleClick}>{o.label}</button>
+              <button key={o.value} style={{background: active ? color : bgColor, color: active ? bgColor : color, border: '1px solid ' + color, marginTop: -1, marginRight: -1, width: cellWidth, height: cellHeight, outline: 'none', padding: 0}} data-value={o.value} onClick={this.handleClickOrTouchStart} onTouchStart={this.handleClickOrTouchStart}>{o.label}</button>
             );
           })}
         </div>
