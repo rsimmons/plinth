@@ -26,6 +26,7 @@ export default class Knob extends React.Component {
 
     this.mouseCaptured = false;
     this.lastMousePosition;
+    this.activeCanvasTouches = {}; // maps from identifier to object
 
     this.handleInputFocus = this.handleInputFocus.bind(this);
     this.handleInputBlur = this.handleInputBlur.bind(this);
@@ -33,9 +34,12 @@ export default class Knob extends React.Component {
     this.handleInputKeyDown = this.handleInputKeyDown.bind(this);
     this.defaultInternalValueToNormalized = this.defaultInternalValueToNormalized.bind(this);
     this.defaultNormalizedValueToInternal = this.defaultNormalizedValueToInternal.bind(this);
-    this.handleMouseDown = this.handleMouseDown.bind(this);
-    this.handleMouseMove = this.handleMouseMove.bind(this);
-    this.handleMouseUp = this.handleMouseUp.bind(this);
+    this.handleCanvasMouseDown = this.handleCanvasMouseDown.bind(this);
+    this.handleCanvasMouseMove = this.handleCanvasMouseMove.bind(this);
+    this.handleCanvasMouseUp = this.handleCanvasMouseUp.bind(this);
+    this.handleCanvasTouchStart = this.handleCanvasTouchStart.bind(this);
+    this.handleCanvasTouchEndOrCancel = this.handleCanvasTouchEndOrCancel.bind(this);
+    this.handleCanvasTouchMove = this.handleCanvasTouchMove.bind(this);
     this.handleCanvasFocus = this.handleCanvasFocus.bind(this);
     this.handleCanvasBlur = this.handleCanvasBlur.bind(this);
     this.handleCanvasKeyDown = this.handleCanvasKeyDown.bind(this);
@@ -194,18 +198,18 @@ export default class Knob extends React.Component {
   }
 
   captureMouse() {
-    document.addEventListener('mousemove', this.handleMouseMove);
-    document.addEventListener('mouseup', this.handleMouseUp);
+    document.addEventListener('mousemove', this.handleCanvasMouseMove);
+    document.addEventListener('mouseup', this.handleCanvasMouseUp);
     this.mouseCaptured = true;
   }
 
   releaseMouse() {
-    document.removeEventListener('mousemove', this.handleMouseMove);
-    document.removeEventListener('mouseup', this.handleMouseUp);
+    document.removeEventListener('mousemove', this.handleCanvasMouseMove);
+    document.removeEventListener('mouseup', this.handleCanvasMouseUp);
     this.mouseCaptured = false;
   }
 
-  handleMouseDown(e) {
+  handleCanvasMouseDown(e) {
     this.captureMouse();
     this.lastMousePosition = {x: e.nativeEvent.pageX, y: e.nativeEvent.pageY};
     this.canvasElem.focus(); // Since we preventDefault, need to do this manually
@@ -219,7 +223,7 @@ export default class Knob extends React.Component {
     this.props.onChange(newValue);
   }
 
-  handleMouseMove(e) {
+  handleCanvasMouseMove(e) {
     const dx = e.pageX - this.lastMousePosition.x;
     const dy = e.pageY - this.lastMousePosition.y;
     this.lastMousePosition = {x: e.pageX, y: e.pageY};
@@ -227,9 +231,44 @@ export default class Knob extends React.Component {
     this.adjustValueByPixels(-dy);
   }
 
-  handleMouseUp(e) {
+  handleCanvasMouseUp(e) {
     this.releaseMouse();
     this.lastMousePosition = undefined;
+  }
+
+  handleCanvasTouchStart(e) {
+    e.preventDefault();
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      const t = e.changedTouches.item(i);
+      this.activeCanvasTouches[t.identifier] = {
+        screenX: t.screenX,
+        screenY: t.screenY,
+      };
+    }
+  }
+
+  handleCanvasTouchEndOrCancel(e) {
+    e.preventDefault();
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      const t = e.changedTouches.item(i);
+      delete this.activeCanvasTouches[t.identifier];
+    }
+  }
+
+  handleCanvasTouchMove(e) {
+    e.preventDefault();
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      const t = e.changedTouches.item(i);
+      const at = this.activeCanvasTouches[t.identifier];
+      const dy = t.screenY - at.screenY;
+      at.screenX = t.screenX;
+      at.screenY = t.screenY;
+      this.adjustValueByPixels(-dy);
+    }
+  }
+
+  handleCanvasTouchCancel(e) {
+    e.preventDefault();
   }
 
   handleCanvasFocus() {
@@ -356,7 +395,7 @@ export default class Knob extends React.Component {
     return (
       <div style={{position: 'relative'}}>
         <label style={{display: 'block', position: 'absolute', top: -(0.5*canvasHeight + 15), width: WIDE_WIDTH, left: -0.5*WIDE_WIDTH, textAlign: 'center', whiteSpace: 'nowrap'}}>{label}</label>
-        <canvas ref={canvas => { this.canvasElem = canvas; }} width={canvasWidth} height={canvasHeight} onMouseDown={this.handleMouseDown} onFocus={this.handleCanvasFocus} onBlur={this.handleCanvasBlur} onKeyDown={this.handleCanvasKeyDown} style={{position: 'absolute', width: canvasWidth, height: canvasHeight, left: -0.5*canvasWidth, top: -0.5*canvasHeight, outline: 'none'}} tabIndex="0" />
+        <canvas ref={canvas => { this.canvasElem = canvas; }} width={canvasWidth} height={canvasHeight} onMouseDown={this.handleCanvasMouseDown} onTouchStart={this.handleCanvasTouchStart} onTouchEnd={this.handleCanvasTouchEndOrCancel} onTouchMove={this.handleCanvasTouchMove} onTouchCancel={this.handleCanvasTouchEndOrCancel} onFocus={this.handleCanvasFocus} onBlur={this.handleCanvasBlur} onKeyDown={this.handleCanvasKeyDown} style={{position: 'absolute', width: canvasWidth, height: canvasHeight, left: -0.5*canvasWidth, top: -0.5*canvasHeight, outline: 'none'}} tabIndex="0" />
         <input ref={(elem) => { this.inputElem = elem; }} type="text" style={{position: 'absolute', top: 0.5*canvasHeight - 5, width: 1.2*width, left: -0.6*width, textAlign: 'center', background: 'none', border: 0, fontSize: 'inherit', fontFamily: 'inherit'}} value={inputText} onFocus={this.handleInputFocus} onBlur={this.handleInputBlur} onChange={this.handleInputChange} {...inputExtraAttrs} />
       </div>
     );
