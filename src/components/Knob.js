@@ -67,22 +67,10 @@ export default class Knob extends React.Component {
     return impl(v);
   }
 
-  getEffectiveCurve() {
-    return this.props.curve || 'linear';
-  }
-
-  getEffectiveMin() {
-    return (this.props.min !== undefined) ? this.props.min : 0;
-  }
-
-  getEffectiveMax() {
-    return (this.props.max !== undefined) ? this.props.max : 0;
-  }
-
   defaultInternalValueToNormalized(v) {
-    const curve = this.getEffectiveCurve();
-    const min = this.getEffectiveMin();
-    const max = this.getEffectiveMax();
+    const curve = this.props.curve;
+    const min = this.props.min;
+    const max = this.props.max;
 
     let nv;
 
@@ -104,9 +92,9 @@ export default class Knob extends React.Component {
   }
 
   defaultNormalizedValueToInternal(nv) {
-    const curve = this.getEffectiveCurve();
-    const min = this.getEffectiveMin();
-    const max = this.getEffectiveMax();
+    const curve = this.props.curve;
+    const min = this.props.min;
+    const max = this.props.max;
 
     let v;
 
@@ -401,3 +389,9 @@ export default class Knob extends React.Component {
     );
   }
 }
+
+Knob.defaultProps = {
+  curve: 'linear',
+  min: 0,
+  max: 1,
+};
