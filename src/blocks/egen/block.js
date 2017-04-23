@@ -55,7 +55,7 @@ export default class Egen {
       'gate': {type: 'gateEvent', notify: gateNotify},
     };
     this.outputs = {
-      'audio': {type: 'audio', node: gainNode},
+      'value': {type: 'audio', node: gainNode},
     };
 
     let renderReady = false;
