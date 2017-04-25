@@ -27,11 +27,13 @@ export default class Knob extends React.Component {
     this.mouseCaptured = false;
     this.lastMousePosition;
     this.activeCanvasTouches = {}; // maps from identifier to object
+    this.accumulatedValue = 0;
 
     this.handleInputFocus = this.handleInputFocus.bind(this);
     this.handleInputBlur = this.handleInputBlur.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleInputKeyDown = this.handleInputKeyDown.bind(this);
+    this.defaultFormatInternalValue = this.defaultFormatInternalValue.bind(this);
     this.defaultInternalValueToNormalized = this.defaultInternalValueToNormalized.bind(this);
     this.defaultNormalizedValueToInternal = this.defaultNormalizedValueToInternal.bind(this);
     this.handleCanvasMouseDown = this.handleCanvasMouseDown.bind(this);
@@ -59,7 +61,7 @@ export default class Knob extends React.Component {
   }
 
   defaultFormatInternalValue(v) {
-    return Knob.formatWithMinimumDigits(v, 3);
+    return this.props.integral ? v.toFixed() : Knob.formatWithMinimumDigits(v, 3);
   }
 
   formatInternalValue(v) {
@@ -120,7 +122,7 @@ export default class Knob extends React.Component {
   }
 
   parseToInternalValue(s) {
-    return parseFloat(s);
+    return this.props.integral ? parseInt(s) : parseFloat(s);
   }
 
   componentDidMount() {
@@ -206,9 +208,32 @@ export default class Knob extends React.Component {
 
   adjustValueByPixels(deltaPixels) {
     const deltaNormalizedValue = deltaPixels*DRAG_PIXELS_TO_NORMALIZED_VALUE;
+    let newValue = this.normalizedValueToInternal(clampUnit(this.internalValueToNormalized(this.props.value + this.accumulatedValue) + deltaNormalizedValue));
 
-    const newValue = this.normalizedValueToInternal(clampUnit(this.internalValueToNormalized(this.props.value)+deltaNormalizedValue));
-    this.props.onChange(newValue);
+    if (this.props.integral) {
+      const roundedNewValue = Math.round(newValue);
+      this.accumulatedValue = (newValue - roundedNewValue);
+      newValue = roundedNewValue;
+    }
+
+    if (newValue !== this.props.value) {
+      this.props.onChange(newValue);
+    }
+  }
+
+  // dir should be -1 or 1
+  bumpValue(dir) {
+    if (this.props.integral) {
+      let newValue = this.props.value + dir;
+      if (newValue < this.props.min) {
+        newValue = this.props.min;
+      } else if (newValue > this.props.max) {
+        newValue = this.props.max;
+      }
+      this.props.onChange(newValue);
+    } else {
+      this.adjustValueByPixels(dir);
+    }
   }
 
   handleCanvasMouseMove(e) {
@@ -274,11 +299,11 @@ export default class Knob extends React.Component {
   handleCanvasKeyDown(e) {
     switch (e.key) {
       case 'ArrowUp':
-        this.adjustValueByPixels(1);
+        this.bumpValue(1);
         break;
 
       case 'ArrowDown':
-        this.adjustValueByPixels(-1);
+        this.bumpValue(-1);
         break;
     }
   }
@@ -394,4 +419,5 @@ Knob.defaultProps = {
   curve: 'linear',
   min: 0,
   max: 1,
+  integral: false,
 };
