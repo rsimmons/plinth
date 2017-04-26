@@ -2,6 +2,14 @@
 
 ### [Check out the demo](https://rsimmons.github.io/plinth/rack.html)
 
+# Contents
+
+- [Introduction](#introduction)
+- [Development](#development)
+- [Block API](#block-api) *(in progress)*
+
+# Introduction
+
 **Plinth** combines the ideas of [modular synthesis](https://en.wikipedia.org/wiki/Modular_synthesizer) (ala [Eurorack](https://en.wikipedia.org/wiki/Doepfer_A-100)) and audio plugin standards (VST, AU, etc.) and puts it in your web browser.
 
 This repository contains:
@@ -32,7 +40,9 @@ Then build with `npm run build`, run a local server with `npm run start`, and op
 
 To automatically rebuild when you make changes to the source, run `npm run watch` in another session. Note that the files in `public/` are not automatically copied `build/` when running `watch` so if you edit any of those you'll need to run `npm run build` again. 
 
-# Plinth Block API *(work in progress)*
+# Block API
+
+*(Note: This is a very incomplete work in progress)*
 
 ## Background
 
