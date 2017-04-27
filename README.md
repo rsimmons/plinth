@@ -115,6 +115,10 @@ Do any necessary cleanup before the host removes the block.
 
 NOTE: The `.destroy` property may be undefined for blocks that have nothing to deinitialize, so hosts should check if the method is defined before calling.
 
+## API Example
+
+The block API is mainly intended to be consumed by "host" applications that allow dynamic loading and connecting of blocks. But to illustrate the basics of its usage, here is a simple example of constructing and connecting up a few blocks programmatically: [the code](https://github.com/rsimmons/plinth/blob/master/src/programmatic.js) and [the result](https://rsimmons.github.io/plinth/programmatic.html).
+
 ## Design Considerations
 
 In order to achieve the widest possible adoption, the spec aims to balance power and flexibility against complexity and ease of implementation. To those ends, the following design guidelines have been adopted:
