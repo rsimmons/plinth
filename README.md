@@ -62,11 +62,11 @@ Block views typically display controls that affect how a block generates or proc
 
 Blocks can support saving and loading their settings, so that hosts can save and load patches.
 
-## Block API
+## API Details
 
 Blocks present the following API to hosts.
 
-#### `new MyBlockClass((audioContext, viewContainer, settings))`
+#### `new MyBlockClass(audioContext, viewContainer, settings)`
 
 Create a new instance of the block.
 
@@ -82,8 +82,8 @@ The `.inputs` and `.outputs` properties are each an object with one property for
 
 - `audio` ports also have a `node` property, which references a Web Audio `AudioNode` instance. For inputs, `node` may alternatively refer to an `AudioParam`, since those may be connected to the same was as `AudioNode`s.
 - `gateEvent` ports have, for inputs a `notify` property, and for outputs a `subscribe` property.
- - `notify` must be a function with arguments `(time, value)`, where `time` is the time of the gate change (in Web Audio coordinates) and `value` is a boolean (`true` for high, `false` for low).
- - `subscribe` must be a function that takes a single callback-function argument. That callback is called with the `(time, value)` arguments described above. `subscribe` returns a "disconnect" function, that when called will unsubscribe the given callack from further notifications.
+  - `notify` must be a function with arguments `(time, value)`, where `time` is the time of the gate change (in Web Audio coordinates) and `value` is a boolean (`true` for high, `false` for low).
+  - `subscribe` must be a function that takes a single callback-function argument. That callback is called with the `(time, value)` arguments described above. `subscribe` returns a "disconnect" function, that when called will unsubscribe the given callack from further notifications.
  
 So for example, to connect two `audio`-type ports of block instances `a` and `b`:
 
