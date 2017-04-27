@@ -1,7 +1,7 @@
 // Drum icon by Raz Cohen, CC BY 3.0 US, from https://thenounproject.com/term/bass-drum/118259/
 const DRUM_SVG_URL = require('./drum.svg');
 
-export default class Thumper {
+export default class Kick {
   constructor(audioContext, viewContainer, settings) {
     const PITCH_LOW = 1;
     const PITCH_START = 440;
@@ -33,10 +33,10 @@ export default class Thumper {
   }
 }
 
-Thumper.blockName = 'Thumper';
-Thumper.helpText =
-`Thumper is a simple kick drum synthesizer.
+Kick.blockName = 'Kick';
+Kick.helpText =
+`Kick is a simple kick drum synthesizer.
 
 It has one gate input to trigger the kick, and one audio output with the resulting sound.
 
-Thumper doesn't yet have any panel controls.`;
+Kick doesn't yet have any panel controls.`;

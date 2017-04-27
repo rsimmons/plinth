@@ -1,5 +1,5 @@
-import BigBen from './blocks/bigben/block';
-import Thumper from './blocks/thumper/block';
+import Clock from './blocks/clock/block';
+import Kick from './blocks/kick/block';
 import Scope from './blocks/scope/block';
 import applyPolyfills from './polyfills';
 import initWebAudio from './initWebAudio';
@@ -16,11 +16,11 @@ function makeContainer() {
 }
 
 // Instantiate some blocks, mounting in container
-const bigBen = new BigBen(audioContext, makeContainer());
-const thumper = new Thumper(audioContext, makeContainer());
+const clock = new Clock(audioContext, makeContainer());
+const kick = new Kick(audioContext, makeContainer());
 const scope = new Scope(audioContext, makeContainer());
 
 // Connect up the blocks to each other.
-bigBen.outputs.gate4.subscribe(thumper.inputs.gate.notify); // returns a “disconnect” closure that we discard here
-thumper.outputs.audio.node.connect(scope.inputs.audio.node);
+clock.outputs.gate4.subscribe(kick.inputs.gate.notify); // returns a “disconnect” closure that we discard here
+kick.outputs.audio.node.connect(scope.inputs.audio.node);
 scope.outputs.audio.node.connect(audioContext.destination);

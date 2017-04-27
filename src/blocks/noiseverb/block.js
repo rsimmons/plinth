@@ -40,7 +40,7 @@ function applyDecay(arr, decayConstant) {
   }
 }
 
-export default class Verb {
+export default class NoiseVerb {
   constructor(audioContext, viewContainer, settings) {
 
     // Create nodes
@@ -172,14 +172,14 @@ export default class Verb {
   }
 }
 
-Verb.blockName = 'Verbatim';
-Verb.helpText =
-`Verbatim is a convolution reverb that uses computed impulse responses.
+NoiseVerb.blockName = 'Noise Verb';
+NoiseVerb.helpText =
+`Noise Verb is a convolution reverb that uses computed, noise-based impulse responses.
 
-The impulse responses that Verbatim generates are simple noise with an exponential amplitude decay. This gives the reverb a very smooth but neutral character.
+The impulse responses that Noise Verb generates are simple noise with an exponential amplitude decay. This gives the reverb a very smooth but neutral character.
 
 The Color panel control lets you choose the type of noise. White is brighest sounding, brown is the darkest sounding, and pink is in the middle. The Decay panel controls sets how long it takes for reverberations to decay. The Dry↔Wet slider sets the mix between between the original "dry" input sound and the "wet" reverberation sound in the output. The Width control chooses whether the output is mono or stereo. In stereo mode, the reverberations sound "wide" and encompassing, whereas in mono it sounds "narrow" as though it's originating from a single point.
 
-Note that changes to the decay time control will cause glitches in the output sound. This is an inevitable consequence of the way the convolution works.
+Note that changes to the color or decay time controls will cause glitches in the output sound. This is an inevitable consequence of the way the convolution works.
 
 Background icon CC BY 3.0 by Rahul, GB https://thenounproject.com/term/wave/76639/`;

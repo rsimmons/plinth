@@ -1,6 +1,6 @@
 const template = require('./template.html');
 
-export default class Remark {
+export default class Notes {
   constructor(audioContext, viewContainer, settings) {
     this.inputs = {
     };
@@ -28,8 +28,8 @@ export default class Remark {
   }
 }
 
-Remark.blockName = 'Remark';
-Remark.helpText =
-`Remark is a special block that doesn't process audio but merely provides a place to write notes about a patch.
+Notes.blockName = 'Notes';
+Notes.helpText =
+`Notes is a special block that doesn't process audio but merely provides a place to write notes about a patch.
 
 Double click anywhere in the text area to allow/disallow editing the text.`;

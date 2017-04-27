@@ -21,7 +21,7 @@ function createEventOutput() {
   return [subscribe, emit];
 }
 
-export default class BigBen {
+export default class Clock {
   constructor(audioContext, viewContainer, settings) {
     const TICKS_PER_BEAT = 4;
     const divs = [
@@ -92,9 +92,9 @@ export default class BigBen {
   }
 }
 
-BigBen.blockName = 'Big Ben';
-BigBen.helpText =
-`Big Ben is a clock generator. It outputs gate signals at a steady tempo, which is useful for advancing sequencers or triggering repetitive sounds.
+Clock.blockName = 'Clock';
+Clock.helpText =
+`Clock is a clock generator. It outputs gate signals at a steady tempo, which is useful for advancing sequencers or triggering repetitive sounds.
 
 The panel input lets you specify a tempo in beats per minute (BPM).
 

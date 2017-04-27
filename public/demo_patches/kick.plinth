@@ -1,2 +1,2 @@
 plinthPresetVersion:1
-{"b":"racket","s":{"bm":{"ro":{"b":"__ro","s":{"p":{"audio":{"t":"audio"}}},"n":"Rack Outputs"},"b2":{"b":"bigben","s":{"t":120},"n":"Big Ben"},"b3":{"b":"thumper","s":null,"n":"Thumper"}},"bo":["ro","b2","b3"],"c":[{"ob":"b2","op":"gate4","ib":"b3","ip":"gate"},{"ob":"b3","op":"audio","ib":"ro","ip":"audio"}]},"h":{}}
+{"b":"rack","s":{"bm":{"ro":{"b":"__ro","s":{"p":{"audio":{"t":"audio"}}},"n":"Rack Outputs"},"b2":{"b":"clock","s":{"t":120},"n":"Clock"},"b3":{"b":"kick","s":null,"n":"Kick"}},"bo":["ro","b2","b3"],"c":[{"ob":"b2","op":"gate4","ib":"b3","ip":"gate"},{"ob":"b3","op":"audio","ib":"ro","ip":"audio"}]},"h":{}}

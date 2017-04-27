@@ -46,7 +46,7 @@ class View extends React.Component {
   }
 }
 
-export default class Waverly {
+export default class Oscillator {
   constructor(audioContext, viewContainer, settings) {
     const oscNode = audioContext.createOscillator();
     const fmScalerNode = audioContext.createGain();
@@ -147,9 +147,9 @@ export default class Waverly {
   }
 }
 
-Waverly.blockName = 'Waverly';
-Waverly.helpText =
-`Waverly is a oscillator with switchable waveform and linear FM input.
+Oscillator.blockName = 'Oscillator';
+Oscillator.helpText =
+`Oscillator is an oscillator with switchable waveform and linear FM input.
 
 The available waveforms are sine (SIN), triangle, (TRI), square (SQR), sawtooth (SAW).
 

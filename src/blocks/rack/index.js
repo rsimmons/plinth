@@ -90,7 +90,7 @@ Unlike normal blocks, there can be only one Rack Outputs block in a rack, and it
 
 export default (availableBlockClasses) => {
 // Don't indent to keep things nicer-looking
-class Racket {
+class Rack {
   constructor(audioContext, viewContainer, settings) {
     const RACK_INPUTS_PSEUDO_CLASS_ID = '__ri';
     const RACK_OUTPUTS_PSEUDO_CLASS_ID = '__ro';
@@ -985,8 +985,8 @@ class Racket {
   }
 }
 
-Racket.blockName = 'Racket';
+Rack.blockName = 'Rack';
 
-// End of un-indented Racket class definition
-return Racket;
+// End of un-indented Rack class definition
+return Rack;
 }

@@ -28,7 +28,7 @@ class View extends React.Component {
   }
 }
 
-export default class Egen {
+export default class Envelope {
   constructor(audioContext, viewContainer, settings) {
     // Create a value that outputs a constant 1, which we modulate by the gain to provide final output
     const constantBuffer = audioContext.createBuffer(1, 2, audioContext.sampleRate);
@@ -113,13 +113,13 @@ export default class Egen {
   }
 }
 
-Egen.blockName = 'Egen';
-Egen.helpText =
-`Egen is a multi-mode envelope generator.
+Envelope.blockName = 'Envelope';
+Envelope.helpText =
+`Envelope is a multi-mode envelope generator.
 
-Egen has a single gate-type input and a single audio-type output. Generally speaking, as the input gate signal turns on and off, the output value makes gradual transitions back and forth between 0 and 1.
+Envelope has a single gate-type input and a single audio-type output. Generally speaking, as the input gate signal turns on and off, the output value makes gradual transitions back and forth between 0 and 1.
 
-Egen has two modes: attack-decay (/\\ shape) and attack-sustain-release (/‾‾\\ shape).
+Envelope has two modes: attack-decay (/\\ shape) and attack-sustain-release (/‾‾\\ shape).
 
 In attack-decay mode, as soon as the output value reaches 1 (end of attack phase), it immediately starts transitioning back to 0 (decay phase). Even if the gate goes off during the attack phase, the attack phase will continue uninterrupted. This means that it only matters when the input gate goes on, not when it goes off. Attack-decay mode is sometimes referred to as "trigger" mode, and is useful for generating percussive sounds that always have the same envelope shape regardless of how long the gate is held high.
 
