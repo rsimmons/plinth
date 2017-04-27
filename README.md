@@ -101,19 +101,19 @@ The `.inputs` and `.outputs` properties should not be `undefined`, but may be em
 
 #### `.save()`
 
-Save the block instance's settings.
+Save the block instance's current settings and return them as a value.
 
-[TODO: Define what types settings objects should have]
+To support serializaion, it's required that the returned value be generally JSONable (typically, an object). In addition to JSONable values, settings may also include ArrayBuffer and AudioBuffer objects (which means that hosts must be able to extract these if they want to serialize the settings).
 
 NOTE: The `.save` property may be undefined for blocks that do not support saving their settings or have no settings to be saved, so hosts should check if the method is defined before calling.
 
-#### `.destroy()`
+#### `.deactivate()`
 
 Do any necessary cleanup before the host removes the block.
 
-[TODO: Explain further]
+To cleanly remove a block from a running graph, a host needs to disconnect any input/output ports, and then remove the block's UI (contents of the `viewContainer` passed into the constructor) from the DOM. Because the block may need to do cleanup (e.g. to cancel calls to `setInterval` or global event handlers), a host must call the `.deactivate()` method when removing a block, before removing the block's UI from the DOM.
 
-NOTE: The `.destroy` property may be undefined for blocks that have nothing to deinitialize, so hosts should check if the method is defined before calling.
+NOTE: The `.deactivate` property may be undefined for blocks that have nothing to deinitialize, so hosts should check if the method is defined before calling.
 
 ## API Example
 
