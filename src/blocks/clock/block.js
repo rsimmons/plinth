@@ -1,25 +1,10 @@
 import EventEmitter from 'events';
 
+import createEventOutput from '../../createEventOutput';
 import EventScheduler from './scheduler';
 
 // CC BY 3.0 from https://www.iconfinder.com/icons/103169/alarm_clock_time_icon
 const CLOCK_SVG_URL = 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjwhRE9DVFlQRSBzdmcgIFBVQkxJQyAnLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4nICAnaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkJz48c3ZnIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDI0IDI0IiBoZWlnaHQ9IjI0cHgiIGlkPSJMYXllcl8xIiB2ZXJzaW9uPSIxLjEiIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0cHgiIHhtbDpzcGFjZT0icHJlc2VydmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPjxnPjxnPjxwYXRoIGNsaXAtcnVsZT0iZXZlbm9kZCIgZD0iTTEyLDBDNS4zNzUsMCwwLjAwMyw1LjM3MywwLjAwMywxMmMwLDYuNjI3LDUuMzcyLDEyLDExLjk5NywxMiAgICBjNi42MjYsMCwxMS45OTctNS4zNzMsMTEuOTk3LTEyQzIzLjk5Nyw1LjM3MywxOC42MjYsMCwxMiwweiBNMTYuNDEyLDE2LjcwOWwtMC4zNSwwLjM1Yy0wLjI5MSwwLjI5MS0wLjc4MiwwLjMwNS0xLjA4OCwwLjAyOSAgICBsLTQuNTItMy45NTVjLTAuMzA4LTAuMjc1LTAuNTQxLTAuODM4LTAuNTIxLTEuMjVsMC40MTktNy4xMzRDMTAuMzc0LDQuMzM2LDEwLjcyOSw0LDExLjE0Miw0aDAuNDkzICAgIGMwLjQxMywwLDAuNzY3LDAuMzM2LDAuNzg3LDAuNzQ4bDAuMzQzLDUuOTM0YzAuMDIxLDAuNDEzLDAuMjYyLDEsMC41MzUsMS4zMDlsMy4xNDQsMy42MjggICAgQzE2LjcxNywxNS45MjgsMTYuNzA0LDE2LjQxOCwxNi40MTIsMTYuNzA5eiIgZmlsbC1ydWxlPSJldmVub2RkIi8+PC9nPjwvZz48L3N2Zz4=';
-
-function createEventOutput() {
-  const subscribers = [];
-  const subscribe = (cb) => {
-    subscribers.push(cb);
-    return () => {
-      subscribers.splice(subscribers.indexOf(cb), 1);
-    };
-  };
-  const emit = (time, value) => {
-    for (const subscriber of subscribers) {
-      subscriber(time, value);
-    }
-  };
-  return [subscribe, emit];
-}
 
 export default class Clock {
   constructor(audioContext, viewContainer, settings) {
