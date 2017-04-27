@@ -14,7 +14,7 @@
 
 This repository contains:
 - A demo/proof-of-concept [modular patching environment](https://rsimmons.github.io/plinth/rack.html)
-- *(coming soon)* A draft API spec for authoring and hosting components (aka blocks)
+- *(in progress)* A draft [API spec](#block-api) for authoring and hosting components (aka blocks)
 
 The Web Audio API has brought powerful audio processing capabilities to the web, but there isn’t yet a popular format for authoring **reusable audio components**. My hope is that Plinth will help spur work towards defining a such community standard (as VST/AU/etc and Eurorack have in the software and hardware worlds, respectively).
 
@@ -42,7 +42,7 @@ To automatically rebuild when you make changes to the source, run `npm run watch
 
 # Block API
 
-*(Note: This is a very incomplete work in progress)*
+*(Note: This is a work in progress)*
 
 ## Background
 
