@@ -745,6 +745,7 @@ class Rack {
 
       delete blockInfo[bid];
 
+      updateWires();
       updatePatchConnectOptions();
     };
 
