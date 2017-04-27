@@ -14,6 +14,7 @@ applyPolyfills();
 const availableBlockClasses = {}; // maps block class id to block class
 [
   'clock',
+  'comments',
   'convolver',
   'envelope',
   'filter',
@@ -21,7 +22,6 @@ const availableBlockClasses = {}; // maps block class id to block class
   'kick',
   'modulator',
   'noiseverb',
-  'notes',
   'oscillator',
   'scope',
   'wavefolder',
@@ -61,7 +61,7 @@ function loadRootBlock(blockClassId, settings) {
 }
 
 function loadEmptyRack() {
-  const EMPTY_RACK_SETTINGS = {"bm":{"ro":{"b":"__ro","s":{"p":{"audio":{"t":"audio"}}},"n":"Rack Outputs"},"b1":{"b":"notes","s":{"t":"WELCOME TO PLINTH!\n\nSome tips to get you started:\n- Drag blocks from the block palette on the left into the rack area on the right.\n- Press the Flip button (or space bar) to show the back view of the rack, where you can click or drag to wire connections between block ports.\n- To remove wires, toggle Delete Wires mode and click on them.\n- Click on any block in the palette for help.\n- To hear something, connect an audio generating block (such as Oscillator) to the Rack Outputs block audio port.\n- Unwanted blocks can be deleted with the small X button in the back view. Once you've read this, feel free to delete this block.\n\nHappy patching!"},"n":"Notes"}},"bo":["b1","ro"],"c":[]};
+  const EMPTY_RACK_SETTINGS = {"bm":{"ro":{"b":"__ro","s":{"p":{"audio":{"t":"audio"}}},"n":"Rack Outputs"},"b1":{"b":"comments","s":{"t":"WELCOME TO PLINTH!\n\nSome tips to get you started:\n- Drag blocks from the block palette on the left into the rack area on the right.\n- Press the Flip button (or space bar) to show the back view of the rack, where you can click or drag to wire connections between block ports.\n- To remove wires, toggle Delete Wires mode and click on them.\n- Click on any block in the palette for help.\n- To hear something, connect an audio generating block (such as Oscillator) to the Rack Outputs block audio port.\n- Unwanted blocks can be deleted with the small X button in the back view. Once you've read this, feel free to delete this block.\n\nHappy patching!"},"n":"Comments"}},"bo":["b1","ro"],"c":[]};
   loadRootBlock('rack', EMPTY_RACK_SETTINGS);
 }
 

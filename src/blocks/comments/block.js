@@ -1,6 +1,6 @@
 const template = require('./template.html');
 
-export default class Notes {
+export default class Comments {
   constructor(audioContext, viewContainer, settings) {
     this.inputs = {
     };
@@ -18,6 +18,8 @@ export default class Notes {
     if (settings) {
       textareaElem.value = settings.t;
       textareaElem.readOnly = true;
+    } else {
+      textareaElem.value = '[Type up some notes here]';
     }
 
     this.save = () => {
@@ -28,8 +30,8 @@ export default class Notes {
   }
 }
 
-Notes.blockName = 'Notes';
-Notes.helpText =
-`Notes is a special block that doesn't process audio but merely provides a place to write notes about a patch.
+Comments.blockName = 'Comments';
+Comments.helpText =
+`Comments is a special block that doesn't process audio but merely provides a place to write notes about a patch.
 
 Double click anywhere in the text area to allow/disallow editing the text.`;
