@@ -1,5 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom';
+import createConstantNode from '../../createConstantNode';
 import BlockRoot from '../../components/BlockRoot';
 import GridSelector from '../../components/GridSelector';
 import TimeKnob from '../../components/TimeKnob';
@@ -30,15 +31,8 @@ class View extends React.Component {
 
 export default class Envelope {
   constructor(audioContext, viewContainer, settings) {
-    // Create a value that outputs a constant 1, which we modulate by the gain to provide final output
-    const constantBuffer = audioContext.createBuffer(1, 2, audioContext.sampleRate);
-    const constantData = constantBuffer.getChannelData(0);
-    constantData[0] = 1;
-    constantData[1] = 1;
-    const constantNode = audioContext.createBufferSource();
-    constantNode.buffer = constantBuffer;
-    constantNode.loop = true;
-    constantNode.start();
+    // Create a node that outputs a constant 1, which we modulate by the gain to provide final output
+    const constantNode = createConstantNode(audioContext, 1);
 
     const gainNode = audioContext.createGain();
     gainNode.gain.value = 0;

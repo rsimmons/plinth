@@ -1,3 +1,4 @@
+import createConstantNode from '../../createConstantNode';
 const template = require('./template.html');
 
 export default class Scope {
@@ -9,15 +10,8 @@ export default class Scope {
     const analyserNode = audioContext.createAnalyser();
     analyserNode.fftSize = WINDOW_SIZE;
 
-    const constantBuffer = audioContext.createBuffer(1, 2, audioContext.sampleRate);
-    const constantData = constantBuffer.getChannelData(0);
-    constantData[0] = 0;
-    constantData[1] = 0;
-    const source = audioContext.createBufferSource();
-    source.buffer = constantBuffer;
-    source.loop = true;
-    source.start();
-    source.connect(analyserNode);
+    const constantNode = createConstantNode(audioContext, 0);
+    constantNode.connect(analyserNode);
 
     this.inputs = {
       'audio': {type: 'audio', node: analyserNode},
