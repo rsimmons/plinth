@@ -51,10 +51,13 @@ export default class Oscillator {
     const oscNode = audioContext.createOscillator();
     const fmScalerNode = audioContext.createGain();
     fmScalerNode.connect(oscNode.frequency);
+    const pitchGainNode = audioContext.createGain();
+    pitchGainNode.gain.value = 1200; // cents per octave
+    pitchGainNode.connect(oscNode.detune);
 
     this.inputs = {
-      // 'pitch': {type: 'audio', node: undefined}, 1/oct
       'fm': {type: 'audio', node: fmScalerNode},
+      'pitch': {type: 'audio', node: pitchGainNode},
     };
     this.outputs = {
       'audio': {type: 'audio', node: oscNode},
@@ -152,5 +155,7 @@ Oscillator.helpText =
 `Oscillator is an oscillator with switchable waveform and linear FM input.
 
 The available waveforms are sine (SIN), triangle, (TRI), square (SQR), sawtooth (SAW).
+
+The pitch input is in units of octaves. So for example, a +1 signal at the pitch input will shift the oscillator up one octave, and a -2 signal will shift it down by two octaves, and a signal of value 0.08333.. (1/12) will shift it up by one semitone.
 
 The fm input is scaled by the FM Scale panel setting and then added to the oscillator frequency in hertz. So for example, if an audio signal in the range [-1,1] is connected to the fm input, and the FM Scale is set to 100 hz, the oscillator frequency will be modulated between 100hz up and 100hz down.`;
