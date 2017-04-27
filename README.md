@@ -62,6 +62,59 @@ Block views typically display controls that affect how a block generates or proc
 
 Blocks can support saving and loading their settings, so that hosts can save and load patches.
 
+## Block API
+
+Blocks present the following API to hosts.
+
+#### `new MyBlockClass((audioContext, viewContainer, settings))`
+
+Create a new instance of the block.
+
+- `audioContext`: Web Audio `AudioContext` object
+- `viewContainer`: DOM node for block to insert its UI into
+- `settings`: (optional) Settings saved from a previous block instance
+
+#### `.inputs`, `.outputs`
+
+Input and output port definitions.
+
+The `.inputs` and `.outputs` properties are each an object with one property for each input or output port, respectively. The property name is the port name, and the property value is a port object. A port object always has a `type` property, which currently may be either `'audio'` or `'gateEvent'`. Depending on the port type, the port object has further properties:
+
+- `audio` ports also have a `node` property, which references a Web Audio `AudioNode` instance. For inputs, `node` may alternatively refer to an `AudioParam`, since those may be connected to the same was as `AudioNode`s.
+- `gateEvent` ports have, for inputs a `notify` property, and for outputs a `subscribe` property.
+ - `notify` must be a function with arguments `(time, value)`, where `time` is the time of the gate change (in Web Audio coordinates) and `value` is a boolean (`true` for high, `false` for low).
+ - `subscribe` must be a function that takes a single callback-function argument. That callback is called with the `(time, value)` arguments described above. `subscribe` returns a "disconnect" function, that when called will unsubscribe the given callack from further notifications.
+ 
+So for example, to connect two `audio`-type ports of block instances `a` and `b`:
+
+```js
+a.outputs['dry'].node.connect(b.inputs['channel1'].node);
+```
+
+and to connect two `gateEvent`-type ports:
+
+```js
+var disconnect = a.outputs['gate4'].subscribe(b.inputs['clock'].notify);
+```
+
+The `.inputs` and `.outputs` properties should not be `undefined`, but may be empty objects.
+
+#### `.save()`
+
+Save the block instance's settings.
+
+[TODO: Define what types settings objects should have]
+
+NOTE: The `.save` property may be undefined for blocks that do not support saving their settings or have no settings to be saved, so hosts should check if the method is defined before calling.
+
+#### `.destroy()`
+
+Do any necessary cleanup before the host removes the block.
+
+[TODO: Explain further]
+
+NOTE: The `.destroy` property may be undefined for blocks that have nothing to deinitialize, so hosts should check if the method is defined before calling.
+
 ## Design Considerations
 
 In order to achieve the widest possible adoption, the spec aims to balance power and flexibility against complexity and ease of implementation. To those ends, the following design guidelines have been adopted:
