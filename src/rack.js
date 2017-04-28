@@ -21,6 +21,7 @@ const availableBlockClasses = {}; // maps block class id to block class
   'gain',
   'kick',
   'modulator',
+  'noise',
   'noiseverb',
   'oscillator',
   'scope',
