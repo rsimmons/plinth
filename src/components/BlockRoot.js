@@ -10,7 +10,7 @@ export default class BlockRoot extends React.Component {
     const widthPx = 64*widthUnits - 2;
 
     return (
-      <div style={{boxSizing: 'border-box', width: widthPx+'px', height: '256px', ...extraStyles}}>{this.props.children}</div>
+      <div style={{boxSizing: 'border-box', width: widthPx+'px', height: '256px', overflow: 'hidden', ...extraStyles}}>{this.props.children}</div>
     );
   }
 }
