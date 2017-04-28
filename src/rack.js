@@ -24,6 +24,7 @@ const availableBlockClasses = {}; // maps block class id to block class
   'noiseverb',
   'oscillator',
   'scope',
+  'sequencer',
   'wavefolder',
 ].forEach(n => {
   availableBlockClasses[n] = require('./blocks/' + n + '/block.js').default; // hacky for now
