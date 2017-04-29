@@ -7,7 +7,7 @@ export default class EventScheduler {
 
   start(callback) {
     const TIMEOUT_DELAY = 0.05; // in seconds
-    const BUFFER_DEPTH = 0.10; // in seconds
+    const BUFFER_DEPTH = 0.3; // in seconds
 
     const _this = this;
 
@@ -47,7 +47,7 @@ export default class EventScheduler {
 
     this.running = true;
 
-    timeoutFunc();
+    _this.timeoutID = setTimeout(timeoutFunc, 0);
   }
 
   stop() {
