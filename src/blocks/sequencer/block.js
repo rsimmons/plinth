@@ -47,7 +47,6 @@ export default class Sequencer {
 
     let lastClockGateValue = false;
     const clockInNotify = (time, value) => {
-      console.log('notify', time, value);
       if (value !== lastClockGateValue) {
         clock(time, value);
       }
