@@ -11,12 +11,16 @@ class View extends React.Component {
   }
 
   render() {
-    const {stepData, position, onToggleGate, onSetPitch} = this.props;
+    const {steps, setSteps, stepData, position, onToggleGate, onSetPitch} = this.props;
     return (
-      <BlockRoot widthUnits={4} extraStyles={{position: 'relative', background: '#777', fontSize: 14}}>
+      <BlockRoot widthUnits={5} extraStyles={{position: 'relative', background: '#777', fontSize: 14}}>
+        <div style={{position: 'absolute', left: 32, top: 128}}><Knob label="Steps" width={52} value={steps} onChange={setSteps} integral={true} min={1} max={8} /></div>
         {stepData.map((sd, i) => {
+          if (i >= steps) {
+            return;
+          }
           const active = i === position;
-          const stepX = (i % 4)*64 - 1;
+          const stepX = (i % 4)*64 + 64;
           const stepY = Math.floor(i / 4)*128;
 
           return (
@@ -43,6 +47,7 @@ export default class Sequencer {
 
     let lastClockGateValue = false;
     const clockInNotify = (time, value) => {
+      console.log('notify', time, value);
       if (value !== lastClockGateValue) {
         clock(time, value);
       }
@@ -94,6 +99,18 @@ export default class Sequencer {
       render();
     };
 
+    const setSteps = (v) => {
+      if ((v < 0) || (v > 8)) {
+        return;
+      }
+      steps = v;
+      if (position >= steps) {
+        position = position % steps;
+        positionPlayed = false;
+      }
+      render();
+    };
+
     const onToggleGate = (idx) => {
       stepData[idx].gate = !stepData[idx].gate;
       render();
@@ -108,7 +125,7 @@ export default class Sequencer {
 
     const render = () => {
       if (renderReady) {
-        ReactDOM.render(<View stepData={stepData} position={position} onToggleGate={onToggleGate} onSetPitch={onSetPitch} />, viewContainer);
+        ReactDOM.render(<View steps={steps} setSteps={setSteps} stepData={stepData} position={position} onToggleGate={onToggleGate} onSetPitch={onSetPitch} />, viewContainer);
       }
     }
 
@@ -127,7 +144,7 @@ export default class Sequencer {
     }
 
     // Enact settings
-    steps = settings.s; // TODO: call setSteps when we have one
+    setSteps(settings.s);
     stepData = settings.sd.map(d => ({
       gate: d.g,
       pitch: d.p,
